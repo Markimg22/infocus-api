@@ -13,5 +13,8 @@
 	"plugins": [
 		"@typescript-eslint"
 	],
-	"rules": {}
+	"rules": {
+    "no-undef": "off",
+    "space-before-function-paren": "off"
+  }
 }
