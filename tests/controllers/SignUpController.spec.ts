@@ -1,59 +1,8 @@
+import { SignUpController } from '@/controllers'
+import { CreateUser, Validation } from '@/types'
+import { Authentication } from '@/types/Authentication'
+
 import faker from '@faker-js/faker'
-
-interface Controller<T = any> {
-  handle: (request: T) => Promise<HttpResponse>
-}
-
-class SignUpController implements Controller {
-  constructor(
-    private readonly validation: Validation,
-    private readonly createUser: CreateUser,
-    private readonly authentication: Authentication
-  ) {}
-
-  async handle(request: SignUpController.Request): Promise<HttpResponse> {
-    try {
-      const error = this.validation.validate(request)
-      if (error) {
-        return {
-          statusCode: 400
-        }
-      }
-      const { name, email, password } = request
-      const isValid = await this.createUser.create({ name, email, password })
-      if (!isValid) {
-        return {
-          statusCode: 403
-        }
-      }
-      await this.authentication.auth({ email, password })
-      return {
-        statusCode: 200
-      }
-    } catch (error) {
-      return {
-        statusCode: 500
-      }
-    }
-  }
-}
-
-namespace SignUpController {
-  export type Request = {
-    name: string,
-    email: string,
-    password: string,
-    passwordConfirmation: string,
-  }
-}
-
-type HttpResponse = {
-  statusCode: number
-}
-
-interface Validation {
-  validate: (input: any) => Error
-}
 
 class ValidationSpy implements Validation {
   // @ts-expect-error
@@ -66,20 +15,6 @@ class ValidationSpy implements Validation {
   }
 }
 
-interface CreateUser {
-  create: (params: CreateUser.Params) => Promise<CreateUser.Result>
-}
-
-namespace CreateUser {
-  export type Params = {
-    name: string,
-    email: string,
-    password: string,
-  }
-
-  export type Result = boolean
-}
-
 class CreateUserSpy implements CreateUser {
   result = true
   params = {} as CreateUser.Params
@@ -87,17 +22,6 @@ class CreateUserSpy implements CreateUser {
   async create(params: CreateUser.Params): Promise<CreateUser.Result> {
     this.params = params
     return this.result
-  }
-}
-
-interface Authentication {
-  auth: (params: Authentication.Params) => Promise<void>
-}
-
-namespace Authentication {
-  export type Params = {
-    email: string,
-    password: string,
   }
 }
 
