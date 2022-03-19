@@ -11,7 +11,8 @@
     "prepare": "husky install",
     "test": "jest --passWithNoTests --runInBand --no-cache",
     "test:unit": "npm test -- --watch -c jest-unit-config.js",
-    "test:staged": "npm test -- --findRelatedTests"
+    "test:staged": "npm test -- --findRelatedTests",
+    "test:ci": "npm test -- --coverage"
   },
   "license": "ISC",
   "devDependencies": {
