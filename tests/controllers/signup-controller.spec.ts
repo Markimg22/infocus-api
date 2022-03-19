@@ -2,14 +2,21 @@ import faker from '@faker-js/faker'
 
 class SignUpController {
   constructor(
-    private readonly validation: Validation
+    private readonly validation: Validation,
+    private readonly createUserService: CreateUserService
   ) {}
 
   async handle(request: Request): Promise<any> {
-    const isValid = this.validation.validate(request)
-    if (!isValid) {
+    const error = this.validation.validate(request)
+    if (error) {
       return {
         statusCode: 400
+      }
+    }
+    const isValid = await this.createUserService.create()
+    if (!isValid) {
+      return {
+        statusCode: 403
       }
     }
     return {
@@ -26,15 +33,28 @@ type Request = {
 }
 
 interface Validation {
-  validate: (input: any) => boolean
+  validate: (input: any) => Error
 }
 
 class ValidationSpy implements Validation {
-  result = true
-  params = {} as Request
+  // @ts-expect-error
+  error: Error = null
+  input = {} as Request
 
-  validate(input: any): boolean {
-    this.params = input
+  validate(input: any): Error {
+    this.input = input
+    return this.error
+  }
+}
+
+interface CreateUserService {
+  create: () => Promise<boolean>
+}
+
+class CreateUserServiceSpy implements CreateUserService {
+  result = true
+
+  async create(): Promise<boolean> {
     return this.result
   }
 }
@@ -51,22 +71,25 @@ const mockRequest = (): Request => {
 
 type SutTypes = {
   sut: SignUpController,
-  validationSpy: ValidationSpy
+  validationSpy: ValidationSpy,
+  createUserServiceSpy: CreateUserServiceSpy
 }
 
 const makeSut = (): SutTypes => {
+  const createUserServiceSpy = new CreateUserServiceSpy()
   const validationSpy = new ValidationSpy()
-  const sut = new SignUpController(validationSpy)
+  const sut = new SignUpController(validationSpy, createUserServiceSpy)
   return {
     sut,
-    validationSpy
+    validationSpy,
+    createUserServiceSpy
   }
 }
 
 describe('SignUp Controller', () => {
   it('should return 400 if Validation returns false', async () => {
     const { sut, validationSpy } = makeSut()
-    validationSpy.result = false
+    validationSpy.error = new Error('')
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse.statusCode).toBe(400)
   })
@@ -75,12 +98,19 @@ describe('SignUp Controller', () => {
     const { sut, validationSpy } = makeSut()
     const httpRequest = mockRequest()
     await sut.handle(httpRequest)
-    expect(validationSpy.params).toEqual(httpRequest)
+    expect(validationSpy.input).toEqual(httpRequest)
   })
 
   it('should return 200 if valid data is provided', async () => {
     const { sut } = makeSut()
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse.statusCode).toBe(200)
+  })
+
+  it('should return 403 if CreateUserService returns false', async () => {
+    const { sut, createUserServiceSpy } = makeSut()
+    createUserServiceSpy.result = false
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse.statusCode).toBe(403)
   })
 })
