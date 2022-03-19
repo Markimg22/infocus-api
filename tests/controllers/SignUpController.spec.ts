@@ -7,7 +7,7 @@ import faker from '@faker-js/faker'
 class ValidationSpy implements Validation {
   // @ts-expect-error
   error: Error = null
-  input = {} as Request
+  input = {}
 
   validate(input: any): Error {
     this.input = input
