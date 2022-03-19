@@ -11,21 +11,27 @@ class SignUpController implements Controller {
   ) {}
 
   async handle(request: SignUpController.Request): Promise<HttpResponse> {
-    const error = this.validation.validate(request)
-    if (error) {
-      return {
-        statusCode: 400
+    try {
+      const error = this.validation.validate(request)
+      if (error) {
+        return {
+          statusCode: 400
+        }
       }
-    }
-    const { name, email, password } = request
-    const isValid = await this.createUserService.create({ name, email, password })
-    if (!isValid) {
-      return {
-        statusCode: 403
+      const { name, email, password } = request
+      const isValid = await this.createUserService.create({ name, email, password })
+      if (!isValid) {
+        return {
+          statusCode: 403
+        }
       }
-    }
-    return {
-      statusCode: 200
+      return {
+        statusCode: 200
+      }
+    } catch (error) {
+      return {
+        statusCode: 500
+      }
     }
   }
 }
@@ -59,7 +65,7 @@ class ValidationSpy implements Validation {
 }
 
 interface CreateUserService {
-  create: (data: CreateUser.Params) => Promise<CreateUser.Result>
+  create: (params: CreateUser.Params) => Promise<CreateUser.Result>
 }
 
 namespace CreateUser {
@@ -76,10 +82,14 @@ class CreateUserServiceSpy implements CreateUserService {
   result = true
   params = {} as CreateUser.Params
 
-  async create(data: CreateUser.Params): Promise<CreateUser.Result> {
-    this.params = data
+  async create(params: CreateUser.Params): Promise<CreateUser.Result> {
+    this.params = params
     return this.result
   }
+}
+
+const throwError = (): never => {
+  throw new Error('')
 }
 
 const mockRequest = (): SignUpController.Request => {
@@ -146,5 +156,12 @@ describe('SignUp Controller', () => {
       email: httpRequest.email,
       password: httpRequest.password
     })
+  })
+
+  it('should return 500 if CreateUserService throws', async () => {
+    const { sut, createUserServiceSpy } = makeSut()
+    jest.spyOn(createUserServiceSpy, 'create').mockImplementationOnce(throwError)
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse.statusCode).toBe(500)
   })
 })
