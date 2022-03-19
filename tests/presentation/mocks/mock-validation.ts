@@ -1,11 +1,10 @@
 import { Validation } from '@/presentation/protocols'
 
 export class ValidationSpy implements Validation {
-  // @ts-expect-error
-  error: Error = null
+  error: Error | undefined
   input = {}
 
-  validate(input: any): Error {
+  validate(input: any): Error | undefined {
     this.input = input
     return this.error
   }
