@@ -1,19 +1,24 @@
 import faker from '@faker-js/faker'
 
-class SignUpController {
+interface Controller<T = any> {
+  handle: (request: T) => Promise<HttpResponse>
+}
+
+class SignUpController implements Controller {
   constructor(
     private readonly validation: Validation,
     private readonly createUserService: CreateUserService
   ) {}
 
-  async handle(request: Request): Promise<any> {
+  async handle(request: SignUpController.Request): Promise<HttpResponse> {
     const error = this.validation.validate(request)
     if (error) {
       return {
         statusCode: 400
       }
     }
-    const isValid = await this.createUserService.create()
+    const { name, email, password } = request
+    const isValid = await this.createUserService.create({ name, email, password })
     if (!isValid) {
       return {
         statusCode: 403
@@ -25,11 +30,17 @@ class SignUpController {
   }
 }
 
-type Request = {
-  name: string,
-  email: string,
-  password: string,
-  passwordConfirmation: string,
+namespace SignUpController {
+  export type Request = {
+    name: string,
+    email: string,
+    password: string,
+    passwordConfirmation: string,
+  }
+}
+
+type HttpResponse = {
+  statusCode: number
 }
 
 interface Validation {
@@ -48,18 +59,30 @@ class ValidationSpy implements Validation {
 }
 
 interface CreateUserService {
-  create: () => Promise<boolean>
+  create: (data: CreateUser.Params) => Promise<CreateUser.Result>
+}
+
+namespace CreateUser {
+  export type Params = {
+    name: string,
+    email: string,
+    password: string,
+  }
+
+  export type Result = boolean
 }
 
 class CreateUserServiceSpy implements CreateUserService {
   result = true
+  params = {} as CreateUser.Params
 
-  async create(): Promise<boolean> {
+  async create(data: CreateUser.Params): Promise<CreateUser.Result> {
+    this.params = data
     return this.result
   }
 }
 
-const mockRequest = (): Request => {
+const mockRequest = (): SignUpController.Request => {
   const password = faker.internet.password()
   return {
     name: faker.name.findName(),
@@ -112,5 +135,16 @@ describe('SignUp Controller', () => {
     createUserServiceSpy.result = false
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse.statusCode).toBe(403)
+  })
+
+  it('should call CreateUserService with correct values', async () => {
+    const { sut, createUserServiceSpy } = makeSut()
+    const httpRequest = mockRequest()
+    await sut.handle(httpRequest)
+    expect(createUserServiceSpy.params).toEqual({
+      name: httpRequest.name,
+      email: httpRequest.email,
+      password: httpRequest.password
+    })
   })
 })
