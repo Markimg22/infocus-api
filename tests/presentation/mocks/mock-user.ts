@@ -1,17 +1,6 @@
-import { CreateUser, Validation, Authentication } from '@/types'
+import { CreateUser, Authentication } from '@/domain/usecases'
 
 import faker from '@faker-js/faker'
-
-export class ValidationSpy implements Validation {
-  // @ts-expect-error
-  error: Error = null
-  input = {}
-
-  validate(input: any): Error {
-    this.input = input
-    return this.error
-  }
-}
 
 export class CreateUserSpy implements CreateUser {
   result = true
