@@ -8,13 +8,15 @@ class InvalidParamError extends Error {
 }
 
 interface EmailValidator {
-  isValid: () => boolean
+  isValid: (email: string) => boolean
 }
 
-class EmailValidatorSpy {
+class EmailValidatorSpy implements EmailValidator {
   isEmailValid = true
+  email = ''
 
-  isValid(): boolean {
+  isValid(email: string): boolean {
+    this.email = email
     return this.isEmailValid
   }
 }
@@ -25,7 +27,7 @@ class EmailValidation {
   ) {}
 
   validate(email: string): Error | undefined {
-    const isValid = this.emailValidator.isValid()
+    const isValid = this.emailValidator.isValid(email)
     if (!isValid) {
       return new InvalidParamError('email')
     }
@@ -50,8 +52,14 @@ describe('Email Validation', () => {
   it('should return an erro if EmailValidator returns false', () => {
     const { sut, emailValidatorSpy } = makeSut()
     emailValidatorSpy.isEmailValid = false
-    const email = faker.internet.email()
-    const error = sut.validate(email)
+    const error = sut.validate(faker.internet.email())
     expect(error).toEqual(new InvalidParamError('email'))
+  })
+
+  it('should call EmailValidator with correct values', () => {
+    const { sut, emailValidatorSpy } = makeSut()
+    const email = faker.internet.email()
+    sut.validate(email)
+    expect(emailValidatorSpy.email).toBe(email)
   })
 })
