@@ -7,7 +7,8 @@ interface Controller<T = any> {
 class SignUpController implements Controller {
   constructor(
     private readonly validation: Validation,
-    private readonly createUserService: CreateUserService
+    private readonly createUser: CreateUser,
+    private readonly authentication: Authentication
   ) {}
 
   async handle(request: SignUpController.Request): Promise<HttpResponse> {
@@ -19,12 +20,13 @@ class SignUpController implements Controller {
         }
       }
       const { name, email, password } = request
-      const isValid = await this.createUserService.create({ name, email, password })
+      const isValid = await this.createUser.create({ name, email, password })
       if (!isValid) {
         return {
           statusCode: 403
         }
       }
+      await this.authentication.auth({ email, password })
       return {
         statusCode: 200
       }
@@ -64,7 +66,7 @@ class ValidationSpy implements Validation {
   }
 }
 
-interface CreateUserService {
+interface CreateUser {
   create: (params: CreateUser.Params) => Promise<CreateUser.Result>
 }
 
@@ -78,13 +80,32 @@ namespace CreateUser {
   export type Result = boolean
 }
 
-class CreateUserServiceSpy implements CreateUserService {
+class CreateUserSpy implements CreateUser {
   result = true
   params = {} as CreateUser.Params
 
   async create(params: CreateUser.Params): Promise<CreateUser.Result> {
     this.params = params
     return this.result
+  }
+}
+
+interface Authentication {
+  auth: (params: Authentication.Params) => Promise<void>
+}
+
+namespace Authentication {
+  export type Params = {
+    email: string,
+    password: string,
+  }
+}
+
+class AuthenticationSpy implements Authentication {
+  params = {} as Authentication.Params
+
+  async auth(params: Authentication.Params): Promise<void> {
+    this.params = params
   }
 }
 
@@ -105,22 +126,25 @@ const mockRequest = (): SignUpController.Request => {
 type SutTypes = {
   sut: SignUpController,
   validationSpy: ValidationSpy,
-  createUserServiceSpy: CreateUserServiceSpy
+  createUserSpy: CreateUserSpy,
+  authenticationSpy: AuthenticationSpy
 }
 
 const makeSut = (): SutTypes => {
-  const createUserServiceSpy = new CreateUserServiceSpy()
+  const authenticationSpy = new AuthenticationSpy()
+  const createUserSpy = new CreateUserSpy()
   const validationSpy = new ValidationSpy()
-  const sut = new SignUpController(validationSpy, createUserServiceSpy)
+  const sut = new SignUpController(validationSpy, createUserSpy, authenticationSpy)
   return {
     sut,
     validationSpy,
-    createUserServiceSpy
+    createUserSpy,
+    authenticationSpy
   }
 }
 
 describe('SignUp Controller', () => {
-  it('should return 400 if Validation returns false', async () => {
+  it('should return 400 if Validation returns an error', async () => {
     const { sut, validationSpy } = makeSut()
     validationSpy.error = new Error('')
     const httpResponse = await sut.handle(mockRequest())
@@ -140,28 +164,38 @@ describe('SignUp Controller', () => {
     expect(httpResponse.statusCode).toBe(200)
   })
 
-  it('should return 403 if CreateUserService returns false', async () => {
-    const { sut, createUserServiceSpy } = makeSut()
-    createUserServiceSpy.result = false
+  it('should return 403 if CreateUser returns false', async () => {
+    const { sut, createUserSpy } = makeSut()
+    createUserSpy.result = false
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse.statusCode).toBe(403)
   })
 
-  it('should call CreateUserService with correct values', async () => {
-    const { sut, createUserServiceSpy } = makeSut()
+  it('should call CreateUser with correct values', async () => {
+    const { sut, createUserSpy } = makeSut()
     const httpRequest = mockRequest()
     await sut.handle(httpRequest)
-    expect(createUserServiceSpy.params).toEqual({
+    expect(createUserSpy.params).toEqual({
       name: httpRequest.name,
       email: httpRequest.email,
       password: httpRequest.password
     })
   })
 
-  it('should return 500 if CreateUserService throws', async () => {
-    const { sut, createUserServiceSpy } = makeSut()
-    jest.spyOn(createUserServiceSpy, 'create').mockImplementationOnce(throwError)
+  it('should return 500 if CreateUser throws', async () => {
+    const { sut, createUserSpy } = makeSut()
+    jest.spyOn(createUserSpy, 'create').mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse.statusCode).toBe(500)
+  })
+
+  it('should call Authentication with correct values', async () => {
+    const { sut, authenticationSpy } = makeSut()
+    const httpRequest = mockRequest()
+    await sut.handle(httpRequest)
+    expect(authenticationSpy.params).toEqual({
+      email: httpRequest.email,
+      password: httpRequest.password
+    })
   })
 })
