@@ -7,7 +7,9 @@
   "engines": {
     "node": "12"
   },
-  "scripts": {},
+  "scripts": {
+    "prepare": "husky install"
+  },
   "license": "ISC",
   "devDependencies": {
     "@commitlint/cli": "^16.2.3",
