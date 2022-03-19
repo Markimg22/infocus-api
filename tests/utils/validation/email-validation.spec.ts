@@ -1,3 +1,4 @@
+import { throwError } from '@/tests/domain/mocks'
 import faker from '@faker-js/faker'
 
 class InvalidParamError extends Error {
@@ -56,10 +57,16 @@ describe('Email Validation', () => {
     expect(error).toEqual(new InvalidParamError('email'))
   })
 
-  it('should call EmailValidator with correct values', () => {
+  it('should call EmailValidator with correct email', () => {
     const { sut, emailValidatorSpy } = makeSut()
     const email = faker.internet.email()
     sut.validate(email)
     expect(emailValidatorSpy.email).toBe(email)
+  })
+
+  it('should throws if EmailValidator throws', () => {
+    const { sut, emailValidatorSpy } = makeSut()
+    jest.spyOn(emailValidatorSpy, 'isValid').mockImplementationOnce(throwError)
+    expect(sut.validate).toThrow()
   })
 })
