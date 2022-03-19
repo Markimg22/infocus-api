@@ -5,6 +5,8 @@ import {
   ValidationSpy,
   throwError
 } from '@/tests/mocks'
+import { EmailInUseError } from '@/utils/errors'
+import { badRequest, forbidden, ok, serverError } from '@/utils/helpers'
 
 import faker from '@faker-js/faker'
 
@@ -43,7 +45,7 @@ describe('SignUp Controller', () => {
     const { sut, validationSpy } = makeSut()
     validationSpy.error = new Error('')
     const httpResponse = await sut.handle(mockRequest())
-    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse).toEqual(badRequest(validationSpy.error))
   })
 
   it('should call Validation with correct values', async () => {
@@ -54,16 +56,16 @@ describe('SignUp Controller', () => {
   })
 
   it('should return 200 if valid data is provided', async () => {
-    const { sut } = makeSut()
+    const { sut, authenticationSpy } = makeSut()
     const httpResponse = await sut.handle(mockRequest())
-    expect(httpResponse.statusCode).toBe(200)
+    expect(httpResponse).toEqual(ok(authenticationSpy.result))
   })
 
   it('should return 403 if CreateUser returns false', async () => {
     const { sut, createUserSpy } = makeSut()
     createUserSpy.result = false
     const httpResponse = await sut.handle(mockRequest())
-    expect(httpResponse.statusCode).toBe(403)
+    expect(httpResponse).toEqual(forbidden(new EmailInUseError()))
   })
 
   it('should call CreateUser with correct values', async () => {
@@ -81,7 +83,7 @@ describe('SignUp Controller', () => {
     const { sut, createUserSpy } = makeSut()
     jest.spyOn(createUserSpy, 'create').mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(mockRequest())
-    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse).toEqual(serverError(new Error()))
   })
 
   it('should call Authentication with correct values', async () => {
@@ -98,6 +100,6 @@ describe('SignUp Controller', () => {
     const { sut, authenticationSpy } = makeSut()
     jest.spyOn(authenticationSpy, 'auth').mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(mockRequest())
-    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse).toEqual(serverError(new Error()))
   })
 })

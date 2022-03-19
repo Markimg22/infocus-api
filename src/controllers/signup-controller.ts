@@ -5,6 +5,8 @@ import {
   Validation,
   Authentication
 } from '@/types'
+import { EmailInUseError } from '@/utils/errors'
+import { badRequest, forbidden, ok, serverError } from '@/utils/helpers'
 
 export class SignUpController implements Controller {
   constructor(
@@ -17,25 +19,17 @@ export class SignUpController implements Controller {
     try {
       const error = this.validation.validate(request)
       if (error) {
-        return {
-          statusCode: 400
-        }
+        return badRequest(error)
       }
       const { name, email, password } = request
       const isValid = await this.createUser.create({ name, email, password })
       if (!isValid) {
-        return {
-          statusCode: 403
-        }
+        return forbidden(new EmailInUseError())
       }
-      await this.authentication.auth({ email, password })
-      return {
-        statusCode: 200
-      }
+      const authenticationResult = await this.authentication.auth({ email, password })
+      return ok(authenticationResult)
     } catch (error) {
-      return {
-        statusCode: 500
-      }
+      return serverError(error as Error)
     }
   }
 }
