@@ -4,6 +4,7 @@
   "description": "📝 Application to help you focus on your daily activities.",
   "main": "index.js",
   "author": "Marcos Campos",
+  "license": "MIT",
   "engines": {
     "node": "12"
   },
@@ -14,7 +15,6 @@
     "test:staged": "npm test -- --findRelatedTests",
     "test:ci": "npm test -- --coverage"
   },
-  "license": "ISC",
   "devDependencies": {
     "@commitlint/cli": "^16.2.3",
     "@commitlint/config-conventional": "^16.2.1",
