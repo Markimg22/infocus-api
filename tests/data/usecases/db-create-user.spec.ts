@@ -40,4 +40,10 @@ describe('DbCreateUser UseCase', () => {
     const result = await sut.create()
     expect(result).toBe(false)
   })
+
+  it('should return true if CheckUserByEmailRepository returns false', async () => {
+    const { sut } = makeSut()
+    const result = await sut.create()
+    expect(result).toBe(true)
+  })
 })
