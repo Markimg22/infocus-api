@@ -1,4 +1,6 @@
 import { CreateUser } from '@/domain/usecases'
+import { throwError } from '@/tests/domain/mocks'
+
 import faker from '@faker-js/faker'
 
 interface CheckUserByEmailRepository {
@@ -68,5 +70,12 @@ describe('DbCreateUser UseCase', () => {
     const fakeUser = mockCreateUser()
     await sut.create(fakeUser)
     expect(checkUserByEmailRepositorySpy.email).toBe(fakeUser.email)
+  })
+
+  it('should throws if CheckUserByEmailRepository throws', async () => {
+    const { sut, checkUserByEmailRepositorySpy } = makeSut()
+    jest.spyOn(checkUserByEmailRepositorySpy, 'check').mockImplementationOnce(throwError)
+    const promise = sut.create(mockCreateUser())
+    await expect(promise).rejects.toThrow()
   })
 })
