@@ -19,15 +19,30 @@ class CheckUserByEmailRepositorySpy implements CheckUserByEmailRepository {
 
 class DbCreateUser {
   constructor (
-    private readonly checkUserByEmailRepository: CheckUserByEmailRepository
+    private readonly checkUserByEmailRepository: CheckUserByEmailRepository,
+    private readonly hasher: Hasher
   ) {}
 
   async create(params: CreateUser.Params): Promise<CreateUser.Result> {
     const exists = await this.checkUserByEmailRepository.check(params.email)
-    if (exists) {
-      return false
+    if (!exists) {
+      await this.hasher.hash(params.password)
+      return true
     }
-    return true
+    return false
+  }
+}
+
+interface Hasher {
+  hash: (plainText: string) => Promise<string>
+}
+
+class HasherSpy implements Hasher {
+  plainText = ''
+
+  async hash(plainText: string): Promise<string> {
+    this.plainText = plainText
+    return ''
   }
 }
 
@@ -39,15 +54,18 @@ const mockCreateUser = (): CreateUser.Params => ({
 
 type SutTypes = {
   sut: DbCreateUser,
-  checkUserByEmailRepositorySpy: CheckUserByEmailRepositorySpy
+  checkUserByEmailRepositorySpy: CheckUserByEmailRepositorySpy,
+  hasherSpy: HasherSpy
 }
 
 const makeSut = (): SutTypes => {
   const checkUserByEmailRepositorySpy = new CheckUserByEmailRepositorySpy()
-  const sut = new DbCreateUser(checkUserByEmailRepositorySpy)
+  const hasherSpy = new HasherSpy()
+  const sut = new DbCreateUser(checkUserByEmailRepositorySpy, hasherSpy)
   return {
     sut,
-    checkUserByEmailRepositorySpy
+    checkUserByEmailRepositorySpy,
+    hasherSpy
   }
 }
 
@@ -77,5 +95,12 @@ describe('DbCreateUser UseCase', () => {
     jest.spyOn(checkUserByEmailRepositorySpy, 'check').mockImplementationOnce(throwError)
     const promise = sut.create(mockCreateUser())
     await expect(promise).rejects.toThrow()
+  })
+
+  it('should call Hasher with correct plainText', async () => {
+    const { sut, hasherSpy } = makeSut()
+    const fakeUser = mockCreateUser()
+    await sut.create(fakeUser)
+    expect(hasherSpy.plainText).toBe(fakeUser.password)
   })
 })
