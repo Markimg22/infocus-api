@@ -1,27 +1,9 @@
-import { CreateUserRepository } from '@/data/protocols/repositories'
+import { PrismaCreateUserRepository } from '@/infra/repositories/prisma'
 import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
-import {
-  MockContext,
-  Context,
-  createMockContext,
-  mockCreateUserDatabaseParams
-} from '@/tests/infra/mocks'
-
-import { PrismaClient } from '@prisma/client'
+import { MockContext, Context, createMockContext, mockCreateUserDatabaseParams } from '@/tests/infra/mocks'
 
 let mockCtx: MockContext
 let ctx: Context
-
-class PrismaCreateUserRepository implements CreateUserRepository {
-  constructor(
-    private readonly client: PrismaClient
-  ) {}
-
-  async create(data: CreateUserRepository.Params): Promise<CreateUserRepository.Result> {
-    const user = await this.client.users.create({ data })
-    return !!user
-  }
-}
 
 const makeSut = (): PrismaCreateUserRepository => {
   const sut = new PrismaCreateUserRepository(ctx.prisma)
