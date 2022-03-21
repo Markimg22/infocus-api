@@ -1,5 +1,5 @@
 import { CreateUserRepository } from '@/data/protocols/repositories'
-import { mockCreateUserParams } from '@/tests/domain/mocks'
+import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 import { MockContext, Context, createMockContext } from '@/tests/infra/mocks'
 
 import faker from '@faker-js/faker'
@@ -50,5 +50,12 @@ describe('PrismaCreateUser Repository', () => {
     const sut = makeSut()
     const result = await sut.create(mockCreateUserParams())
     expect(result).toBe(false)
+  })
+
+  it('should throws if client database throws', async () => {
+    const sut = makeSut()
+    jest.spyOn(ctx.prisma.users, 'create').mockImplementationOnce(throwError)
+    const result = sut.create(mockCreateUserParams())
+    await expect(result).rejects.toThrow()
   })
 })
