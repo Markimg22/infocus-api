@@ -1,5 +1,5 @@
 import { SignUpController } from '@/presentation/controllers'
-import { AuthenticationSpy, CreateUserSpy, ValidationSpy } from '@/tests/presentation/mocks'
+import { AuthenticationUserSpy, CreateUserSpy, ValidationSpy } from '@/tests/presentation/mocks'
 import { EmailInUseError } from '@/presentation/errors'
 import { throwError } from '@/tests/domain/mocks'
 import { badRequest, forbidden, ok, serverError } from '@/presentation/helpers'
@@ -20,19 +20,19 @@ type SutTypes = {
   sut: SignUpController,
   validationSpy: ValidationSpy,
   createUserSpy: CreateUserSpy,
-  authenticationSpy: AuthenticationSpy
+  authenticationUserSpy: AuthenticationUserSpy
 }
 
 const makeSut = (): SutTypes => {
-  const authenticationSpy = new AuthenticationSpy()
+  const authenticationUserSpy = new AuthenticationUserSpy()
   const createUserSpy = new CreateUserSpy()
   const validationSpy = new ValidationSpy()
-  const sut = new SignUpController(validationSpy, createUserSpy, authenticationSpy)
+  const sut = new SignUpController(validationSpy, createUserSpy, authenticationUserSpy)
   return {
     sut,
     validationSpy,
     createUserSpy,
-    authenticationSpy
+    authenticationUserSpy
   }
 }
 
@@ -52,9 +52,9 @@ describe('SignUp Controller', () => {
   })
 
   it('should return 200 if valid data is provided', async () => {
-    const { sut, authenticationSpy } = makeSut()
+    const { sut, authenticationUserSpy } = makeSut()
     const httpResponse = await sut.handle(mockRequest())
-    expect(httpResponse).toEqual(ok(authenticationSpy.result))
+    expect(httpResponse).toEqual(ok(authenticationUserSpy.result))
   })
 
   it('should return 403 if CreateUser returns false', async () => {
@@ -82,19 +82,19 @@ describe('SignUp Controller', () => {
     expect(httpResponse).toEqual(serverError(new Error()))
   })
 
-  it('should call Authentication with correct values', async () => {
-    const { sut, authenticationSpy } = makeSut()
+  it('should call AuthenticationUser with correct values', async () => {
+    const { sut, authenticationUserSpy } = makeSut()
     const httpRequest = mockRequest()
     await sut.handle(httpRequest)
-    expect(authenticationSpy.params).toEqual({
+    expect(authenticationUserSpy.params).toEqual({
       email: httpRequest.email,
       password: httpRequest.password
     })
   })
 
-  it('should return 500 if Authentication throws', async () => {
-    const { sut, authenticationSpy } = makeSut()
-    jest.spyOn(authenticationSpy, 'auth').mockImplementationOnce(throwError)
+  it('should return 500 if AuthenticationUser throws', async () => {
+    const { sut, authenticationUserSpy } = makeSut()
+    jest.spyOn(authenticationUserSpy, 'auth').mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
   })

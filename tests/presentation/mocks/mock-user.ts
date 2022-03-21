@@ -1,4 +1,4 @@
-import { CreateUser, Authentication } from '@/domain/usecases'
+import { CreateUser, AuthenticationUser } from '@/domain/usecases'
 
 import faker from '@faker-js/faker'
 
@@ -12,14 +12,14 @@ export class CreateUserSpy implements CreateUser {
   }
 }
 
-export class AuthenticationSpy implements Authentication {
-  params = {} as Authentication.Params
+export class AuthenticationUserSpy implements AuthenticationUser {
+  params = {} as AuthenticationUser.Params
   result = {
     accessToken: faker.datatype.uuid(),
     name: faker.name.findName()
-  } as Authentication.Result
+  } as AuthenticationUser.Result
 
-  async auth(params: Authentication.Params): Promise<Authentication.Result> {
+  async auth(params: AuthenticationUser.Params): Promise<AuthenticationUser.Result> {
     this.params = params
     return this.result
   }
