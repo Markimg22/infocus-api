@@ -20,13 +20,20 @@ class CheckUserByEmailRepositorySpy implements CheckUserByEmailRepository {
 class DbCreateUser {
   constructor (
     private readonly checkUserByEmailRepository: CheckUserByEmailRepository,
-    private readonly hasher: Hasher
+    private readonly hasher: Hasher,
+    private readonly createUserRepository: CreateUserRepository
   ) {}
 
   async create(params: CreateUser.Params): Promise<CreateUser.Result> {
-    const exists = await this.checkUserByEmailRepository.check(params.email)
-    if (!exists) {
-      await this.hasher.hash(params.password)
+    const { name, email, password } = params
+    const userAlreadyExists = await this.checkUserByEmailRepository.check(email)
+    if (!userAlreadyExists) {
+      const hashedPassword = await this.hasher.hash(password)
+      await this.createUserRepository.create({
+        name,
+        email,
+        password: hashedPassword
+      })
       return true
     }
     return false
@@ -39,10 +46,23 @@ interface Hasher {
 
 class HasherSpy implements Hasher {
   plainText = ''
+  hashedText = faker.datatype.uuid()
 
   async hash(plainText: string): Promise<string> {
     this.plainText = plainText
-    return ''
+    return this.hashedText
+  }
+}
+
+interface CreateUserRepository {
+  create: (data: CreateUser.Params) => Promise<void>
+}
+
+class CreateUserRepositorySpy implements CreateUserRepository {
+  params = {}
+
+  async create(data: CreateUser.Params): Promise<void> {
+    this.params = data
   }
 }
 
@@ -55,17 +75,20 @@ const mockCreateUser = (): CreateUser.Params => ({
 type SutTypes = {
   sut: DbCreateUser,
   checkUserByEmailRepositorySpy: CheckUserByEmailRepositorySpy,
-  hasherSpy: HasherSpy
+  hasherSpy: HasherSpy,
+  createUserRepositorySpy: CreateUserRepositorySpy
 }
 
 const makeSut = (): SutTypes => {
   const checkUserByEmailRepositorySpy = new CheckUserByEmailRepositorySpy()
   const hasherSpy = new HasherSpy()
-  const sut = new DbCreateUser(checkUserByEmailRepositorySpy, hasherSpy)
+  const createUserRepositorySpy = new CreateUserRepositorySpy()
+  const sut = new DbCreateUser(checkUserByEmailRepositorySpy, hasherSpy, createUserRepositorySpy)
   return {
     sut,
     checkUserByEmailRepositorySpy,
-    hasherSpy
+    hasherSpy,
+    createUserRepositorySpy
   }
 }
 
@@ -85,9 +108,9 @@ describe('DbCreateUser UseCase', () => {
 
   it('should call CheckUserByEmailRepository with correct email', async () => {
     const { sut, checkUserByEmailRepositorySpy } = makeSut()
-    const fakeUser = mockCreateUser()
-    await sut.create(fakeUser)
-    expect(checkUserByEmailRepositorySpy.email).toBe(fakeUser.email)
+    const createUserParams = mockCreateUser()
+    await sut.create(createUserParams)
+    expect(checkUserByEmailRepositorySpy.email).toBe(createUserParams.email)
   })
 
   it('should throws if CheckUserByEmailRepository throws', async () => {
@@ -99,9 +122,9 @@ describe('DbCreateUser UseCase', () => {
 
   it('should call Hasher with correct plainText', async () => {
     const { sut, hasherSpy } = makeSut()
-    const fakeUser = mockCreateUser()
-    await sut.create(fakeUser)
-    expect(hasherSpy.plainText).toBe(fakeUser.password)
+    const createUserParams = mockCreateUser()
+    await sut.create(createUserParams)
+    expect(hasherSpy.plainText).toBe(createUserParams.password)
   })
 
   it('should throws if Hasher throws', async () => {
@@ -109,5 +132,16 @@ describe('DbCreateUser UseCase', () => {
     jest.spyOn(hasherSpy, 'hash').mockImplementationOnce(throwError)
     const promise = sut.create(mockCreateUser())
     await expect(promise).rejects.toThrow()
+  })
+
+  it('should call CreateUserRepository with correct values', async () => {
+    const { sut, hasherSpy, createUserRepositorySpy } = makeSut()
+    const createUserParams = mockCreateUser()
+    await sut.create(createUserParams)
+    expect(createUserRepositorySpy.params).toEqual({
+      name: createUserParams.name,
+      email: createUserParams.email,
+      password: hasherSpy.hashedText
+    })
   })
 })
