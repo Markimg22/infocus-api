@@ -13,10 +13,11 @@ class DbAuthenticationUser implements AuthenticationUser {
     const user = await this.loadUserByEmailRepository.loadByEmail(params.email)
     if (!user) return null
     const { password } = params
-    await this.hashComparer.compare(password, user.password)
+    const isValid = await this.hashComparer.compare(password, user.password)
+    if (!isValid) return null
     return {
       accessToken: 'any accessToken',
-      name: 'any name'
+      name: user.name
     }
   }
 }
@@ -48,16 +49,18 @@ class LoadUserByEmailRepositorySpy implements LoadUserByEmailRepository {
 }
 
 interface HashComparer {
-  compare: (plainText: string, hashedText: string) => Promise<void>
+  compare: (plainText: string, hashedText: string) => Promise<boolean>
 }
 
 class HashComparerSpy implements HashComparer {
   plainText = ''
   hashedText = ''
+  result = true
 
-  async compare(plainText: string, hashedText: string): Promise<void> {
+  async compare(plainText: string, hashedText: string): Promise<boolean> {
     this.plainText = plainText
     this.hashedText = hashedText
+    return this.result
   }
 }
 
@@ -118,5 +121,12 @@ describe('DbAuthenticationUser UseCase', () => {
     jest.spyOn(hashComparerSpy, 'compare').mockImplementationOnce(throwError)
     const promise = sut.auth(mockAuthenticationUserParams())
     await expect(promise).rejects.toThrow()
+  })
+
+  it('should return null if HashComparer returns false', async () => {
+    const { sut, hashComparerSpy } = makeSut()
+    hashComparerSpy.result = false
+    const result = await sut.auth(mockAuthenticationUserParams())
+    expect(result).toBeNull()
   })
 })
