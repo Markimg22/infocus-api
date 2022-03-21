@@ -158,4 +158,10 @@ describe('DbCreateUser UseCase', () => {
     const userCreated = await sut.create(mockCreateUser())
     expect(userCreated).toBe(false)
   })
+
+  it('should return true on success', async () => {
+    const { sut } = makeSut()
+    const userCreated = await sut.create(mockCreateUser())
+    expect(userCreated).toBe(true)
+  })
 })
