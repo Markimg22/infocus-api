@@ -1,6 +1,6 @@
 import { CheckUserByEmailRepository } from '@/data/protocols/repositories'
 import { client } from '@/infra/helpers'
-import { mockCreateUserParams } from '@/tests/domain/mocks'
+import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
 import { PrismaClient, Users } from '@prisma/client'
 
@@ -43,5 +43,12 @@ describe('PrismaCheckUserByEmail Repository', () => {
     const sut = makeSut()
     const result = await sut.check('')
     expect(result).toBe(false)
+  })
+
+  it('should throws if client database throws', async () => {
+    const sut = makeSut()
+    jest.spyOn(client.users, 'findFirst').mockImplementationOnce(throwError)
+    const result = sut.check('any_email@mail.com')
+    await expect(result).rejects.toThrow()
   })
 })
