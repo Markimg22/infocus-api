@@ -38,4 +38,10 @@ describe('PrismaCheckUserByEmail Repository', () => {
     const result = await sut.check(user.email)
     expect(result).toBe(true)
   })
+
+  it('should return false if not find a user', async () => {
+    const sut = makeSut()
+    const result = await sut.check('')
+    expect(result).toBe(false)
+  })
 })
