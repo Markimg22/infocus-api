@@ -7,7 +7,8 @@ class DbAuthenticationUser implements AuthenticationUser {
   constructor(
     private readonly loadUserByEmailRepository: LoadUserByEmailRepository,
     private readonly hashComparer: HashComparer,
-    private readonly encrypter: Encrypter
+    private readonly encrypter: Encrypter,
+    private readonly updateAccessTokenRepository: UpdateAccessTokenRepository
   ) {}
 
   async auth(params: AuthenticationUser.Params): Promise<AuthenticationUser.Result | null> {
@@ -17,6 +18,7 @@ class DbAuthenticationUser implements AuthenticationUser {
       const isValid = await this.hashComparer.compare(password, user.password)
       if (isValid) {
         const accessToken = await this.encrypter.encrypt(user.id)
+        await this.updateAccessTokenRepository.update(user.id, accessToken)
         return {
           accessToken,
           name: user.name
@@ -83,6 +85,20 @@ class EncrypterSpy implements Encrypter {
   }
 }
 
+interface UpdateAccessTokenRepository {
+  update: (id: string, token: string) => Promise<void>
+}
+
+class UpdateAccessTokenRepositorySpy implements UpdateAccessTokenRepository {
+  id = ''
+  token = ''
+
+  async update(id: string, token: string): Promise<void> {
+    this.id = id
+    this.token = token
+  }
+}
+
 const mockAuthenticationUserParams = (): AuthenticationUser.Params => ({
   email: faker.internet.email(),
   password: faker.internet.password()
@@ -92,19 +108,22 @@ type SutTypes = {
   sut: DbAuthenticationUser,
   loadUserByEmailRepositorySpy: LoadUserByEmailRepositorySpy,
   hashComparerSpy: HashComparerSpy,
-  encrypterSpy: EncrypterSpy
+  encrypterSpy: EncrypterSpy,
+  updateAccessTokenRepositorySpy: UpdateAccessTokenRepositorySpy
 }
 
 const makeSut = (): SutTypes => {
   const loadUserByEmailRepositorySpy = new LoadUserByEmailRepositorySpy()
   const hashComparerSpy = new HashComparerSpy()
   const encrypterSpy = new EncrypterSpy()
-  const sut = new DbAuthenticationUser(loadUserByEmailRepositorySpy, hashComparerSpy, encrypterSpy)
+  const updateAccessTokenRepositorySpy = new UpdateAccessTokenRepositorySpy()
+  const sut = new DbAuthenticationUser(loadUserByEmailRepositorySpy, hashComparerSpy, encrypterSpy, updateAccessTokenRepositorySpy)
   return {
     sut,
     loadUserByEmailRepositorySpy,
     hashComparerSpy,
-    encrypterSpy
+    encrypterSpy,
+    updateAccessTokenRepositorySpy
   }
 }
 
@@ -171,5 +190,12 @@ describe('DbAuthenticationUser UseCase', () => {
     const result = await sut.auth(mockAuthenticationUserParams())
     expect(result?.accessToken).toBe(encrypterSpy.result)
     expect(result?.name).toBe(loadUserByEmailRepositorySpy.result?.name)
+  })
+
+  it('should call UpdateAccessTokenRepository with correct values', async () => {
+    const { sut, updateAccessTokenRepositorySpy, encrypterSpy, loadUserByEmailRepositorySpy } = makeSut()
+    await sut.auth(mockAuthenticationUserParams())
+    expect(updateAccessTokenRepositorySpy.token).toBe(encrypterSpy.result)
+    expect(updateAccessTokenRepositorySpy.id).toBe(loadUserByEmailRepositorySpy.result?.id)
   })
 })
