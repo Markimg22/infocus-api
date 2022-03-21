@@ -1,4 +1,5 @@
 import { CreateUserRepository } from '@/data/protocols/repositories'
+
 import { PrismaClient } from '@prisma/client'
 
 export class PrismaCreateUserRepository implements CreateUserRepository {

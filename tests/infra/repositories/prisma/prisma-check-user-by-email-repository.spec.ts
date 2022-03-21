@@ -1,19 +1,8 @@
-import { CheckUserByEmailRepository } from '@/data/protocols/repositories'
+import { PrismaCheckUserByEmailRepository } from '@/infra/repositories/prisma'
 import { client } from '@/infra/helpers'
 import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
-import { PrismaClient, Users } from '@prisma/client'
-
-class PrismaCheckUserByEmailRepository implements CheckUserByEmailRepository {
-  constructor(
-    private readonly client: PrismaClient
-  ) {}
-
-  async check(email: string): Promise<boolean> {
-    const user = await this.client.users.findFirst({ where: { email } })
-    return !!user
-  }
-}
+import { Users } from '@prisma/client'
 
 const makeSut = (): PrismaCheckUserByEmailRepository => {
   const sut = new PrismaCheckUserByEmailRepository(client)
