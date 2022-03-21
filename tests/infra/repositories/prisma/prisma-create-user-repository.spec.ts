@@ -1,9 +1,13 @@
 import { CreateUserRepository } from '@/data/protocols/repositories'
 import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
-import { MockContext, Context, createMockContext } from '@/tests/infra/mocks'
+import {
+  MockContext,
+  Context,
+  createMockContext,
+  mockCreateUserDatabaseParams
+} from '@/tests/infra/mocks'
 
-import faker from '@faker-js/faker'
-import { PrismaClient, Users } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 
 let mockCtx: MockContext
 let ctx: Context
@@ -18,15 +22,6 @@ class PrismaCreateUserRepository implements CreateUserRepository {
     return !!user
   }
 }
-
-const mockCreateUserDatabaseParams = (): Users => ({
-  id: faker.datatype.uuid(),
-  name: faker.name.findName(),
-  email: faker.internet.email(),
-  password: faker.internet.password(),
-  createdAt: faker.date.recent(),
-  updatedAt: faker.date.recent()
-})
 
 const makeSut = (): PrismaCreateUserRepository => {
   const sut = new PrismaCreateUserRepository(ctx.prisma)
