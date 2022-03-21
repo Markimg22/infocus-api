@@ -1,76 +1,10 @@
-import { CreateUser } from '@/domain/usecases'
-import { throwError } from '@/tests/domain/mocks'
-
-import faker from '@faker-js/faker'
-
-interface CheckUserByEmailRepository {
-  check: (email: string) => Promise<boolean>
-}
-
-class CheckUserByEmailRepositorySpy implements CheckUserByEmailRepository {
-  exists = false
-  email = ''
-
-  async check(email: string): Promise<boolean> {
-    this.email = email
-    return this.exists
-  }
-}
-
-class DbCreateUser {
-  constructor (
-    private readonly checkUserByEmailRepository: CheckUserByEmailRepository,
-    private readonly hasher: Hasher,
-    private readonly createUserRepository: CreateUserRepository
-  ) {}
-
-  async create(params: CreateUser.Params): Promise<CreateUser.Result> {
-    const { name, email, password } = params
-    const userAlreadyExists = await this.checkUserByEmailRepository.check(email)
-    if (userAlreadyExists) return false
-    const hashedPassword = await this.hasher.hash(password)
-    const userCreated = await this.createUserRepository.create({
-      name,
-      email,
-      password: hashedPassword
-    })
-    return userCreated
-  }
-}
-
-interface Hasher {
-  hash: (plainText: string) => Promise<string>
-}
-
-class HasherSpy implements Hasher {
-  plainText = ''
-  hashedText = faker.datatype.uuid()
-
-  async hash(plainText: string): Promise<string> {
-    this.plainText = plainText
-    return this.hashedText
-  }
-}
-
-interface CreateUserRepository {
-  create: (data: CreateUser.Params) => Promise<CreateUser.Result>
-}
-
-class CreateUserRepositorySpy implements CreateUserRepository {
-  params = {}
-  result = true
-
-  async create(data: CreateUser.Params): Promise<CreateUser.Result> {
-    this.params = data
-    return this.result
-  }
-}
-
-const mockCreateUser = (): CreateUser.Params => ({
-  name: faker.name.findName(),
-  email: faker.internet.email(),
-  password: faker.internet.password()
-})
+import { DbCreateUser } from '@/data/usecases'
+import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
+import {
+  CheckUserByEmailRepositorySpy,
+  HasherSpy,
+  CreateUserRepositorySpy
+} from '@/tests/data/mocks'
 
 type SutTypes = {
   sut: DbCreateUser,
@@ -96,19 +30,19 @@ describe('DbCreateUser UseCase', () => {
   it('should return false if CheckUserByEmailRepository returns true', async () => {
     const { sut, checkUserByEmailRepositorySpy } = makeSut()
     checkUserByEmailRepositorySpy.exists = true
-    const result = await sut.create(mockCreateUser())
+    const result = await sut.create(mockCreateUserParams())
     expect(result).toBe(false)
   })
 
   it('should return true if CheckUserByEmailRepository returns false', async () => {
     const { sut } = makeSut()
-    const result = await sut.create(mockCreateUser())
+    const result = await sut.create(mockCreateUserParams())
     expect(result).toBe(true)
   })
 
   it('should call CheckUserByEmailRepository with correct email', async () => {
     const { sut, checkUserByEmailRepositorySpy } = makeSut()
-    const createUserParams = mockCreateUser()
+    const createUserParams = mockCreateUserParams()
     await sut.create(createUserParams)
     expect(checkUserByEmailRepositorySpy.email).toBe(createUserParams.email)
   })
@@ -116,13 +50,13 @@ describe('DbCreateUser UseCase', () => {
   it('should throws if CheckUserByEmailRepository throws', async () => {
     const { sut, checkUserByEmailRepositorySpy } = makeSut()
     jest.spyOn(checkUserByEmailRepositorySpy, 'check').mockImplementationOnce(throwError)
-    const promise = sut.create(mockCreateUser())
+    const promise = sut.create(mockCreateUserParams())
     await expect(promise).rejects.toThrow()
   })
 
   it('should call Hasher with correct plainText', async () => {
     const { sut, hasherSpy } = makeSut()
-    const createUserParams = mockCreateUser()
+    const createUserParams = mockCreateUserParams()
     await sut.create(createUserParams)
     expect(hasherSpy.plainText).toBe(createUserParams.password)
   })
@@ -130,13 +64,13 @@ describe('DbCreateUser UseCase', () => {
   it('should throws if Hasher throws', async () => {
     const { sut, hasherSpy } = makeSut()
     jest.spyOn(hasherSpy, 'hash').mockImplementationOnce(throwError)
-    const promise = sut.create(mockCreateUser())
+    const promise = sut.create(mockCreateUserParams())
     await expect(promise).rejects.toThrow()
   })
 
   it('should call CreateUserRepository with correct values', async () => {
     const { sut, hasherSpy, createUserRepositorySpy } = makeSut()
-    const createUserParams = mockCreateUser()
+    const createUserParams = mockCreateUserParams()
     await sut.create(createUserParams)
     expect(createUserRepositorySpy.params).toEqual({
       name: createUserParams.name,
@@ -148,20 +82,20 @@ describe('DbCreateUser UseCase', () => {
   it('should throws if CreateUserRepository throws', async () => {
     const { sut, createUserRepositorySpy } = makeSut()
     jest.spyOn(createUserRepositorySpy, 'create').mockImplementationOnce(throwError)
-    const promise = sut.create(mockCreateUser())
+    const promise = sut.create(mockCreateUserParams())
     await expect(promise).rejects.toThrow()
   })
 
   it('should return false if CreateUserRepository returns false', async () => {
     const { sut, createUserRepositorySpy } = makeSut()
     createUserRepositorySpy.result = false
-    const userCreated = await sut.create(mockCreateUser())
+    const userCreated = await sut.create(mockCreateUserParams())
     expect(userCreated).toBe(false)
   })
 
   it('should return true on success', async () => {
     const { sut } = makeSut()
-    const userCreated = await sut.create(mockCreateUser())
+    const userCreated = await sut.create(mockCreateUserParams())
     expect(userCreated).toBe(true)
   })
 })
