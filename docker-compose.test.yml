@@ -1,0 +1,12 @@
+version: '3.7'
+services:
+  database:
+    image: postgres:latest
+    container_name: infocus_test_database
+    restart: always
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: test_db
+    ports:
+      - 5432:5432

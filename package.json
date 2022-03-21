@@ -13,7 +13,9 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "test": "jest --passWithNoTests --runInBand --no-cache",
+    "docker:test:up": "docker-compose -f docker-compose.test.yml up -d",
+    "prisma:test:dev": "dotenv -e .env.test -- prisma migrate dev",
+    "test": "dotenv -e .env.test -- jest --passWithNoTests --runInBand --no-cache",
     "test:unit": "npm test -- --watch -c jest-unit-config.js",
     "test:staged": "npm test -- --findRelatedTests",
     "test:ci": "npm test -- --coverage"
@@ -26,6 +28,7 @@
     "@types/node": "^17.0.21",
     "@typescript-eslint/eslint-plugin": "^5.15.0",
     "@typescript-eslint/parser": "^5.15.0",
+    "dotenv-cli": "^5.0.0",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.25.4",
