@@ -6,19 +6,24 @@ import faker from '@faker-js/faker'
 class DbAuthenticationUser implements AuthenticationUser {
   constructor(
     private readonly loadUserByEmailRepository: LoadUserByEmailRepository,
-    private readonly hashComparer: HashComparer
+    private readonly hashComparer: HashComparer,
+    private readonly encrypter: Encrypter
   ) {}
 
   async auth(params: AuthenticationUser.Params): Promise<AuthenticationUser.Result | null> {
-    const user = await this.loadUserByEmailRepository.loadByEmail(params.email)
-    if (!user) return null
-    const { password } = params
-    const isValid = await this.hashComparer.compare(password, user.password)
-    if (!isValid) return null
-    return {
-      accessToken: 'any accessToken',
-      name: user.name
+    const { password, email } = params
+    const user = await this.loadUserByEmailRepository.loadByEmail(email)
+    if (user) {
+      const isValid = await this.hashComparer.compare(password, user.password)
+      if (isValid) {
+        await this.encrypter.encrypt(user.id)
+        return {
+          accessToken: 'any accessToken',
+          name: user.name
+        }
+      }
     }
+    return null
   }
 }
 
@@ -64,6 +69,18 @@ class HashComparerSpy implements HashComparer {
   }
 }
 
+interface Encrypter {
+  encrypt: (plainText: string) => Promise<void>
+}
+
+class EncrypterSpy implements Encrypter {
+  plainText = ''
+
+  async encrypt(plainText: string): Promise<void> {
+    this.plainText = plainText
+  }
+}
+
 const mockAuthenticationUserParams = (): AuthenticationUser.Params => ({
   email: faker.internet.email(),
   password: faker.internet.password()
@@ -72,17 +89,20 @@ const mockAuthenticationUserParams = (): AuthenticationUser.Params => ({
 type SutTypes = {
   sut: DbAuthenticationUser,
   loadUserByEmailRepositorySpy: LoadUserByEmailRepositorySpy,
-  hashComparerSpy: HashComparerSpy
+  hashComparerSpy: HashComparerSpy,
+  encrypterSpy: EncrypterSpy
 }
 
 const makeSut = (): SutTypes => {
   const loadUserByEmailRepositorySpy = new LoadUserByEmailRepositorySpy()
   const hashComparerSpy = new HashComparerSpy()
-  const sut = new DbAuthenticationUser(loadUserByEmailRepositorySpy, hashComparerSpy)
+  const encrypterSpy = new EncrypterSpy()
+  const sut = new DbAuthenticationUser(loadUserByEmailRepositorySpy, hashComparerSpy, encrypterSpy)
   return {
     sut,
     loadUserByEmailRepositorySpy,
-    hashComparerSpy
+    hashComparerSpy,
+    encrypterSpy
   }
 }
 
@@ -128,5 +148,12 @@ describe('DbAuthenticationUser UseCase', () => {
     hashComparerSpy.result = false
     const result = await sut.auth(mockAuthenticationUserParams())
     expect(result).toBeNull()
+  })
+
+  it('should call Encrypter with correct plainText', async () => {
+    const { sut, encrypterSpy, loadUserByEmailRepositorySpy } = makeSut()
+    const authenticationUserParams = mockAuthenticationUserParams()
+    await sut.auth(authenticationUserParams)
+    expect(encrypterSpy.plainText).toBe(loadUserByEmailRepositorySpy.result?.id)
   })
 })
