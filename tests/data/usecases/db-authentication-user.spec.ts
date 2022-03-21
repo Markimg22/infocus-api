@@ -1,4 +1,5 @@
 import { AuthenticationUser } from '@/domain/usecases'
+import { throwError } from '@/tests/domain/mocks'
 import faker from '@faker-js/faker'
 
 class DbAuthenticationUser implements AuthenticationUser {
@@ -74,5 +75,12 @@ describe('DbAuthenticationUser UseCase', () => {
     loadUserByEmailRepositorySpy.result = null
     const result = await sut.auth(mockAuthenticationUserParams())
     expect(result).toBeNull()
+  })
+
+  it('should throws if LoadAccountByEmailRepository throws', async () => {
+    const { sut, loadUserByEmailRepositorySpy } = makeSut()
+    jest.spyOn(loadUserByEmailRepositorySpy, 'loadByEmail').mockImplementationOnce(throwError)
+    const promise = sut.auth(mockAuthenticationUserParams())
+    await expect(promise).rejects.toThrow()
   })
 })
