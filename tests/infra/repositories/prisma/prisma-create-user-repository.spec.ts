@@ -15,7 +15,7 @@ class PrismaCreateUserRepository implements CreateUserRepository {
 
   async create(data: CreateUserRepository.Params): Promise<CreateUserRepository.Result> {
     const user = await this.client.users.create({ data })
-    return user !== null
+    return !!user
   }
 }
 
@@ -44,5 +44,11 @@ describe('PrismaCreateUser Repository', () => {
     mockCtx.prisma.users.create.mockResolvedValue(mockCreateUserDatabaseParams())
     const result = await sut.create(mockCreateUserParams())
     expect(result).toBe(true)
+  })
+
+  it('should return false if user not created', async () => {
+    const sut = makeSut()
+    const result = await sut.create(mockCreateUserParams())
+    expect(result).toBe(false)
   })
 })
