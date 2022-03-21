@@ -198,4 +198,11 @@ describe('DbAuthenticationUser UseCase', () => {
     expect(updateAccessTokenRepositorySpy.token).toBe(encrypterSpy.result)
     expect(updateAccessTokenRepositorySpy.id).toBe(loadUserByEmailRepositorySpy.result?.id)
   })
+
+  it('should throws if UpdateAccessTokenRepository throws', async () => {
+    const { sut, updateAccessTokenRepositorySpy } = makeSut()
+    jest.spyOn(updateAccessTokenRepositorySpy, 'update').mockImplementationOnce(throwError)
+    const promise = sut.auth(mockAuthenticationUserParams())
+    await expect(promise).rejects.toThrow()
+  })
 })
