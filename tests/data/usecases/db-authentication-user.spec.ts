@@ -1,103 +1,14 @@
+import { DbAuthenticationUser } from '@/data/usecases'
 import { AuthenticationUser } from '@/domain/usecases'
 import { throwError } from '@/tests/domain/mocks'
+import {
+  LoadUserByEmailRepositorySpy,
+  HashComparerSpy,
+  EncrypterSpy,
+  UpdateAccessTokenRepositorySpy
+} from '@/tests/data/mocks'
 
 import faker from '@faker-js/faker'
-
-class DbAuthenticationUser implements AuthenticationUser {
-  constructor(
-    private readonly loadUserByEmailRepository: LoadUserByEmailRepository,
-    private readonly hashComparer: HashComparer,
-    private readonly encrypter: Encrypter,
-    private readonly updateAccessTokenRepository: UpdateAccessTokenRepository
-  ) {}
-
-  async auth(params: AuthenticationUser.Params): Promise<AuthenticationUser.Result | null> {
-    const { password, email } = params
-    const user = await this.loadUserByEmailRepository.loadByEmail(email)
-    if (user) {
-      const isValid = await this.hashComparer.compare(password, user.password)
-      if (isValid) {
-        const accessToken = await this.encrypter.encrypt(user.id)
-        await this.updateAccessTokenRepository.update(user.id, accessToken)
-        return {
-          accessToken,
-          name: user.name
-        }
-      }
-    }
-    return null
-  }
-}
-
-interface LoadUserByEmailRepository {
-  loadByEmail: (email: string) => Promise<LoadUserByEmailRepository.Result | null>
-}
-
-namespace LoadUserByEmailRepository {
-  export type Result = {
-    id: string,
-    name: string,
-    password: string
-  }
-}
-
-class LoadUserByEmailRepositorySpy implements LoadUserByEmailRepository {
-  email = ''
-  result = {
-    id: faker.datatype.uuid(),
-    name: faker.name.findName(),
-    password: faker.internet.password()
-  } as LoadUserByEmailRepository.Result | null
-
-  async loadByEmail(email: string): Promise<LoadUserByEmailRepository.Result | null> {
-    this.email = email
-    return this.result
-  }
-}
-
-interface HashComparer {
-  compare: (plainText: string, hashedText: string) => Promise<boolean>
-}
-
-class HashComparerSpy implements HashComparer {
-  plainText = ''
-  hashedText = ''
-  result = true
-
-  async compare(plainText: string, hashedText: string): Promise<boolean> {
-    this.plainText = plainText
-    this.hashedText = hashedText
-    return this.result
-  }
-}
-
-interface Encrypter {
-  encrypt: (plainText: string) => Promise<string>
-}
-
-class EncrypterSpy implements Encrypter {
-  plainText = ''
-  result = faker.datatype.uuid()
-
-  async encrypt(plainText: string): Promise<string> {
-    this.plainText = plainText
-    return this.result
-  }
-}
-
-interface UpdateAccessTokenRepository {
-  update: (id: string, token: string) => Promise<void>
-}
-
-class UpdateAccessTokenRepositorySpy implements UpdateAccessTokenRepository {
-  id = ''
-  token = ''
-
-  async update(id: string, token: string): Promise<void> {
-    this.id = id
-    this.token = token
-  }
-}
 
 const mockAuthenticationUserParams = (): AuthenticationUser.Params => ({
   email: faker.internet.email(),
