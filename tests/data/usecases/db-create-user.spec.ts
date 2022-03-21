@@ -27,16 +27,14 @@ class DbCreateUser {
   async create(params: CreateUser.Params): Promise<CreateUser.Result> {
     const { name, email, password } = params
     const userAlreadyExists = await this.checkUserByEmailRepository.check(email)
-    if (!userAlreadyExists) {
-      const hashedPassword = await this.hasher.hash(password)
-      await this.createUserRepository.create({
-        name,
-        email,
-        password: hashedPassword
-      })
-      return true
-    }
-    return false
+    if (userAlreadyExists) return false
+    const hashedPassword = await this.hasher.hash(password)
+    const userCreated = await this.createUserRepository.create({
+      name,
+      email,
+      password: hashedPassword
+    })
+    return userCreated
   }
 }
 
@@ -55,14 +53,16 @@ class HasherSpy implements Hasher {
 }
 
 interface CreateUserRepository {
-  create: (data: CreateUser.Params) => Promise<void>
+  create: (data: CreateUser.Params) => Promise<CreateUser.Result>
 }
 
 class CreateUserRepositorySpy implements CreateUserRepository {
   params = {}
+  result = true
 
-  async create(data: CreateUser.Params): Promise<void> {
+  async create(data: CreateUser.Params): Promise<CreateUser.Result> {
     this.params = data
+    return this.result
   }
 }
 
@@ -150,5 +150,12 @@ describe('DbCreateUser UseCase', () => {
     jest.spyOn(createUserRepositorySpy, 'create').mockImplementationOnce(throwError)
     const promise = sut.create(mockCreateUser())
     await expect(promise).rejects.toThrow()
+  })
+
+  it('should return false if CreateUserRepository returns false', async () => {
+    const { sut, createUserRepositorySpy } = makeSut()
+    createUserRepositorySpy.result = false
+    const userCreated = await sut.create(mockCreateUser())
+    expect(userCreated).toBe(false)
   })
 })
