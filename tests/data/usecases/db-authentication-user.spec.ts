@@ -16,9 +16,9 @@ class DbAuthenticationUser implements AuthenticationUser {
     if (user) {
       const isValid = await this.hashComparer.compare(password, user.password)
       if (isValid) {
-        await this.encrypter.encrypt(user.id)
+        const accessToken = await this.encrypter.encrypt(user.id)
         return {
-          accessToken: 'any accessToken',
+          accessToken,
           name: user.name
         }
       }
@@ -70,14 +70,16 @@ class HashComparerSpy implements HashComparer {
 }
 
 interface Encrypter {
-  encrypt: (plainText: string) => Promise<void>
+  encrypt: (plainText: string) => Promise<string>
 }
 
 class EncrypterSpy implements Encrypter {
   plainText = ''
+  result = faker.datatype.uuid()
 
-  async encrypt(plainText: string): Promise<void> {
+  async encrypt(plainText: string): Promise<string> {
     this.plainText = plainText
+    return this.result
   }
 }
 
@@ -162,5 +164,12 @@ describe('DbAuthenticationUser UseCase', () => {
     jest.spyOn(encrypterSpy, 'encrypt').mockImplementationOnce(throwError)
     const promise = sut.auth(mockAuthenticationUserParams())
     await expect(promise).rejects.toThrow()
+  })
+
+  it('should retun an data on success', async () => {
+    const { sut, encrypterSpy, loadUserByEmailRepositorySpy } = makeSut()
+    const result = await sut.auth(mockAuthenticationUserParams())
+    expect(result?.accessToken).toBe(encrypterSpy.result)
+    expect(result?.name).toBe(loadUserByEmailRepositorySpy.result?.name)
   })
 })
