@@ -8,6 +8,9 @@
   "engines": {
     "node": "12"
   },
+  "prisma": {
+    "schema": "src/infra/schema.prisma"
+  },
   "scripts": {
     "prepare": "husky install",
     "test": "jest --passWithNoTests --runInBand --no-cache",
@@ -30,8 +33,13 @@
     "eslint-plugin-promise": "^5.2.0",
     "husky": "^7.0.4",
     "jest": "^27.5.1",
+    "jest-mock-extended": "^2.0.4",
     "lint-staged": "^12.3.7",
+    "prisma": "^3.11.0",
     "ts-jest": "^27.1.3",
     "typescript": "^4.6.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^3.11.0"
   }
 }
