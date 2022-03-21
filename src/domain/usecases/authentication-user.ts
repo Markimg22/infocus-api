@@ -1,5 +1,5 @@
 export interface AuthenticationUser {
-  auth: (params: AuthenticationUser.Params) => Promise<AuthenticationUser.Result>
+  auth: (params: AuthenticationUser.Params) => Promise<AuthenticationUser.Result | null>
 }
 
 export namespace AuthenticationUser {

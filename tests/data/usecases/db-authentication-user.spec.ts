@@ -1,18 +1,23 @@
 import { AuthenticationUser } from '@/domain/usecases'
 import faker from '@faker-js/faker'
 
-class DbAuthenticationUser {
+class DbAuthenticationUser implements AuthenticationUser {
   constructor(
     private readonly loadUserByEmailRepository: LoadUserByEmailRepository
   ) {}
 
-  async auth(params: AuthenticationUser.Params): Promise<void> {
-    await this.loadUserByEmailRepository.loadByEmail(params.email)
+  async auth(params: AuthenticationUser.Params): Promise<AuthenticationUser.Result | null> {
+    const user = await this.loadUserByEmailRepository.loadByEmail(params.email)
+    if (!user) return null
+    return {
+      accessToken: 'any accessToken',
+      name: 'any name'
+    }
   }
 }
 
 interface LoadUserByEmailRepository {
-  loadByEmail: (email: string) => Promise<void>
+  loadByEmail: (email: string) => Promise<LoadUserByEmailRepository.Result | null>
 }
 
 namespace LoadUserByEmailRepository {
@@ -25,9 +30,15 @@ namespace LoadUserByEmailRepository {
 
 class LoadUserByEmailRepositorySpy implements LoadUserByEmailRepository {
   email = ''
+  result = {
+    id: faker.datatype.uuid(),
+    name: faker.name.findName(),
+    password: faker.internet.password()
+  } as LoadUserByEmailRepository.Result | null
 
-  async loadByEmail(email: string): Promise<void> {
+  async loadByEmail(email: string): Promise<LoadUserByEmailRepository.Result | null> {
     this.email = email
+    return this.result
   }
 }
 
@@ -56,5 +67,12 @@ describe('DbAuthenticationUser UseCase', () => {
     const fakeUser = mockAuthenticationUserParams()
     await sut.auth(fakeUser)
     expect(loadUserByEmailRepositorySpy.email).toBe(fakeUser.email)
+  })
+
+  it('should return null if LoadAccountByEmailRepository returns null', async () => {
+    const { sut, loadUserByEmailRepositorySpy } = makeSut()
+    loadUserByEmailRepositorySpy.result = null
+    const result = await sut.auth(mockAuthenticationUserParams())
+    expect(result).toBeNull()
   })
 })
