@@ -1,20 +1,8 @@
-import { LoadUserByEmailRepository } from '@/data/protocols/repositories'
+import { PrismaLoadUserByEmailRepository } from '@/infra/repositories/prisma'
 import { client } from '@/infra/helpers'
 import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
+
 import faker from '@faker-js/faker'
-
-import { PrismaClient } from '@prisma/client'
-
-class PrismaLoadUserByEmailRepository implements LoadUserByEmailRepository {
-  constructor(
-    private readonly client: PrismaClient
-  ) {}
-
-  async loadByEmail(email: string): Promise<LoadUserByEmailRepository.Result | null> {
-    const user = await this.client.users.findFirst({ where: { email } })
-    return user
-  }
-}
 
 const makeSut = (): PrismaLoadUserByEmailRepository => {
   const sut = new PrismaLoadUserByEmailRepository(client)
