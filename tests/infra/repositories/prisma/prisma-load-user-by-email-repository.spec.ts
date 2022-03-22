@@ -1,6 +1,7 @@
 import { LoadUserByEmailRepository } from '@/data/protocols/repositories'
 import { client } from '@/infra/helpers'
 import { mockCreateUserParams } from '@/tests/domain/mocks'
+import faker from '@faker-js/faker'
 
 import { PrismaClient } from '@prisma/client'
 
@@ -25,8 +26,11 @@ describe('PrismaLoadUserByEmail Repository', () => {
     await client.$connect()
   })
 
-  afterAll(async () => {
+  afterEach(async () => {
     await client.users.deleteMany()
+  })
+
+  afterAll(async () => {
     await client.$disconnect()
   })
 
@@ -39,5 +43,11 @@ describe('PrismaLoadUserByEmail Repository', () => {
     expect(user?.id).toBeTruthy()
     expect(user?.name).toBe(createUserParams.name)
     expect(user?.password).toBe(createUserParams.password)
+  })
+
+  it('should return null if not user found', async () => {
+    const sut = makeSut()
+    const result = await sut.loadByEmail(faker.internet.email())
+    expect(result).toBeNull()
   })
 })
