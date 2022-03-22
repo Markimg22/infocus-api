@@ -1,6 +1,6 @@
 import { LoadUserByEmailRepository } from '@/data/protocols/repositories'
 import { client } from '@/infra/helpers'
-import { mockCreateUserParams } from '@/tests/domain/mocks'
+import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 import faker from '@faker-js/faker'
 
 import { PrismaClient } from '@prisma/client'
@@ -49,5 +49,12 @@ describe('PrismaLoadUserByEmail Repository', () => {
     const sut = makeSut()
     const result = await sut.loadByEmail(faker.internet.email())
     expect(result).toBeNull()
+  })
+
+  it('should throws if client database throws', async () => {
+    const sut = makeSut()
+    jest.spyOn(client.users, 'findFirst').mockImplementationOnce(throwError)
+    const result = sut.loadByEmail(faker.internet.email())
+    await expect(result).rejects.toThrow()
   })
 })
