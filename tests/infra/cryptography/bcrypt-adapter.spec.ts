@@ -1,21 +1,7 @@
-import { HashComparer, Hasher } from '@/data/protocols/cryptography'
+import { BcryptAdapter } from '@/infra/cryptography'
 import { throwError } from '@/tests/domain/mocks'
 
 import bcrypt from 'bcrypt'
-
-class BcryptAdapter implements Hasher, HashComparer {
-  constructor(
-    private readonly salt: number
-  ) {}
-
-  async hash(plainText: string): Promise<string> {
-    return await bcrypt.hash(plainText, salt)
-  }
-
-  async compare(plainText: string, hashedText: string): Promise<boolean> {
-    return await bcrypt.compare(plainText, hashedText)
-  }
-}
 
 jest.mock('bcrypt', () => ({
   async hash(): Promise<string> {
