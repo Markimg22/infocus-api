@@ -1,6 +1,8 @@
+import { Hasher } from '@/data/protocols/cryptography'
+
 import bcrypt from 'bcrypt'
 
-class BcryptAdapter {
+class BcryptAdapter implements Hasher {
   constructor(
     private readonly salt: number
   ) {}
@@ -9,6 +11,12 @@ class BcryptAdapter {
     return await bcrypt.hash(plainText, salt)
   }
 }
+
+jest.mock('bcrypt', () => ({
+  async hash(): Promise<string> {
+    return 'hash'
+  }
+}))
 
 const salt = 12
 const makeSut = () => {
@@ -23,6 +31,12 @@ describe('Bcrypt Adapter', () => {
       const hashSpy = jest.spyOn(bcrypt, 'hash')
       await sut.hash('any_value')
       expect(hashSpy).toHaveBeenLastCalledWith('any_value', salt)
+    })
+
+    it('should return a valid hash on hash success', async () => {
+      const sut = makeSut()
+      const hash = await sut.hash('any_value')
+      expect(hash).toBe('hash')
     })
   })
 })
