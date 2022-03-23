@@ -1,9 +1,10 @@
 import faker from '@faker-js/faker'
 import { MissingParamError } from '@/presentation/errors'
-import { badRequest } from '@/presentation/helpers'
+import { badRequest, serverError } from '@/presentation/helpers'
 import { ValidationSpy } from '@/tests/presentation/mocks'
 import { Validation, HttpResponse } from '@/presentation/protocols'
 import { AuthenticationUser } from '@/domain/usecases'
+import { throwError } from '@/tests/domain/mocks'
 
 class LoginController {
   constructor(
@@ -11,11 +12,15 @@ class LoginController {
   ) {}
 
   async handle(request: LoginController.Request): Promise<HttpResponse> {
-    const error = this.validation.validate(request)
-    if (error) return badRequest(error)
-    return {
-      statusCode: 200,
-      body: {}
+    try {
+      const error = this.validation.validate(request)
+      if (error) return badRequest(error)
+      return {
+        statusCode: 200,
+        body: {}
+      }
+    } catch (error) {
+      return serverError(error as Error)
     }
   }
 }
@@ -59,5 +64,12 @@ describe('Login Controller', () => {
     const request = mockRequest()
     await sut.handle(request)
     expect(validationSpy.input).toEqual(request)
+  })
+
+  it('should return 500 if Validation throws', async () => {
+    const { sut, validationSpy } = makeSut()
+    jest.spyOn(validationSpy, 'validate').mockImplementationOnce(throwError)
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(serverError(new Error()))
   })
 })
