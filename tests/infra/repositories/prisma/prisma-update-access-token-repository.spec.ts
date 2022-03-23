@@ -1,22 +1,9 @@
-import { UpdateAccessTokenRepository } from '@/data/protocols/repositories'
+import { PrismaUpdateAccessTokenRepository } from '@/infra/repositories/prisma'
 import { client } from '@/infra/helpers'
 import { mockCreateUserParams } from '@/tests/domain/mocks'
 
 import faker from '@faker-js/faker'
-import { PrismaClient, Users } from '@prisma/client'
-
-class PrismaUpdateAccessTokenRepository implements UpdateAccessTokenRepository {
-  constructor(
-    private readonly client: PrismaClient
-  ) {}
-
-  async update(id: string, token: string): Promise<void> {
-    await this.client.accessToken.update({
-      where: { userId: id },
-      data: { token }
-    })
-  }
-}
+import { Users } from '@prisma/client'
 
 const makeSut = (): PrismaUpdateAccessTokenRepository => {
   const sut = new PrismaUpdateAccessTokenRepository(client)
