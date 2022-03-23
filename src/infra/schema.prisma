@@ -8,12 +8,24 @@ datasource db {
 }
 
 model Users {
+  id          String       @id @unique @default(uuid())
+  name        String
+  email       String       @unique
+  password    String
+  accessToken AccessToken?
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model AccessToken {
   id        String   @id @unique @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
+  token     String
+  user      Users    @relation(fields: [userId], references: [id])
+  userId    String   @unique @map("user_id")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("users")
+  @@map("access_token")
 }
