@@ -12,6 +12,12 @@ class JwtAdapter implements Encrypter {
   }
 }
 
+jest.mock('jsonwebtoken', () => ({
+  async sign(): Promise<string> {
+    return 'any_token'
+  }
+}))
+
 const makeSut = (): JwtAdapter => {
   const sut = new JwtAdapter('secret')
   return sut
@@ -24,6 +30,12 @@ describe('Jwt Adapter', () => {
       const signSpy = jest.spyOn(jwt, 'sign')
       await sut.encrypt('any_id')
       expect(signSpy).toHaveBeenCalledWith({ id: 'any_id' }, 'secret')
+    })
+
+    it('should return a token on sign succeds', async () => {
+      const sut = makeSut()
+      const accessToken = await sut.encrypt('any_id')
+      expect(accessToken).toBe('any_token')
     })
   })
 })
