@@ -1,20 +1,22 @@
 import faker from '@faker-js/faker'
 import { MissingParamError } from '@/presentation/errors'
 import { badRequest, serverError } from '@/presentation/helpers'
-import { ValidationSpy } from '@/tests/presentation/mocks'
+import { ValidationSpy, AuthenticationUserSpy } from '@/tests/presentation/mocks'
 import { Validation, HttpResponse } from '@/presentation/protocols'
 import { AuthenticationUser } from '@/domain/usecases'
 import { throwError } from '@/tests/domain/mocks'
 
 class LoginController {
   constructor(
-    private readonly validation: Validation
+    private readonly validation: Validation,
+    private readonly authenticationUser: AuthenticationUser
   ) {}
 
   async handle(request: LoginController.Request): Promise<HttpResponse> {
     try {
       const error = this.validation.validate(request)
       if (error) return badRequest(error)
+      await this.authenticationUser.auth(request)
       return {
         statusCode: 200,
         body: {}
@@ -39,15 +41,18 @@ const mockRequest = (): AuthenticationUser.Params => ({
 
 type SutTypes = {
   sut: LoginController,
-  validationSpy: ValidationSpy
+  validationSpy: ValidationSpy,
+  authenticationUserSpy: AuthenticationUserSpy
 }
 
 const makeSut = (): SutTypes => {
   const validationSpy = new ValidationSpy()
-  const sut = new LoginController(validationSpy)
+  const authenticationUserSpy = new AuthenticationUserSpy()
+  const sut = new LoginController(validationSpy, authenticationUserSpy)
   return {
     sut,
-    validationSpy
+    validationSpy,
+    authenticationUserSpy
   }
 }
 
@@ -71,5 +76,15 @@ describe('Login Controller', () => {
     jest.spyOn(validationSpy, 'validate').mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
+  it('should call AuthenticationUser with correct values', async () => {
+    const { sut, authenticationUserSpy } = makeSut()
+    const request = mockRequest()
+    await sut.handle(request)
+    expect(authenticationUserSpy.params).toEqual({
+      email: request.email,
+      password: request.password
+    })
   })
 })
