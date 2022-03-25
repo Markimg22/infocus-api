@@ -90,7 +90,7 @@ describe('Login Controller', () => {
     })
   })
 
-  it('should return 401 if invalid credentials are provided', async () => {
+  it('should return 401 if AuthenticationUser returns null', async () => {
     const { sut, authenticationUserSpy } = makeSut()
     authenticationUserSpy.result = null
     const httpResponse = await sut.handle(mockRequest())
