@@ -1,36 +1,8 @@
-import { LoadTasks } from '@/domain/usecases'
+import { DbLoadTasks } from '@/data/usecases'
 import { throwError } from '@/tests/domain/mocks'
+import { LoadTasksRepositorySpy } from '@/tests/data/mocks'
 
 import faker from '@faker-js/faker'
-
-class DbLoadTasks implements LoadTasks {
-  constructor(
-    private readonly loadTasksRepository: LoadTasksRepository
-  ) {}
-
-  async loadByUserId(userId: string): Promise<LoadTasks.Result[]> {
-    const tasks = await this.loadTasksRepository.load(userId)
-    return tasks
-  }
-}
-
-interface LoadTasksRepository {
-  load: (userId: string) => Promise<LoadTasks.Result[]>
-}
-
-class LoadTasksRepositorySpy implements LoadTasksRepository {
-  userId = ''
-  result = [{
-    id: faker.datatype.uuid(),
-    title: faker.random.word(),
-    description: faker.random.word()
-  }] as LoadTasks.Result[]
-
-  async load(userId: string): Promise<LoadTasks.Result[]> {
-    this.userId = userId
-    return this.result
-  }
-}
 
 type SutTypes = {
   sut: DbLoadTasks,
