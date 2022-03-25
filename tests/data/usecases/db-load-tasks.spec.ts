@@ -62,4 +62,11 @@ describe('DbLoadTasks UseCase', () => {
     const tasks = await sut.loadByUserId(userId)
     expect(tasks).toBe(loadTasksRepositorySpy.result)
   })
+
+  it('should return empty list if LoadTasksRepository returns []', async () => {
+    const { sut, loadTasksRepositorySpy } = makeSut()
+    loadTasksRepositorySpy.result = []
+    const tasks = await sut.loadByUserId(userId)
+    expect(tasks).toEqual([])
+  })
 })
