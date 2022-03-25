@@ -1,81 +1,10 @@
-import { ValidationSpy } from '@/tests/presentation/mocks'
-import { Validation, HttpResponse, Controller } from '@/presentation/protocols'
+import { CreateTaskController } from '@/presentation/controllers'
+import { ValidationSpy, CreateTaskSpy, LoadTasksSpy } from '@/tests/presentation/mocks'
 import { MissingParamError } from '@/presentation/errors'
 import { badRequest, serverError, ok } from '@/presentation/helpers'
 import { throwError } from '@/tests/domain/mocks'
-import { CreateTask } from '@/domain/usecases'
 
 import faker from '@faker-js/faker'
-
-class CreateTaskController implements Controller {
-  constructor(
-    private readonly validation: Validation,
-    private readonly createTask: CreateTask,
-    private readonly loadTasks: LoadTasks
-  ) {}
-
-  async handle(request: CreateTaskController.Request): Promise<HttpResponse> {
-    try {
-      const error = this.validation.validate(request)
-      if (error) return badRequest(error)
-      await this.createTask.create(request)
-      const tasksModel = await this.loadTasks.loadByUserId(request.userId)
-      return ok(tasksModel)
-    } catch (error) {
-      return serverError(error as Error)
-    }
-  }
-}
-
-namespace CreateTaskController {
-  export type Request = {
-    userId: string
-    title: string,
-    description: string,
-    isCompleted: boolean,
-  }
-}
-
-class CreateTaskSpy implements CreateTask {
-  params = {}
-
-  async create(params: CreateTask.Params): Promise<void> {
-    this.params = params
-  }
-}
-
-interface LoadTasks {
-  loadByUserId: (userId: string) => Promise<LoadTasks.Result[]>
-}
-
-namespace LoadTasks {
-  export type Result = {
-    id: string,
-    title: string,
-    description: string,
-    isCompleted: boolean
-  }
-}
-
-class LoadTasksSpy implements LoadTasks {
-  userId = ''
-  result = [{
-    id: faker.datatype.uuid(),
-    title: faker.random.word(),
-    description: faker.random.word(),
-    isCompleted: false
-  }, {
-    id: faker.datatype.uuid(),
-    title: faker.random.word(),
-    description: faker.random.word(),
-    isCompleted: true
-  }] as LoadTasks.Result[]
-
-  async loadByUserId(userId: string): Promise<LoadTasks.Result[]> {
-    this.userId = userId
-    return this.result
-  }
-}
 
 const mockRequest = (): CreateTaskController.Request => ({
   userId: faker.datatype.uuid(),
