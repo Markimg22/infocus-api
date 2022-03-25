@@ -4,31 +4,10 @@ import {
   LoadUserByEmailRepositorySpy,
   HashComparerSpy,
   EncrypterSpy,
-  UpdateAccessTokenRepositorySpy
+  UpdateAccessTokenRepositorySpy,
+  CreateAccessTokenRepositorySpy,
+  CheckAccessTokenRepositorySpy
 } from '@/tests/data/mocks'
-import { CheckAccessTokenRepository, CreateAccessTokenRepository } from '@/data/protocols/repositories'
-
-class CheckAccessTokenRepositorySpy implements CheckAccessTokenRepository {
-  id = ''
-  result = true
-
-  async check(id: string): Promise<boolean> {
-    this.id = id
-    return this.result
-  }
-}
-
-class CreateAccessTokenRepositorySpy implements CreateAccessTokenRepository {
-  id = ''
-  token = ''
-  callsCount = 0
-
-  async create(data: CreateAccessTokenRepository.Params): Promise<void> {
-    this.id = data.id
-    this.token = data.token
-    this.callsCount++
-  }
-}
 
 type SutTypes = {
   sut: DbAuthenticationUser,
