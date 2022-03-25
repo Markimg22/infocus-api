@@ -17,9 +17,9 @@ export class AuthenticationUserSpy implements AuthenticationUser {
   result = {
     accessToken: faker.datatype.uuid(),
     name: faker.name.findName()
-  } as AuthenticationUser.Result
+  } as AuthenticationUser.Result | null
 
-  async auth(params: AuthenticationUser.Params): Promise<AuthenticationUser.Result> {
+  async auth(params: AuthenticationUser.Params): Promise<AuthenticationUser.Result | null> {
     this.params = params
     return this.result
   }

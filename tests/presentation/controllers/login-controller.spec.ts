@@ -1,10 +1,11 @@
-import faker from '@faker-js/faker'
 import { MissingParamError } from '@/presentation/errors'
-import { badRequest, serverError } from '@/presentation/helpers'
+import { badRequest, serverError, unauthorized } from '@/presentation/helpers'
 import { ValidationSpy, AuthenticationUserSpy } from '@/tests/presentation/mocks'
 import { Validation, HttpResponse } from '@/presentation/protocols'
 import { AuthenticationUser } from '@/domain/usecases'
 import { throwError } from '@/tests/domain/mocks'
+
+import faker from '@faker-js/faker'
 
 class LoginController {
   constructor(
@@ -16,10 +17,11 @@ class LoginController {
     try {
       const error = this.validation.validate(request)
       if (error) return badRequest(error)
-      await this.authenticationUser.auth(request)
+      const authenticationUserResult = await this.authenticationUser.auth(request)
+      if (!authenticationUserResult) return unauthorized()
       return {
         statusCode: 200,
-        body: {}
+        body: authenticationUserResult
       }
     } catch (error) {
       return serverError(error as Error)
@@ -86,5 +88,12 @@ describe('Login Controller', () => {
       email: request.email,
       password: request.password
     })
+  })
+
+  it('should return 401 if invalid credentials are provided', async () => {
+    const { sut, authenticationUserSpy } = makeSut()
+    authenticationUserSpy.result = null
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(unauthorized())
   })
 })
