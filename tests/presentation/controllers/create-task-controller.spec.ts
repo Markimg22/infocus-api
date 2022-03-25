@@ -128,4 +128,11 @@ describe('CreateTask Controller', () => {
     await sut.handle(request)
     expect(loadTasksSpy.userId).toEqual(request.userId)
   })
+
+  it('should return 500 if LoadTasks throws', async () => {
+    const { sut, loadTasksSpy } = makeSut()
+    jest.spyOn(loadTasksSpy, 'loadByUserId').mockImplementationOnce(throwError)
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(serverError(new Error()))
+  })
 })
