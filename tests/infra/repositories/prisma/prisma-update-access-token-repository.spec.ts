@@ -5,6 +5,8 @@ import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 import faker from '@faker-js/faker'
 import { Users } from '@prisma/client'
 
+const token = faker.datatype.uuid()
+
 const makeSut = (): PrismaUpdateAccessTokenRepository => {
   const sut = new PrismaUpdateAccessTokenRepository(client)
   return sut
@@ -19,10 +21,7 @@ describe('PrismaUpdateAccessToken Repository', () => {
       data: mockCreateUserParams()
     })
     await client.accessToken.create({
-      data: {
-        token: faker.datatype.uuid(),
-        userId: user.id
-      }
+      data: { token, userId: user.id }
     })
   })
 
@@ -34,7 +33,6 @@ describe('PrismaUpdateAccessToken Repository', () => {
 
   it('should updated the user access token on success', async () => {
     const sut = makeSut()
-    const token = faker.datatype.uuid()
     await sut.update(user.id, token)
     const newAccessToken = await client.accessToken.findFirst({
       where: { userId: user.id }
@@ -45,7 +43,7 @@ describe('PrismaUpdateAccessToken Repository', () => {
   it('should throws if client database throws', async () => {
     const sut = makeSut()
     jest.spyOn(client.accessToken, 'update').mockImplementationOnce(throwError)
-    const promise = sut.update(user.id, faker.datatype.uuid())
+    const promise = sut.update(user.id, token)
     await expect(promise).rejects.toThrow()
   })
 })
