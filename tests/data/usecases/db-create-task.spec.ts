@@ -1,3 +1,5 @@
+import { throwError } from '@/tests/domain/mocks'
+
 import faker from '@faker-js/faker'
 
 class DbCreateTask {
@@ -56,5 +58,12 @@ describe('DbCreateTask UseCase', () => {
     const createTaskParams = mockCreateTaskParams()
     await sut.create(createTaskParams)
     expect(createTaskRespositorySpy.params).toEqual(createTaskParams)
+  })
+
+  it('should throws if CreateTaskRespository throws', async () => {
+    const { sut, createTaskRespositorySpy } = makeSut()
+    jest.spyOn(createTaskRespositorySpy, 'create').mockImplementationOnce(throwError)
+    const promise = sut.create(mockCreateTaskParams())
+    await expect(promise).rejects.toThrow()
   })
 })
