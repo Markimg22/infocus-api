@@ -1,6 +1,6 @@
 import { PrismaCheckAccessTokenRepository } from '@/infra/repositories'
 import { client } from '@/infra/helpers'
-import { mockCreateAccessTokenParams, mockCreateUserParams } from '@/tests/domain/mocks'
+import { mockCreateAccessTokenParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
 import { Users } from '@prisma/client'
 
@@ -41,5 +41,12 @@ describe('PrismaCheckAccessToken Repository', () => {
     const sut = makeSut()
     const accessTokenAlreadyExists = await sut.check(user.id)
     expect(accessTokenAlreadyExists).toBe(false)
+  })
+
+  it('should throws if client database throws', async () => {
+    const sut = makeSut()
+    jest.spyOn(client.accessToken, 'findFirst').mockImplementationOnce(throwError)
+    const promise = sut.check(user.id)
+    await expect(promise).rejects.toThrow()
   })
 })
