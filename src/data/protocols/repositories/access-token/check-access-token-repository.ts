@@ -1,5 +1,5 @@
 export interface CheckAccessTokenRepository {
-  check: (id: string) => Promise<CheckAccessTokenRepository.Result>
+  check: (userId: string) => Promise<CheckAccessTokenRepository.Result>
 }
 
 export namespace CheckAccessTokenRepository {
