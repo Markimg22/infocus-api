@@ -1,6 +1,7 @@
 import { DbCreateTask } from '@/data/usecases'
 import { throwError, mockCreateTaskParams } from '@/tests/domain/mocks'
 import { CreateTaskRespositorySpy } from '@/tests/data/mocks'
+import faker from '@faker-js/faker'
 
 type SutTypes = {
   sut: DbCreateTask,
@@ -19,7 +20,7 @@ const makeSut = (): SutTypes => {
 describe('DbCreateTask UseCase', () => {
   it('should call CreateTaskRespository with correct values', async () => {
     const { sut, createTaskRespositorySpy } = makeSut()
-    const createTaskParams = mockCreateTaskParams()
+    const createTaskParams = mockCreateTaskParams(faker.datatype.uuid())
     await sut.create(createTaskParams)
     expect(createTaskRespositorySpy.params).toEqual(createTaskParams)
   })
@@ -27,7 +28,7 @@ describe('DbCreateTask UseCase', () => {
   it('should throws if CreateTaskRespository throws', async () => {
     const { sut, createTaskRespositorySpy } = makeSut()
     jest.spyOn(createTaskRespositorySpy, 'create').mockImplementationOnce(throwError)
-    const promise = sut.create(mockCreateTaskParams())
+    const promise = sut.create(mockCreateTaskParams(faker.datatype.uuid()))
     await expect(promise).rejects.toThrow()
   })
 })
