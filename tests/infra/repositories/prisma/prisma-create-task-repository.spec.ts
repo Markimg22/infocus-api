@@ -1,18 +1,8 @@
-import { CreateTaskRespository } from '@/data/protocols/repositories'
+import { PrismaCreateTaskRepository } from '@/infra/repositories/prisma'
 import { client } from '@/infra/helpers'
 import { mockCreateTaskParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
-import { PrismaClient, Users } from '@prisma/client'
-
-class PrismaCreateTaskRepository implements CreateTaskRespository {
-  constructor (
-    private readonly client: PrismaClient
-  ) {}
-
-  async create(data: CreateTaskRespository.Params): Promise<CreateTaskRespository.Result> {
-    await this.client.tasks.create({ data })
-  }
-}
+import { Users } from '@prisma/client'
 
 const makeSut = (): PrismaCreateTaskRepository => {
   const sut = new PrismaCreateTaskRepository(client)
