@@ -32,8 +32,11 @@ describe('PrismaCheckAccessToken Repository', () => {
     })
   })
 
-  afterAll(async () => {
+  beforeEach(async () => {
     await client.accessToken.deleteMany()
+  })
+
+  afterAll(async () => {
     await client.users.deleteMany()
     await client.$disconnect()
   })
@@ -45,5 +48,11 @@ describe('PrismaCheckAccessToken Repository', () => {
     })
     const accessTokenAlreadyExists = await sut.check(user.id)
     expect(accessTokenAlreadyExists).toBe(true)
+  })
+
+  it('should return false if access token not exists', async () => {
+    const sut = makeSut()
+    const accessTokenAlreadyExists = await sut.check(user.id)
+    expect(accessTokenAlreadyExists).toBe(false)
   })
 })
