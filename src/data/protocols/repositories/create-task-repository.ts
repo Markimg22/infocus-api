@@ -1,7 +1,7 @@
 import { CreateTask } from '@/domain/usecases'
 
 export interface CreateTaskRespository {
-  create: (params: CreateTaskRespository.Params) => Promise<CreateTaskRespository.Result>
+  create: (data: CreateTaskRespository.Params) => Promise<CreateTaskRespository.Result>
 }
 
 export namespace CreateTaskRespository {
