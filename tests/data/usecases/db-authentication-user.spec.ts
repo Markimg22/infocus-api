@@ -21,10 +21,12 @@ class CheckAccessTokenRepositorySpy implements CheckAccessTokenRepository {
 class CreateAccessTokenRepositorySpy implements CreateAccessTokenRepository {
   id = ''
   token = ''
+  callsCount = 0
 
   async create(data: CreateAccessTokenRepository.Params): Promise<void> {
     this.id = data.id
     this.token = data.token
+    this.callsCount++
   }
 }
 
@@ -144,14 +146,16 @@ describe('DbAuthenticationUser UseCase', () => {
   })
 
   it('should call CreateAccessTokenRepository with correct values', async () => {
-    const { sut, createAccessTokenRepositorySpy, loadUserByEmailRepositorySpy, encrypterSpy } = makeSut()
+    const { sut, createAccessTokenRepositorySpy, loadUserByEmailRepositorySpy, encrypterSpy, checkAccessTokenRepositorySpy } = makeSut()
+    checkAccessTokenRepositorySpy.result = false
     await sut.auth(mockAuthenticationUserParams())
     expect(createAccessTokenRepositorySpy.id).toBe(loadUserByEmailRepositorySpy.result?.id)
     expect(createAccessTokenRepositorySpy.token).toBe(encrypterSpy.result)
   })
 
   it('should throws if CreateAccessTokenRepository throws', async () => {
-    const { sut, createAccessTokenRepositorySpy } = makeSut()
+    const { sut, createAccessTokenRepositorySpy, checkAccessTokenRepositorySpy } = makeSut()
+    checkAccessTokenRepositorySpy.result = false
     jest.spyOn(createAccessTokenRepositorySpy, 'create').mockImplementationOnce(throwError)
     const promise = sut.auth(mockAuthenticationUserParams())
     await expect(promise).rejects.toThrow()
@@ -174,5 +178,12 @@ describe('DbAuthenticationUser UseCase', () => {
     checkAccessTokenRepositorySpy.result = false
     await sut.auth(mockAuthenticationUserParams())
     expect(updateAccessTokenRepositorySpy.callsCount).toBe(0)
+  })
+
+  it('should call CreateAccessTokenRepository if CheckAccessTokenRepository returns false', async () => {
+    const { sut, createAccessTokenRepositorySpy, checkAccessTokenRepositorySpy } = makeSut()
+    checkAccessTokenRepositorySpy.result = false
+    await sut.auth(mockAuthenticationUserParams())
+    expect(createAccessTokenRepositorySpy.callsCount).toBe(1)
   })
 })

@@ -24,11 +24,12 @@ export class DbAuthenticationUser implements AuthenticationUser {
       const isValid = await this.hashComparer.compare(password, user.password)
       if (isValid) {
         const accessToken = await this.encrypter.encrypt(user.id)
-        const accessTokenExists = await this.checkAccessTokenRepository.check(user.id)
-        if (accessTokenExists) {
+        const accessTokenAlreadyExists = await this.checkAccessTokenRepository.check(user.id)
+        if (accessTokenAlreadyExists) {
           await this.updateAccessTokenRepository.update(user.id, accessToken)
+        } else {
+          await this.createAccessTokenRepository.create({ id: user.id, token: accessToken })
         }
-        await this.createAccessTokenRepository.create({ id: user.id, token: accessToken })
         return {
           accessToken,
           name: user.name
