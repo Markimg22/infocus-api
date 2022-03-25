@@ -1,8 +1,7 @@
 import {
   CreateUserRepository,
   CheckUserByEmailRepository,
-  LoadUserByEmailRepository,
-  UpdateAccessTokenRepository
+  LoadUserByEmailRepository
 } from '@/data/protocols/repositories'
 
 import faker from '@faker-js/faker'
@@ -38,17 +37,5 @@ export class LoadUserByEmailRepositorySpy implements LoadUserByEmailRepository {
   async loadByEmail(email: string): Promise<LoadUserByEmailRepository.Result | null> {
     this.email = email
     return this.result
-  }
-}
-
-export class UpdateAccessTokenRepositorySpy implements UpdateAccessTokenRepository {
-  id = ''
-  token = ''
-  callsCount = 0
-
-  async update(id: string, token: string): Promise<void> {
-    this.id = id
-    this.token = token
-    this.callsCount++
   }
 }
