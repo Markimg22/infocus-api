@@ -1,19 +1,11 @@
 import { DbAuthenticationUser } from '@/data/usecases'
-import { AuthenticationUser } from '@/domain/usecases'
-import { throwError } from '@/tests/domain/mocks'
+import { mockAuthenticationUserParams, throwError } from '@/tests/domain/mocks'
 import {
   LoadUserByEmailRepositorySpy,
   HashComparerSpy,
   EncrypterSpy,
   UpdateAccessTokenRepositorySpy
 } from '@/tests/data/mocks'
-
-import faker from '@faker-js/faker'
-
-const mockAuthenticationUserParams = (): AuthenticationUser.Params => ({
-  email: faker.internet.email(),
-  password: faker.internet.password()
-})
 
 type SutTypes = {
   sut: DbAuthenticationUser,
