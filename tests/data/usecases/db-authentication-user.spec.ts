@@ -128,4 +128,10 @@ describe('DbAuthenticationUser UseCase', () => {
     await sut.auth(mockAuthenticationUserParams())
     expect(checkAccessTokenRepositorySpy.userId).toBe(loadUserByEmailRepositorySpy.result?.id)
   })
+
+  it('should call UpdateAccessTokenRepository if CheckAccessTokenRepository returns true', async () => {
+    const { sut, updateAccessTokenRepositorySpy } = makeSut()
+    await sut.auth(mockAuthenticationUserParams())
+    expect(updateAccessTokenRepositorySpy.callsCount).toBe(1)
+  })
 })
