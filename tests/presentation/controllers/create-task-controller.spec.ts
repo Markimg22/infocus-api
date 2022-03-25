@@ -1,5 +1,7 @@
 import { ValidationSpy } from '@/tests/presentation/mocks'
-import { Validation } from '@/presentation/protocols'
+import { Validation, HttpResponse } from '@/presentation/protocols'
+import { MissingParamError } from '@/presentation/errors'
+import { badRequest } from '@/presentation/helpers'
 
 import faker from '@faker-js/faker'
 
@@ -8,8 +10,13 @@ class CreateTaskController {
     private readonly validation: Validation
   ) {}
 
-  async handle(request: any): Promise<void> {
-    this.validation.validate(request)
+  async handle(request: any): Promise<HttpResponse> {
+    const error = this.validation.validate(request)
+    if (error) return badRequest(error)
+    return {
+      statusCode: 200,
+      body: {}
+    }
   }
 }
 
@@ -45,5 +52,12 @@ describe('CreateTask Controller', () => {
     const request = mockRequest()
     await sut.handle(request)
     expect(validationSpy.input).toEqual(request)
+  })
+
+  it('should return 400 if Validation return an error', async () => {
+    const { sut, validationSpy } = makeSut()
+    validationSpy.error = new MissingParamError(faker.random.word())
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(badRequest(validationSpy.error))
   })
 })
