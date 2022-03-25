@@ -1,3 +1,4 @@
+import { LoadTasks } from '@/domain/usecases'
 import faker from '@faker-js/faker'
 
 class DbLoadTasks {
@@ -5,20 +6,27 @@ class DbLoadTasks {
     private readonly loadTasksRepository: LoadTasksRepository
   ) {}
 
-  async loadByUserId(userId: string): Promise<void> {
-    await this.loadTasksRepository.load(userId)
+  async loadByUserId(userId: string): Promise<LoadTasks.Result[]> {
+    const tasks = await this.loadTasksRepository.load(userId)
+    return tasks
   }
 }
 
 interface LoadTasksRepository {
-  load: (userId: string) => Promise<void>
+  load: (userId: string) => Promise<LoadTasks.Result[]>
 }
 
 class LoadTasksRepositorySpy {
   userId = ''
+  result = [{
+    id: faker.datatype.uuid(),
+    title: faker.random.word(),
+    description: faker.random.word()
+  }] as LoadTasks.Result[]
 
-  async load(userId: string): Promise<void> {
+  async load(userId: string): Promise<LoadTasks.Result[]> {
     this.userId = userId
+    return this.result
   }
 }
 
@@ -37,10 +45,21 @@ const makeSut = (): SutTypes => {
 }
 
 describe('DbLoadTasks UseCase', () => {
+  let userId: string
+
+  beforeEach(() => {
+    userId = faker.datatype.uuid()
+  })
+
   it('should call LoadTasksRepository with correct usuer id', async () => {
     const { sut, loadTasksRepositorySpy } = makeSut()
-    const userId = faker.datatype.uuid()
     await sut.loadByUserId(userId)
     expect(loadTasksRepositorySpy.userId).toBe(userId)
+  })
+
+  it('should return tasks on success', async () => {
+    const { sut, loadTasksRepositorySpy } = makeSut()
+    const tasks = await sut.loadByUserId(userId)
+    expect(tasks).toBe(loadTasksRepositorySpy.result)
   })
 })
