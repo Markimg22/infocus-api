@@ -4,7 +4,7 @@ export interface CreateAccessTokenRepository {
 
 export namespace CreateAccessTokenRepository {
   export type Params = {
-    id: string,
+    userId: string,
     token: string
   }
 
