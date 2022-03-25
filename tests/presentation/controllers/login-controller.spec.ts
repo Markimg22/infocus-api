@@ -1,37 +1,11 @@
+import { LoginController } from '@/presentation/controllers'
 import { MissingParamError } from '@/presentation/errors'
 import { badRequest, serverError, unauthorized, ok } from '@/presentation/helpers'
 import { ValidationSpy, AuthenticationUserSpy } from '@/tests/presentation/mocks'
-import { Validation, HttpResponse } from '@/presentation/protocols'
 import { AuthenticationUser } from '@/domain/usecases'
 import { throwError } from '@/tests/domain/mocks'
 
 import faker from '@faker-js/faker'
-
-class LoginController {
-  constructor(
-    private readonly validation: Validation,
-    private readonly authenticationUser: AuthenticationUser
-  ) {}
-
-  async handle(request: LoginController.Request): Promise<HttpResponse> {
-    try {
-      const error = this.validation.validate(request)
-      if (error) return badRequest(error)
-      const authenticationUserResult = await this.authenticationUser.auth(request)
-      if (!authenticationUserResult) return unauthorized()
-      return ok(authenticationUserResult)
-    } catch (error) {
-      return serverError(error as Error)
-    }
-  }
-}
-
-namespace LoginController {
-  export type Request = {
-    email: string,
-    password: string
-  }
-}
 
 const mockRequest = (): AuthenticationUser.Params => ({
   email: faker.internet.email(),
