@@ -97,4 +97,11 @@ describe('CreateTask Controller', () => {
     await sut.handle(request)
     expect(createTaskSpy.params).toEqual(request)
   })
+
+  it('should return 500 if CreateTask throws', async () => {
+    const { sut, createTaskSpy } = makeSut()
+    jest.spyOn(createTaskSpy, 'create').mockImplementationOnce(throwError)
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(serverError(new Error()))
+  })
 })
