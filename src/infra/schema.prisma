@@ -13,6 +13,7 @@ model Users {
   email       String       @unique
   password    String
   accessToken AccessToken?
+  tasks       Tasks[]
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
 
@@ -28,4 +29,17 @@ model AccessToken {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("access_token")
+}
+
+model Tasks {
+  id          String   @id @unique @default(uuid())
+  title       String
+  description String
+  isCompleted Boolean  @default(false) @map("is_completed")
+  user        Users    @relation(fields: [userId], references: [id])
+  userId      String   @unique @map("user_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("tasks")
 }
