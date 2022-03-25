@@ -186,4 +186,10 @@ describe('DbAuthenticationUser UseCase', () => {
     await sut.auth(mockAuthenticationUserParams())
     expect(createAccessTokenRepositorySpy.callsCount).toBe(1)
   })
+
+  it('should not call CreateAccessTokenRepository if CheckAccessTokenRepository returns true', async () => {
+    const { sut, createAccessTokenRepositorySpy } = makeSut()
+    await sut.auth(mockAuthenticationUserParams())
+    expect(createAccessTokenRepositorySpy.callsCount).toBe(0)
+  })
 })
