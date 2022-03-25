@@ -1,6 +1,6 @@
 import { CreateTaskRespository } from '@/data/protocols/repositories'
 import { client } from '@/infra/helpers'
-import { mockCreateTaskParams, mockCreateUserParams } from '@/tests/domain/mocks'
+import { mockCreateTaskParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
 import { PrismaClient, Users } from '@prisma/client'
 
@@ -44,5 +44,12 @@ describe('PrismaCreateTask Repository', () => {
     expect(task?.description).toBe(createTaskParams.description)
     expect(task?.isCompleted).toBe(createTaskParams.isCompleted)
     expect(task?.userId).toBe(createTaskParams.userId)
+  })
+
+  it('should throws if client database throws', async () => {
+    const sut = makeSut()
+    jest.spyOn(client.tasks, 'create').mockImplementationOnce(throwError)
+    const promise = sut.create(mockCreateTaskParams(user.id))
+    await expect(promise).rejects.toThrow()
   })
 })
