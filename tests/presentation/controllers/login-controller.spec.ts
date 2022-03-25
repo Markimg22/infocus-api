@@ -1,5 +1,5 @@
 import { MissingParamError } from '@/presentation/errors'
-import { badRequest, serverError, unauthorized } from '@/presentation/helpers'
+import { badRequest, serverError, unauthorized, ok } from '@/presentation/helpers'
 import { ValidationSpy, AuthenticationUserSpy } from '@/tests/presentation/mocks'
 import { Validation, HttpResponse } from '@/presentation/protocols'
 import { AuthenticationUser } from '@/domain/usecases'
@@ -19,10 +19,7 @@ class LoginController {
       if (error) return badRequest(error)
       const authenticationUserResult = await this.authenticationUser.auth(request)
       if (!authenticationUserResult) return unauthorized()
-      return {
-        statusCode: 200,
-        body: authenticationUserResult
-      }
+      return ok(authenticationUserResult)
     } catch (error) {
       return serverError(error as Error)
     }
@@ -102,5 +99,11 @@ describe('Login Controller', () => {
     jest.spyOn(authenticationUserSpy, 'auth').mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
+  it('should return 200 if valid credentials are provided', async () => {
+    const { sut, authenticationUserSpy } = makeSut()
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(ok(authenticationUserSpy.result))
   })
 })
