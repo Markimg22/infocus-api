@@ -6,13 +6,25 @@ import {
   EncrypterSpy,
   UpdateAccessTokenRepositorySpy
 } from '@/tests/data/mocks'
+import { CheckAccessTokenRepository } from '@/data/protocols/repositories'
+
+class CheckAccessTokenRepositorySpy implements CheckAccessTokenRepository {
+  userId = ''
+  result = true
+
+  async check(userId: string): Promise<boolean> {
+    this.userId = userId
+    return this.result
+  }
+}
 
 type SutTypes = {
   sut: DbAuthenticationUser,
   loadUserByEmailRepositorySpy: LoadUserByEmailRepositorySpy,
   hashComparerSpy: HashComparerSpy,
   encrypterSpy: EncrypterSpy,
-  updateAccessTokenRepositorySpy: UpdateAccessTokenRepositorySpy
+  updateAccessTokenRepositorySpy: UpdateAccessTokenRepositorySpy,
+  checkAccessTokenRepositorySpy: CheckAccessTokenRepositorySpy
 }
 
 const makeSut = (): SutTypes => {
@@ -20,13 +32,15 @@ const makeSut = (): SutTypes => {
   const hashComparerSpy = new HashComparerSpy()
   const encrypterSpy = new EncrypterSpy()
   const updateAccessTokenRepositorySpy = new UpdateAccessTokenRepositorySpy()
-  const sut = new DbAuthenticationUser(loadUserByEmailRepositorySpy, hashComparerSpy, encrypterSpy, updateAccessTokenRepositorySpy)
+  const checkAccessTokenRepositorySpy = new CheckAccessTokenRepositorySpy()
+  const sut = new DbAuthenticationUser(loadUserByEmailRepositorySpy, hashComparerSpy, encrypterSpy, updateAccessTokenRepositorySpy, checkAccessTokenRepositorySpy)
   return {
     sut,
     loadUserByEmailRepositorySpy,
     hashComparerSpy,
     encrypterSpy,
-    updateAccessTokenRepositorySpy
+    updateAccessTokenRepositorySpy,
+    checkAccessTokenRepositorySpy
   }
 }
 
@@ -107,5 +121,11 @@ describe('DbAuthenticationUser UseCase', () => {
     jest.spyOn(updateAccessTokenRepositorySpy, 'update').mockImplementationOnce(throwError)
     const promise = sut.auth(mockAuthenticationUserParams())
     await expect(promise).rejects.toThrow()
+  })
+
+  it('should call CheckAccessTokenRepository with correct userId', async () => {
+    const { sut, checkAccessTokenRepositorySpy, loadUserByEmailRepositorySpy } = makeSut()
+    await sut.auth(mockAuthenticationUserParams())
+    expect(checkAccessTokenRepositorySpy.userId).toBe(loadUserByEmailRepositorySpy.result?.id)
   })
 })
