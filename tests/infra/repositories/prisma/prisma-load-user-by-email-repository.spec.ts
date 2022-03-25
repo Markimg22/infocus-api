@@ -42,7 +42,7 @@ describe('PrismaLoadUserByEmail Repository', () => {
   it('should throws if client database throws', async () => {
     const sut = makeSut()
     jest.spyOn(client.users, 'findFirst').mockImplementationOnce(throwError)
-    const result = sut.loadByEmail(faker.internet.email())
-    await expect(result).rejects.toThrow()
+    const promise = sut.loadByEmail(faker.internet.email())
+    await expect(promise).rejects.toThrow()
   })
 })

@@ -26,7 +26,7 @@ describe('PrismaCreateUser Repository', () => {
   it('should throws if client database throws', async () => {
     const sut = makeSut()
     jest.spyOn(client.users, 'create').mockImplementationOnce(throwError)
-    const result = sut.create(mockCreateUserParams())
-    await expect(result).rejects.toThrow()
+    const promise = sut.create(mockCreateUserParams())
+    await expect(promise).rejects.toThrow()
   })
 })

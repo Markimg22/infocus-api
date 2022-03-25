@@ -37,7 +37,7 @@ describe('PrismaCheckUserByEmail Repository', () => {
   it('should throws if client database throws', async () => {
     const sut = makeSut()
     jest.spyOn(client.users, 'findFirst').mockImplementationOnce(throwError)
-    const result = sut.check('any_email@mail.com')
-    await expect(result).rejects.toThrow()
+    const promise = sut.check('any_email@mail.com')
+    await expect(promise).rejects.toThrow()
   })
 })
