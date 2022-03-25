@@ -27,8 +27,8 @@ export class CreateAccessTokenRepositorySpy implements CreateAccessTokenReposito
   token = ''
   callsCount = 0
 
-  async create(data: CreateAccessTokenRepository.Params): Promise<void> {
-    this.id = data.id
+  async create(data: CreateAccessTokenRepository.Params): Promise<CreateAccessTokenRepository.Result> {
+    this.id = data.userId
     this.token = data.token
     this.callsCount++
   }

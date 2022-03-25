@@ -1,24 +1,8 @@
-import { CreateAccessTokenRepository } from '@/data/protocols/repositories'
+import { PrismaCreateAccessTokenRepository } from '@/infra/repositories/prisma'
 import { client } from '@/infra/helpers'
-import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
+import { mockCreateUserParams, throwError, mockCreateAccessTokenParams } from '@/tests/domain/mocks'
 
-import faker from '@faker-js/faker'
-import { PrismaClient, Users } from '@prisma/client'
-
-class PrismaCreateAccessTokenRepository implements CreateAccessTokenRepository {
-  constructor(
-    private readonly client: PrismaClient
-  ) {}
-
-  async create(data: CreateAccessTokenRepository.Params): Promise<CreateAccessTokenRepository.Result> {
-    await this.client.accessToken.create({ data })
-  }
-}
-
-const mockCreateAccessTokenParams = (userId: string): CreateAccessTokenRepository.Params => ({
-  token: faker.datatype.uuid(),
-  userId
-})
+import { Users } from '@prisma/client'
 
 const makeSut = (): PrismaCreateAccessTokenRepository => {
   const sut = new PrismaCreateAccessTokenRepository(client)

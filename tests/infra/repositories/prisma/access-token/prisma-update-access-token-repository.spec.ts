@@ -1,6 +1,6 @@
 import { PrismaUpdateAccessTokenRepository } from '@/infra/repositories/prisma'
 import { client } from '@/infra/helpers'
-import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
+import { mockCreateAccessTokenParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
 import faker from '@faker-js/faker'
 import { Users } from '@prisma/client'
@@ -21,7 +21,7 @@ describe('PrismaUpdateAccessToken Repository', () => {
       data: mockCreateUserParams()
     })
     await client.accessToken.create({
-      data: { token, userId: user.id }
+      data: mockCreateAccessTokenParams(user.id)
     })
   })
 

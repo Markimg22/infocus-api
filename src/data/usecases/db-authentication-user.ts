@@ -28,7 +28,7 @@ export class DbAuthenticationUser implements AuthenticationUser {
         if (accessTokenAlreadyExists) {
           await this.updateAccessTokenRepository.update(user.id, accessToken)
         } else {
-          await this.createAccessTokenRepository.create({ id: user.id, token: accessToken })
+          await this.createAccessTokenRepository.create({ userId: user.id, token: accessToken })
         }
         return {
           accessToken,
