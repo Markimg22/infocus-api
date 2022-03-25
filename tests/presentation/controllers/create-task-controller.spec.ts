@@ -1,7 +1,7 @@
 import { ValidationSpy } from '@/tests/presentation/mocks'
 import { Validation, HttpResponse, Controller } from '@/presentation/protocols'
 import { MissingParamError } from '@/presentation/errors'
-import { badRequest, serverError } from '@/presentation/helpers'
+import { badRequest, serverError, ok } from '@/presentation/helpers'
 import { throwError } from '@/tests/domain/mocks'
 import { CreateTask } from '@/domain/usecases'
 
@@ -19,11 +19,8 @@ class CreateTaskController implements Controller {
       const error = this.validation.validate(request)
       if (error) return badRequest(error)
       await this.createTask.create(request)
-      await this.loadTasks.loadByUserId(request.userId)
-      return {
-        statusCode: 200,
-        body: {}
-      }
+      const tasksModel = await this.loadTasks.loadByUserId(request.userId)
+      return ok(tasksModel)
     } catch (error) {
       return serverError(error as Error)
     }
@@ -48,14 +45,35 @@ class CreateTaskSpy implements CreateTask {
 }
 
 interface LoadTasks {
-  loadByUserId: (userId: string) => Promise<void>
+  loadByUserId: (userId: string) => Promise<LoadTasks.Result[]>
+}
+
+namespace LoadTasks {
+  export type Result = {
+    id: string,
+    title: string,
+    description: string,
+    isCompleted: boolean
+  }
 }
 
 class LoadTasksSpy implements LoadTasks {
   userId = ''
+  result = [{
+    id: faker.datatype.uuid(),
+    title: faker.random.word(),
+    description: faker.random.word(),
+    isCompleted: false
+  }, {
+    id: faker.datatype.uuid(),
+    title: faker.random.word(),
+    description: faker.random.word(),
+    isCompleted: true
+  }] as LoadTasks.Result[]
 
-  async loadByUserId(userId: string): Promise<void> {
+  async loadByUserId(userId: string): Promise<LoadTasks.Result[]> {
     this.userId = userId
+    return this.result
   }
 }
 
@@ -134,5 +152,11 @@ describe('CreateTask Controller', () => {
     jest.spyOn(loadTasksSpy, 'loadByUserId').mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
+  it('should return 200 if valid credentials are provided', async () => {
+    const { sut, loadTasksSpy } = makeSut()
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(ok(loadTasksSpy.result))
   })
 })
