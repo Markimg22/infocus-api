@@ -167,29 +167,18 @@ describe('DbAuthenticationUser UseCase', () => {
     expect(checkAccessTokenRepositorySpy.id).toBe(loadUserByEmailRepositorySpy.result?.id)
   })
 
-  it('should call UpdateAccessTokenRepository if CheckAccessTokenRepository returns true', async () => {
-    const { sut, updateAccessTokenRepositorySpy } = makeSut()
+  it('should update access token if CheckAccessTokenRepository returns true', async () => {
+    const { sut, updateAccessTokenRepositorySpy, createAccessTokenRepositorySpy } = makeSut()
     await sut.auth(mockAuthenticationUserParams())
+    expect(createAccessTokenRepositorySpy.callsCount).toBe(0)
     expect(updateAccessTokenRepositorySpy.callsCount).toBe(1)
   })
 
-  it('should not call UpdateAccessTokenRepository if CheckAccessTokenRepository returns false', async () => {
-    const { sut, updateAccessTokenRepositorySpy, checkAccessTokenRepositorySpy } = makeSut()
-    checkAccessTokenRepositorySpy.result = false
-    await sut.auth(mockAuthenticationUserParams())
-    expect(updateAccessTokenRepositorySpy.callsCount).toBe(0)
-  })
-
-  it('should call CreateAccessTokenRepository if CheckAccessTokenRepository returns false', async () => {
-    const { sut, createAccessTokenRepositorySpy, checkAccessTokenRepositorySpy } = makeSut()
+  it('should create access token if CheckAccessTokenRepository returns false', async () => {
+    const { sut, updateAccessTokenRepositorySpy, checkAccessTokenRepositorySpy, createAccessTokenRepositorySpy } = makeSut()
     checkAccessTokenRepositorySpy.result = false
     await sut.auth(mockAuthenticationUserParams())
     expect(createAccessTokenRepositorySpy.callsCount).toBe(1)
-  })
-
-  it('should not call CreateAccessTokenRepository if CheckAccessTokenRepository returns true', async () => {
-    const { sut, createAccessTokenRepositorySpy } = makeSut()
-    await sut.auth(mockAuthenticationUserParams())
-    expect(createAccessTokenRepositorySpy.callsCount).toBe(0)
+    expect(updateAccessTokenRepositorySpy.callsCount).toBe(0)
   })
 })
