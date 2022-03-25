@@ -1,7 +1,9 @@
 import { LoadTasks } from '@/domain/usecases'
+import { throwError } from '@/tests/domain/mocks'
+
 import faker from '@faker-js/faker'
 
-class DbLoadTasks {
+class DbLoadTasks implements LoadTasks {
   constructor(
     private readonly loadTasksRepository: LoadTasksRepository
   ) {}
@@ -16,7 +18,7 @@ interface LoadTasksRepository {
   load: (userId: string) => Promise<LoadTasks.Result[]>
 }
 
-class LoadTasksRepositorySpy {
+class LoadTasksRepositorySpy implements LoadTasksRepository {
   userId = ''
   result = [{
     id: faker.datatype.uuid(),
@@ -68,5 +70,12 @@ describe('DbLoadTasks UseCase', () => {
     loadTasksRepositorySpy.result = []
     const tasks = await sut.loadByUserId(userId)
     expect(tasks).toEqual([])
+  })
+
+  it('should throws if LoadTasksRepository throws', async () => {
+    const { sut, loadTasksRepositorySpy } = makeSut()
+    jest.spyOn(loadTasksRepositorySpy, 'load').mockImplementationOnce(throwError)
+    const promise = sut.loadByUserId(userId)
+    await expect(promise).rejects.toThrow()
   })
 })
