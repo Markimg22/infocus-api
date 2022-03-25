@@ -1,9 +1,10 @@
 import { ValidationSpy } from '@/tests/presentation/mocks'
 import { Validation, HttpResponse } from '@/presentation/protocols'
 import { MissingParamError } from '@/presentation/errors'
-import { badRequest } from '@/presentation/helpers'
+import { badRequest, serverError } from '@/presentation/helpers'
 
 import faker from '@faker-js/faker'
+import { throwError } from '@/tests/domain/mocks'
 
 class CreateTaskController {
   constructor(
@@ -11,11 +12,15 @@ class CreateTaskController {
   ) {}
 
   async handle(request: any): Promise<HttpResponse> {
-    const error = this.validation.validate(request)
-    if (error) return badRequest(error)
-    return {
-      statusCode: 200,
-      body: {}
+    try {
+      const error = this.validation.validate(request)
+      if (error) return badRequest(error)
+      return {
+        statusCode: 200,
+        body: {}
+      }
+    } catch (error) {
+      return serverError(error as Error)
     }
   }
 }
@@ -59,5 +64,12 @@ describe('CreateTask Controller', () => {
     validationSpy.error = new MissingParamError(faker.random.word())
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(badRequest(validationSpy.error))
+  })
+
+  it('should return 500 if Validation throws', async () => {
+    const { sut, validationSpy } = makeSut()
+    jest.spyOn(validationSpy, 'validate').mockImplementationOnce(throwError)
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(serverError(new Error()))
   })
 })
