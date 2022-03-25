@@ -1,6 +1,6 @@
 import { CreateAccessTokenRepository } from '@/data/protocols/repositories'
 import { client } from '@/infra/helpers'
-import { mockCreateUserParams } from '@/tests/domain/mocks'
+import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
 import faker from '@faker-js/faker'
 import { PrismaClient, Users } from '@prisma/client'
@@ -48,5 +48,12 @@ describe('PrismaCreateAccessToken Repository', () => {
     const accessToken = await client.accessToken.findFirst({ where: { userId: user.id } })
     expect(accessToken?.token).toBe(createAccessTokenarams.token)
     expect(accessToken?.userId).toBe(createAccessTokenarams.userId)
+  })
+
+  it('should throw if client database throws', async () => {
+    const sut = makeSut()
+    jest.spyOn(client.accessToken, 'create').mockImplementationOnce(throwError)
+    const promise = sut.create(mockCreateAccessTokenParams(user.id))
+    await expect(promise).rejects.toThrow()
   })
 })
