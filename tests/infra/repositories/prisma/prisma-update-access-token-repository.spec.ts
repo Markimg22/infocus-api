@@ -1,6 +1,6 @@
 import { PrismaUpdateAccessTokenRepository } from '@/infra/repositories/prisma'
 import { client } from '@/infra/helpers'
-import { mockCreateUserParams } from '@/tests/domain/mocks'
+import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
 import faker from '@faker-js/faker'
 import { Users } from '@prisma/client'
@@ -40,5 +40,12 @@ describe('PrismaUpdateAccessToken Repository', () => {
       where: { userId: user.id }
     })
     expect(newAccessToken?.token).toBe(token)
+  })
+
+  it('should throws if client database throws', async () => {
+    const sut = makeSut()
+    jest.spyOn(client.accessToken, 'update').mockImplementationOnce(throwError)
+    const promise = sut.update(user.id, faker.datatype.uuid())
+    await expect(promise).rejects.toThrow()
   })
 })
