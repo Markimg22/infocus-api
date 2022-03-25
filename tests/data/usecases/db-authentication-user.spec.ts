@@ -150,6 +150,13 @@ describe('DbAuthenticationUser UseCase', () => {
     expect(createAccessTokenRepositorySpy.token).toBe(encrypterSpy.result)
   })
 
+  it('should throws if CreateAccessTokenRepository throws', async () => {
+    const { sut, createAccessTokenRepositorySpy } = makeSut()
+    jest.spyOn(createAccessTokenRepositorySpy, 'create').mockImplementationOnce(throwError)
+    const promise = sut.auth(mockAuthenticationUserParams())
+    await expect(promise).rejects.toThrow()
+  })
+
   it('should call CheckAccessTokenRepository with correct userId', async () => {
     const { sut, checkAccessTokenRepositorySpy, loadUserByEmailRepositorySpy } = makeSut()
     await sut.auth(mockAuthenticationUserParams())
