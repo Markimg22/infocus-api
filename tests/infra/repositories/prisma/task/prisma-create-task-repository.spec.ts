@@ -1,4 +1,4 @@
-import { PrismaCreateTaskRepository } from '@/infra/repositories/prisma'
+import { PrismaCreateTaskRepository } from '@/infra/repositories'
 import { client } from '@/infra/helpers'
 import { mockCreateTaskParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 

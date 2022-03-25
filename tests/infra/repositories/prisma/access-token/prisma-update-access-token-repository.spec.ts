@@ -1,4 +1,4 @@
-import { PrismaUpdateAccessTokenRepository } from '@/infra/repositories/prisma'
+import { PrismaUpdateAccessTokenRepository } from '@/infra/repositories'
 import { client } from '@/infra/helpers'
 import { mockCreateAccessTokenParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 

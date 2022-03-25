@@ -1,4 +1,4 @@
-import { PrismaLoadUserByEmailRepository } from '@/infra/repositories/prisma'
+import { PrismaLoadUserByEmailRepository } from '@/infra/repositories'
 import { client } from '@/infra/helpers'
 import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 

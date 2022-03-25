@@ -1,21 +1,8 @@
-import { CheckAccessTokenRepository } from '@/data/protocols/repositories'
+import { PrismaCheckAccessTokenRepository } from '@/infra/repositories'
 import { client } from '@/infra/helpers'
 import { mockCreateAccessTokenParams, mockCreateUserParams } from '@/tests/domain/mocks'
 
-import { PrismaClient, Users } from '@prisma/client'
-
-class PrismaCheckAccessTokenRepository implements CheckAccessTokenRepository {
-  constructor(
-    private readonly client: PrismaClient
-  ) {}
-
-  async check(userId: string): Promise<boolean> {
-    const accessTokenAlreadyExists = await this.client.accessToken.findFirst({
-      where: { userId }
-    })
-    return accessTokenAlreadyExists !== null
-  }
-}
+import { Users } from '@prisma/client'
 
 const makeSut = (): PrismaCheckAccessTokenRepository => {
   const sut = new PrismaCheckAccessTokenRepository(client)
