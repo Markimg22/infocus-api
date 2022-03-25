@@ -6,15 +6,25 @@ import {
   EncrypterSpy,
   UpdateAccessTokenRepositorySpy
 } from '@/tests/data/mocks'
-import { CheckAccessTokenRepository } from '@/data/protocols/repositories'
+import { CheckAccessTokenRepository, CreateAccessTokenRepository } from '@/data/protocols/repositories'
 
 class CheckAccessTokenRepositorySpy implements CheckAccessTokenRepository {
-  userId = ''
+  id = ''
   result = true
 
-  async check(userId: string): Promise<boolean> {
-    this.userId = userId
+  async check(id: string): Promise<boolean> {
+    this.id = id
     return this.result
+  }
+}
+
+class CreateAccessTokenRepositorySpy implements CreateAccessTokenRepository {
+  id = ''
+  token = ''
+
+  async create(data: CreateAccessTokenRepository.Params): Promise<void> {
+    this.id = data.id
+    this.token = data.token
   }
 }
 
@@ -24,6 +34,7 @@ type SutTypes = {
   hashComparerSpy: HashComparerSpy,
   encrypterSpy: EncrypterSpy,
   updateAccessTokenRepositorySpy: UpdateAccessTokenRepositorySpy,
+  createAccessTokenRepositorySpy: CreateAccessTokenRepositorySpy,
   checkAccessTokenRepositorySpy: CheckAccessTokenRepositorySpy
 }
 
@@ -32,14 +43,23 @@ const makeSut = (): SutTypes => {
   const hashComparerSpy = new HashComparerSpy()
   const encrypterSpy = new EncrypterSpy()
   const updateAccessTokenRepositorySpy = new UpdateAccessTokenRepositorySpy()
+  const createAccessTokenRepositorySpy = new CreateAccessTokenRepositorySpy()
   const checkAccessTokenRepositorySpy = new CheckAccessTokenRepositorySpy()
-  const sut = new DbAuthenticationUser(loadUserByEmailRepositorySpy, hashComparerSpy, encrypterSpy, updateAccessTokenRepositorySpy, checkAccessTokenRepositorySpy)
+  const sut = new DbAuthenticationUser(
+    loadUserByEmailRepositorySpy,
+    hashComparerSpy,
+    encrypterSpy,
+    updateAccessTokenRepositorySpy,
+    createAccessTokenRepositorySpy,
+    checkAccessTokenRepositorySpy
+  )
   return {
     sut,
     loadUserByEmailRepositorySpy,
     hashComparerSpy,
     encrypterSpy,
     updateAccessTokenRepositorySpy,
+    createAccessTokenRepositorySpy,
     checkAccessTokenRepositorySpy
   }
 }
@@ -123,10 +143,17 @@ describe('DbAuthenticationUser UseCase', () => {
     await expect(promise).rejects.toThrow()
   })
 
+  it('should call CreateAccessTokenRepository with correct values', async () => {
+    const { sut, createAccessTokenRepositorySpy, loadUserByEmailRepositorySpy, encrypterSpy } = makeSut()
+    await sut.auth(mockAuthenticationUserParams())
+    expect(createAccessTokenRepositorySpy.id).toBe(loadUserByEmailRepositorySpy.result?.id)
+    expect(createAccessTokenRepositorySpy.token).toBe(encrypterSpy.result)
+  })
+
   it('should call CheckAccessTokenRepository with correct userId', async () => {
     const { sut, checkAccessTokenRepositorySpy, loadUserByEmailRepositorySpy } = makeSut()
     await sut.auth(mockAuthenticationUserParams())
-    expect(checkAccessTokenRepositorySpy.userId).toBe(loadUserByEmailRepositorySpy.result?.id)
+    expect(checkAccessTokenRepositorySpy.id).toBe(loadUserByEmailRepositorySpy.result?.id)
   })
 
   it('should call UpdateAccessTokenRepository if CheckAccessTokenRepository returns true', async () => {
