@@ -1,42 +1,6 @@
-import { throwError } from '@/tests/domain/mocks'
-
-import faker from '@faker-js/faker'
-
-class DbCreateTask {
-  constructor(
-    private readonly createTaskRespository: CreateTaskRespository
-  ) {}
-
-  async create(params: CreateTask.Params): Promise<void> {
-    await this.createTaskRespository.create(params)
-  }
-}
-
-interface CreateTaskRespository {
-  create: (params: CreateTask.Params) => Promise<void>
-}
-
-class CreateTaskRespositorySpy implements CreateTaskRespository {
-  params = {}
-
-  async create(params: CreateTask.Params): Promise<void> {
-    this.params = params
-  }
-}
-
-namespace CreateTask {
-  export type Params = {
-    title: string,
-    description: string,
-    isCompleted: boolean,
-  }
-}
-
-const mockCreateTaskParams = (): CreateTask.Params => ({
-  title: faker.random.word(),
-  description: faker.random.word(),
-  isCompleted: false
-})
+import { DbCreateTask } from '@/data/usecases'
+import { throwError, mockCreateTaskParams } from '@/tests/domain/mocks'
+import { CreateTaskRespositorySpy } from '@/tests/data/mocks'
 
 type SutTypes = {
   sut: DbCreateTask,
