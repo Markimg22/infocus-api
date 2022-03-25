@@ -7,6 +7,7 @@ export namespace CreateTask {
     title: string,
     description: string,
     isCompleted: boolean,
+    userId: string
   }
 
   export type Result = void
