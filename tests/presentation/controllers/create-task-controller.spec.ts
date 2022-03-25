@@ -3,14 +3,15 @@ import { Validation, HttpResponse, Controller } from '@/presentation/protocols'
 import { MissingParamError } from '@/presentation/errors'
 import { badRequest, serverError } from '@/presentation/helpers'
 import { throwError } from '@/tests/domain/mocks'
+import { CreateTask } from '@/domain/usecases'
 
 import faker from '@faker-js/faker'
-import { CreateTask } from '@/domain/usecases'
 
 class CreateTaskController implements Controller {
   constructor(
     private readonly validation: Validation,
-    private readonly createTask: CreateTask
+    private readonly createTask: CreateTask,
+    private readonly loadTasks: LoadTasks
   ) {}
 
   async handle(request: CreateTaskController.Request): Promise<HttpResponse> {
@@ -18,6 +19,7 @@ class CreateTaskController implements Controller {
       const error = this.validation.validate(request)
       if (error) return badRequest(error)
       await this.createTask.create(request)
+      await this.loadTasks.loadByUserId(request.userId)
       return {
         statusCode: 200,
         body: {}
@@ -45,6 +47,18 @@ class CreateTaskSpy implements CreateTask {
   }
 }
 
+interface LoadTasks {
+  loadByUserId: (userId: string) => Promise<void>
+}
+
+class LoadTasksSpy implements LoadTasks {
+  userId = ''
+
+  async loadByUserId(userId: string): Promise<void> {
+    this.userId = userId
+  }
+}
+
 const mockRequest = (): CreateTaskController.Request => ({
   userId: faker.datatype.uuid(),
   title: faker.random.word(),
@@ -55,17 +69,20 @@ const mockRequest = (): CreateTaskController.Request => ({
 type SutTypes = {
   sut: CreateTaskController,
   validationSpy: ValidationSpy,
-  createTaskSpy: CreateTaskSpy
+  createTaskSpy: CreateTaskSpy,
+  loadTasksSpy: LoadTasksSpy
 }
 
 const makeSut = (): SutTypes => {
   const validationSpy = new ValidationSpy()
   const createTaskSpy = new CreateTaskSpy()
-  const sut = new CreateTaskController(validationSpy, createTaskSpy)
+  const loadTasksSpy = new LoadTasksSpy()
+  const sut = new CreateTaskController(validationSpy, createTaskSpy, loadTasksSpy)
   return {
     sut,
     validationSpy,
-    createTaskSpy
+    createTaskSpy,
+    loadTasksSpy
   }
 }
 
@@ -103,5 +120,12 @@ describe('CreateTask Controller', () => {
     jest.spyOn(createTaskSpy, 'create').mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
+  it('should call LoadTasks with correct values', async () => {
+    const { sut, loadTasksSpy } = makeSut()
+    const request = mockRequest()
+    await sut.handle(request)
+    expect(loadTasksSpy.userId).toEqual(request.userId)
   })
 })
