@@ -1,40 +1,6 @@
-import { UpdateStatusTask } from '@/domain/usecases'
-import { throwError } from '@/tests/domain/mocks'
-
-import faker from '@faker-js/faker'
-
-class DbUpdateStatusTask {
-  constructor(
-    private readonly updateStatusTaskRepository: UpdateStatusTaskRepository
-  ) {}
-
-  async update(data: UpdateStatusTask.Params): Promise<void> {
-    await this.updateStatusTaskRepository.update(data)
-  }
-}
-
-interface UpdateStatusTaskRepository {
-  update: (data: UpdateStatusTaskRepository.Params) => Promise<void>
-}
-
-namespace UpdateStatusTaskRepository {
-  export type Params = UpdateStatusTask.Params
-  export type Result = UpdateStatusTask.Result
-}
-
-class UpdateStatusTaskRepositorySpy implements UpdateStatusTaskRepository {
-  data = {}
-
-  async update(data: UpdateStatusTaskRepository.Params): Promise<void> {
-    this.data = data
-  }
-}
-
-const mockUpdateStatusTaskParams = (): UpdateStatusTask.Params => ({
-  id: faker.datatype.uuid(),
-  userId: faker.datatype.uuid(),
-  status: true
-})
+import { DbUpdateStatusTask } from '@/data/usecases'
+import { mockUpdateStatusTaskParams, throwError } from '@/tests/domain/mocks'
+import { UpdateStatusTaskRepositorySpy } from '@/tests/data/mocks'
 
 type SutTypes = {
   sut: DbUpdateStatusTask,

@@ -1,4 +1,4 @@
-import { CreateTaskRespository, LoadTasksRepository } from '@/data/protocols/repositories'
+import { CreateTaskRespository, LoadTasksRepository, UpdateStatusTaskRepository } from '@/data/protocols/repositories'
 
 import faker from '@faker-js/faker'
 
@@ -21,5 +21,13 @@ export class LoadTasksRepositorySpy implements LoadTasksRepository {
   async load(userId: string): Promise<LoadTasksRepository.Result> {
     this.userId = userId
     return this.result
+  }
+}
+
+export class UpdateStatusTaskRepositorySpy implements UpdateStatusTaskRepository {
+  data = {}
+
+  async update(data: UpdateStatusTaskRepository.Params): Promise<void> {
+    this.data = data
   }
 }
