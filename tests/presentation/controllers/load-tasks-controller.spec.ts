@@ -1,23 +1,20 @@
 import { LoadTasks } from '@/domain/usecases'
 import { throwError } from '@/tests/domain/mocks'
 import { LoadTasksSpy } from '@/tests/presentation/mocks'
-import { serverError } from '@/presentation/helpers'
+import { serverError, ok } from '@/presentation/helpers'
+import { Controller, HttpResponse } from '@/presentation/protocols'
 
 import faker from '@faker-js/faker'
-import { HttpResponse } from '../protocols'
 
-class LoadTasksController {
+class LoadTasksController implements Controller {
   constructor(
     private readonly loadTasks: LoadTasks
   ) {}
 
   async handle(request: LoadTasksController.Request): Promise<HttpResponse> {
     try {
-      await this.loadTasks.loadByUserId(request.userId)
-      return {
-        statusCode: 200,
-        body: {}
-      }
+      const tasks = await this.loadTasks.loadByUserId(request.userId)
+      return ok(tasks)
     } catch (error) {
       return serverError(error as Error)
     }
@@ -61,5 +58,11 @@ describe('LoadTasks Controller', () => {
     jest.spyOn(loadTasksSpy, 'loadByUserId').mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
+  it('should return 200 on success', async () => {
+    const { sut, loadTasksSpy } = makeSut()
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(ok(loadTasksSpy.result))
   })
 })
