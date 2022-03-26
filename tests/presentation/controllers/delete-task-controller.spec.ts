@@ -94,4 +94,11 @@ describe('DeleteTask Controller', () => {
     await sut.handle(request)
     expect(loadTasksSpy.userId).toBe(request.userId)
   })
+
+  it('should return 500 if LoadTasks throws', async () => {
+    const { sut, loadTasksSpy } = makeSut()
+    jest.spyOn(loadTasksSpy, 'loadByUserId').mockImplementationOnce(throwError)
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(serverError(new Error()))
+  })
 })
