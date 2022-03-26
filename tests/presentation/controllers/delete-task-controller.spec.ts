@@ -1,52 +1,9 @@
+import { DeleteTaskController } from '@/presentation/controllers'
 import { throwError } from '@/tests/domain/mocks'
-import faker from '@faker-js/faker'
 import { serverError, ok } from '@/presentation/helpers'
-import { Controller, HttpResponse } from '@/presentation/protocols'
-import { LoadTasks } from '@/domain/usecases'
-import { LoadTasksSpy } from '@/tests/presentation/mocks'
+import { LoadTasksSpy, DeleteTaskSpy } from '@/tests/presentation/mocks'
 
-class DeleteTaskController implements Controller {
-  constructor(
-    private readonly deleteTask: DeleteTask,
-    private readonly loadTasks: LoadTasks
-  ) {}
-
-  async handle(request: DeleteTaskController.Request): Promise<HttpResponse> {
-    try {
-      await this.deleteTask.delete(request)
-      const tasks = await this.loadTasks.loadByUserId(request.userId)
-      return ok(tasks)
-    } catch (error) {
-      return serverError(error as Error)
-    }
-  }
-}
-
-namespace DeleteTaskController {
-  export type Request = {
-    id: string,
-    userId: string
-  }
-}
-
-interface DeleteTask {
-  delete: (params: DeleteTask.Params) => Promise<void>
-}
-
-namespace DeleteTask {
-  export type Params = {
-    id: string,
-    userId: string
-  }
-}
-
-class DeleteTaskSpy implements DeleteTask {
-  params = {}
-
-  async delete(params: DeleteTask.Params): Promise<void> {
-    this.params = params
-  }
-}
+import faker from '@faker-js/faker'
 
 const mockRequest = (): DeleteTaskController.Request => ({
   id: faker.datatype.uuid(),

@@ -1,4 +1,4 @@
-import { CreateTask, LoadTasks, UpdateStatusTask } from '@/domain/usecases'
+import { CreateTask, DeleteTask, LoadTasks, UpdateStatusTask } from '@/domain/usecases'
 
 import faker from '@faker-js/faker'
 
@@ -34,6 +34,14 @@ export class UpdateStatusTaskSpy implements UpdateStatusTask {
   params = {}
 
   async update(params: UpdateStatusTask.Params): Promise<UpdateStatusTask.Result> {
+    this.params = params
+  }
+}
+
+export class DeleteTaskSpy implements DeleteTask {
+  params = {}
+
+  async delete(params: DeleteTask.Params): Promise<DeleteTask.Result> {
     this.params = params
   }
 }
