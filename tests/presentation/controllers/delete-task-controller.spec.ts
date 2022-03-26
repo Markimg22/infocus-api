@@ -2,15 +2,19 @@ import { throwError } from '@/tests/domain/mocks'
 import faker from '@faker-js/faker'
 import { serverError } from '@/presentation/helpers'
 import { Controller, HttpResponse } from '@/presentation/protocols'
+import { LoadTasks } from '@/domain/usecases'
+import { LoadTasksSpy } from '@/tests/presentation/mocks'
 
 class DeleteTaskController implements Controller {
   constructor(
-    private readonly deleteTask: DeleteTask
+    private readonly deleteTask: DeleteTask,
+    private readonly loadTasks: LoadTasks
   ) {}
 
   async handle(request: DeleteTaskController.Request): Promise<HttpResponse> {
     try {
       await this.deleteTask.delete(request)
+      await this.loadTasks.loadByUserId(request.userId)
       return {
         statusCode: 200,
         body: {}
@@ -54,15 +58,18 @@ const mockRequest = (): DeleteTaskController.Request => ({
 
 type SutTypes = {
   sut: DeleteTaskController,
-  deleteTaskSpy: DeleteTaskSpy
+  deleteTaskSpy: DeleteTaskSpy,
+  loadTasksSpy: LoadTasksSpy
 }
 
 const makeSut = (): SutTypes => {
   const deleteTaskSpy = new DeleteTaskSpy()
-  const sut = new DeleteTaskController(deleteTaskSpy)
+  const loadTasksSpy = new LoadTasksSpy()
+  const sut = new DeleteTaskController(deleteTaskSpy, loadTasksSpy)
   return {
     sut,
-    deleteTaskSpy
+    deleteTaskSpy,
+    loadTasksSpy
   }
 }
 
@@ -79,5 +86,12 @@ describe('DeleteTask Controller', () => {
     jest.spyOn(deleteTaskSpy, 'delete').mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
+  it('should call LoadTasks with correct userId', async () => {
+    const { sut, loadTasksSpy } = makeSut()
+    const request = mockRequest()
+    await sut.handle(request)
+    expect(loadTasksSpy.userId).toBe(request.userId)
   })
 })
