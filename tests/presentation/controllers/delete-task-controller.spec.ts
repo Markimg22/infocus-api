@@ -1,6 +1,6 @@
 import { throwError } from '@/tests/domain/mocks'
 import faker from '@faker-js/faker'
-import { serverError } from '@/presentation/helpers'
+import { serverError, ok } from '@/presentation/helpers'
 import { Controller, HttpResponse } from '@/presentation/protocols'
 import { LoadTasks } from '@/domain/usecases'
 import { LoadTasksSpy } from '@/tests/presentation/mocks'
@@ -14,11 +14,8 @@ class DeleteTaskController implements Controller {
   async handle(request: DeleteTaskController.Request): Promise<HttpResponse> {
     try {
       await this.deleteTask.delete(request)
-      await this.loadTasks.loadByUserId(request.userId)
-      return {
-        statusCode: 200,
-        body: {}
-      }
+      const tasks = await this.loadTasks.loadByUserId(request.userId)
+      return ok(tasks)
     } catch (error) {
       return serverError(error as Error)
     }
@@ -100,5 +97,11 @@ describe('DeleteTask Controller', () => {
     jest.spyOn(loadTasksSpy, 'loadByUserId').mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
+  it('should return 200 on success', async () => {
+    const { sut, loadTasksSpy } = makeSut()
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(ok(loadTasksSpy.result))
   })
 })
