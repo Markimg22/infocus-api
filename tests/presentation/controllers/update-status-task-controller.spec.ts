@@ -1,12 +1,12 @@
 import { throwError } from '@/tests/domain/mocks'
 import { serverError } from '@/presentation/helpers'
-import { HttpResponse } from '@/presentation/protocols'
+import { HttpResponse, Controller } from '@/presentation/protocols'
 import { LoadTasksSpy } from '@/tests/presentation/mocks'
 import { LoadTasks } from '@/domain/usecases'
 
 import faker from '@faker-js/faker'
 
-class UpdateStatusTaskController {
+class UpdateStatusTaskController implements Controller {
   constructor(
     private readonly updateStatusTask: UpdateStatusTask,
     private readonly loadTasks: LoadTasks
@@ -97,5 +97,12 @@ describe('UpdateStatusTask Controller', () => {
     const request = mockRequest()
     await sut.handle(request)
     expect(loadTasksSpy.userId).toBe(request.userId)
+  })
+
+  it('should return 500 if LoadTasks throws', async () => {
+    const { sut, loadTasksSpy } = makeSut()
+    jest.spyOn(loadTasksSpy, 'loadByUserId').mockImplementationOnce(throwError)
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(serverError(new Error()))
   })
 })
