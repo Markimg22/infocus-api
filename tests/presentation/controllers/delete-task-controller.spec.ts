@@ -1,12 +1,23 @@
+import { throwError } from '@/tests/domain/mocks'
 import faker from '@faker-js/faker'
+import { serverError } from '@/presentation/helpers'
+import { Controller, HttpResponse } from '@/presentation/protocols'
 
-class DeleteTaskController {
+class DeleteTaskController implements Controller {
   constructor(
     private readonly deleteTask: DeleteTask
   ) {}
 
-  async handle(request: DeleteTaskController.Request): Promise<void> {
-    await this.deleteTask.delete(request)
+  async handle(request: DeleteTaskController.Request): Promise<HttpResponse> {
+    try {
+      await this.deleteTask.delete(request)
+      return {
+        statusCode: 200,
+        body: {}
+      }
+    } catch (error) {
+      return serverError(error as Error)
+    }
   }
 }
 
@@ -61,5 +72,12 @@ describe('DeleteTask Controller', () => {
     const request = mockRequest()
     await sut.handle(request)
     expect(deleteTaskSpy.params).toEqual(request)
+  })
+
+  it('should return 500 if DeleteTask throws', async () => {
+    const { sut, deleteTaskSpy } = makeSut()
+    jest.spyOn(deleteTaskSpy, 'delete').mockImplementationOnce(throwError)
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(serverError(new Error()))
   })
 })
