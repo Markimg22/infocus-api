@@ -1,22 +1,8 @@
-import { LoadTasksRepository } from '@/data/protocols/repositories'
+import { PrismaLoadTasksRepository } from '@/infra/repositories'
 import { client } from '@/infra/helpers'
 import { mockCreateTaskParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
-import { PrismaClient, Users } from '@prisma/client'
-
-class PrismaLoadTasksRepository implements LoadTasksRepository {
-  constructor(
-    private readonly client: PrismaClient
-  ) {}
-
-  async load(userId: string): Promise<LoadTasksRepository.Result> {
-    const tasks = await this.client.tasks.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'asc' }
-    })
-    return tasks
-  }
-}
+import { Users } from '@prisma/client'
 
 const makeSut = (): PrismaLoadTasksRepository => {
   const sut = new PrismaLoadTasksRepository(client)
