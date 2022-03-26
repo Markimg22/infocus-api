@@ -1,6 +1,6 @@
 import { LoadTasksRepository } from '@/data/protocols/repositories'
 import { client } from '@/infra/helpers'
-import { mockCreateTaskParams, mockCreateUserParams } from '@/tests/domain/mocks'
+import { mockCreateTaskParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
 import { PrismaClient, Users } from '@prisma/client'
 
@@ -58,5 +58,12 @@ describe('PrismaLoadTasks Repository', () => {
     const sut = makeSut()
     const loadTasksResult = await sut.load('any_id')
     expect(loadTasksResult).toEqual([])
+  })
+
+  it('should throws if client database throws', async () => {
+    const sut = makeSut()
+    jest.spyOn(client.tasks, 'findMany').mockImplementationOnce(throwError)
+    const promise = sut.load('any_id')
+    await expect(promise).rejects.toThrow()
   })
 })
