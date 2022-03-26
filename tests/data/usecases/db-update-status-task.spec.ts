@@ -1,4 +1,5 @@
 import { UpdateStatusTask } from '@/domain/usecases'
+import { throwError } from '@/tests/domain/mocks'
 
 import faker from '@faker-js/faker'
 
@@ -55,5 +56,12 @@ describe('DbUpdateStatusTask UseCase', () => {
     const updateStatusTaskParams = mockUpdateStatusTaskParams()
     await sut.update(updateStatusTaskParams)
     expect(updateStatusTaskRepositorySpy.data).toEqual(updateStatusTaskParams)
+  })
+
+  it('should throws if UpdateStatusTaskRepository throws', async () => {
+    const { sut, updateStatusTaskRepositorySpy } = makeSut()
+    jest.spyOn(updateStatusTaskRepositorySpy, 'update').mockImplementationOnce(throwError)
+    const promise = sut.update(mockUpdateStatusTaskParams())
+    await expect(promise).rejects.toThrow()
   })
 })
