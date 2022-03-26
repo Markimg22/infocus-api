@@ -52,4 +52,10 @@ describe('PrismaLoadTasks Repository', () => {
     const loadTasksResult = await sut.load(user.id)
     expect(loadTasksResult).toEqual(tasks)
   })
+
+  it('should return empty array if not exists tasks', async () => {
+    const sut = makeSut()
+    const loadTasksResult = await sut.load('any_id')
+    expect(loadTasksResult).toEqual([])
+  })
 })
