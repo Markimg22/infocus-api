@@ -7,6 +7,6 @@ export namespace LoadTasks {
     id: string,
     title: string,
     description: string,
-    isCompleted: boolean
+    finished: boolean
   }
 }

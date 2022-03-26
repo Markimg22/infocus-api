@@ -32,7 +32,7 @@ describe('PrismaCreateTask Repository', () => {
     const task = await client.tasks.findFirst({ where: { userId: user.id } })
     expect(task?.title).toBe(createTaskParams.title)
     expect(task?.description).toBe(createTaskParams.description)
-    expect(task?.isCompleted).toBe(createTaskParams.isCompleted)
+    expect(task?.finished).toBe(createTaskParams.finished)
     expect(task?.userId).toBe(createTaskParams.userId)
   })
 

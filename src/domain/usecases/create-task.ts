@@ -6,7 +6,7 @@ export namespace CreateTask {
   export type Params = {
     title: string,
     description: string,
-    isCompleted: boolean,
+    finished: boolean,
     userId: string
   }
 

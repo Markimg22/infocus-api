@@ -15,7 +15,8 @@ export class LoadTasksRepositorySpy implements LoadTasksRepository {
   result = [{
     id: faker.datatype.uuid(),
     title: faker.random.word(),
-    description: faker.random.word()
+    description: faker.random.word(),
+    finished: true
   }] as LoadTasksRepository.Result
 
   async load(userId: string): Promise<LoadTasksRepository.Result> {

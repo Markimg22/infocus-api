@@ -23,6 +23,6 @@ export namespace UpdateStatusTaskController {
   export type Request = {
     id: string,
     userId: string,
-    status: boolean
+    finished: boolean
   }
 }

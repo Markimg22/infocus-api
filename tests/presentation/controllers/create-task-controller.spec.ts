@@ -10,7 +10,7 @@ const mockRequest = (): CreateTaskController.Request => ({
   userId: faker.datatype.uuid(),
   title: faker.random.word(),
   description: faker.random.word(),
-  isCompleted: false
+  finished: false
 })
 
 type SutTypes = {

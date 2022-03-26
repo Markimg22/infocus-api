@@ -6,7 +6,7 @@ export namespace UpdateStatusTask {
   export type Params = {
     id: string,
     userId: string,
-    status: boolean
+    finished: boolean
   }
 
   export type Result = void

@@ -16,12 +16,12 @@ export class LoadTasksSpy implements LoadTasks {
     id: faker.datatype.uuid(),
     title: faker.random.word(),
     description: faker.random.word(),
-    isCompleted: false
+    finished: false
   }, {
     id: faker.datatype.uuid(),
     title: faker.random.word(),
     description: faker.random.word(),
-    isCompleted: true
+    finished: true
   }] as LoadTasks.Result[]
 
   async loadByUserId(userId: string): Promise<LoadTasks.Result[]> {

@@ -10,10 +10,10 @@ class PrismaUpdateStatusTaskRepository implements UpdateStatusTaskRepository {
   ) {}
 
   async update(data: UpdateStatusTaskRepository.Params): Promise<UpdateStatusTaskRepository.Result> {
-    const { id, userId, status } = data
+    const { id, userId, finished } = data
     await this.client.tasks.updateMany({
       where: { id, userId },
-      data: { isCompleted: status }
+      data: { finished }
     })
   }
 }
@@ -48,9 +48,9 @@ describe('PrismaUpdateStatusTask Repository', () => {
     await sut.update({
       id: task.id,
       userId: user.id,
-      status: true
+      finished: true
     })
     const newTask = await client.tasks.findFirst({ where: { userId: user.id } })
-    expect(newTask?.isCompleted).toBe(true)
+    expect(newTask?.finished).toBe(true)
   })
 })

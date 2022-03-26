@@ -8,7 +8,7 @@ import faker from '@faker-js/faker'
 const mockRequest = (): UpdateStatusTaskController.Request => ({
   id: faker.datatype.uuid(),
   userId: faker.datatype.uuid(),
-  status: false
+  finished: false
 })
 
 type SutTypes = {
