@@ -1,22 +1,8 @@
-import { UpdateStatusTaskRepository } from '@/data/protocols/repositories'
+import { PrismaUpdateStatusTaskRepository } from '@/infra/repositories'
 import { client } from '@/infra/helpers'
 import { mockCreateTaskParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
-import { PrismaClient, Tasks, Users } from '@prisma/client'
-
-class PrismaUpdateStatusTaskRepository implements UpdateStatusTaskRepository {
-  constructor(
-    private readonly client: PrismaClient
-  ) {}
-
-  async update(data: UpdateStatusTaskRepository.Params): Promise<UpdateStatusTaskRepository.Result> {
-    const { id, userId, finished } = data
-    await this.client.tasks.updateMany({
-      where: { id, userId },
-      data: { finished }
-    })
-  }
-}
+import { Tasks, Users } from '@prisma/client'
 
 const makeSut = (): PrismaUpdateStatusTaskRepository => {
   const sut = new PrismaUpdateStatusTaskRepository(client)
