@@ -1,5 +1,5 @@
 import { throwError } from '@/tests/domain/mocks'
-import { serverError } from '@/presentation/helpers'
+import { serverError, ok } from '@/presentation/helpers'
 import { HttpResponse, Controller } from '@/presentation/protocols'
 import { LoadTasksSpy } from '@/tests/presentation/mocks'
 import { LoadTasks } from '@/domain/usecases'
@@ -15,11 +15,8 @@ class UpdateStatusTaskController implements Controller {
   async handle(request: UpdateStatusTaskController.Request): Promise<HttpResponse> {
     try {
       await this.updateStatusTask.update(request)
-      await this.loadTasks.loadByUserId(request.userId)
-      return {
-        statusCode: 200,
-        body: {}
-      }
+      const tasks = await this.loadTasks.loadByUserId(request.userId)
+      return ok(tasks)
     } catch (error) {
       return serverError(error as Error)
     }
@@ -35,7 +32,7 @@ namespace UpdateStatusTaskController {
 }
 
 interface UpdateStatusTask {
-  update: (params: UpdateStatusTask.Params) => Promise<void>
+  update: (params: UpdateStatusTask.Params) => Promise<UpdateStatusTask.Result>
 }
 
 namespace UpdateStatusTask {
@@ -44,12 +41,14 @@ namespace UpdateStatusTask {
     userId: string,
     status: boolean
   }
+
+  export type Result = void
 }
 
 class UpdateStatusTaskSpy implements UpdateStatusTask {
   params = {}
 
-  async update(params: UpdateStatusTask.Params): Promise<void> {
+  async update(params: UpdateStatusTask.Params): Promise<UpdateStatusTask.Result> {
     this.params = params
   }
 }
@@ -104,5 +103,11 @@ describe('UpdateStatusTask Controller', () => {
     jest.spyOn(loadTasksSpy, 'loadByUserId').mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
+  it('should return 200 on success', async () => {
+    const { sut, loadTasksSpy } = makeSut()
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(ok(loadTasksSpy.result))
   })
 })
