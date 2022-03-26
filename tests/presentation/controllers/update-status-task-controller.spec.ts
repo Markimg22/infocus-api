@@ -1,3 +1,7 @@
+import { throwError } from '@/tests/domain/mocks'
+import { serverError } from '@/presentation/helpers'
+import { HttpResponse } from '@/presentation/protocols'
+
 import faker from '@faker-js/faker'
 
 class UpdateStatusTaskController {
@@ -5,8 +9,16 @@ class UpdateStatusTaskController {
     private readonly updateStatusTask: UpdateStatusTask
   ) {}
 
-  async handle(request: UpdateStatusTaskController.Request): Promise<void> {
-    await this.updateStatusTask.update(request)
+  async handle(request: UpdateStatusTaskController.Request): Promise<HttpResponse> {
+    try {
+      await this.updateStatusTask.update(request)
+      return {
+        statusCode: 200,
+        body: {}
+      }
+    } catch (error) {
+      return serverError(error as Error)
+    }
   }
 }
 
@@ -64,5 +76,12 @@ describe('UpdateStatusTask Controller', () => {
     const request = mockRequest()
     await sut.handle(request)
     expect(updateStatusTaskSpy.params).toEqual(request)
+  })
+
+  it('should return 500 if UpdateStatusTask throws', async () => {
+    const { sut, updateStatusTaskSpy } = makeSut()
+    jest.spyOn(updateStatusTaskSpy, 'update').mockImplementationOnce(throwError)
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(serverError(new Error()))
   })
 })
