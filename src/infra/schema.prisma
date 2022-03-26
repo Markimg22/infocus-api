@@ -35,7 +35,7 @@ model Tasks {
   id          String   @id @unique @default(uuid())
   title       String
   description String
-  isCompleted Boolean  @default(false) @map("is_completed")
+  finished    Boolean  @default(false)
   user        Users    @relation(fields: [userId], references: [id])
   userId      String   @map("user_id")
   createdAt   DateTime @default(now()) @map("created_at")
