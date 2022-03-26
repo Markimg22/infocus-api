@@ -1,17 +1,21 @@
 import { throwError } from '@/tests/domain/mocks'
 import { serverError } from '@/presentation/helpers'
 import { HttpResponse } from '@/presentation/protocols'
+import { LoadTasksSpy } from '@/tests/presentation/mocks'
+import { LoadTasks } from '@/domain/usecases'
 
 import faker from '@faker-js/faker'
 
 class UpdateStatusTaskController {
   constructor(
-    private readonly updateStatusTask: UpdateStatusTask
+    private readonly updateStatusTask: UpdateStatusTask,
+    private readonly loadTasks: LoadTasks
   ) {}
 
   async handle(request: UpdateStatusTaskController.Request): Promise<HttpResponse> {
     try {
       await this.updateStatusTask.update(request)
+      await this.loadTasks.loadByUserId(request.userId)
       return {
         statusCode: 200,
         body: {}
@@ -58,15 +62,18 @@ const mockRequest = (): UpdateStatusTaskController.Request => ({
 
 type SutTypes = {
   sut: UpdateStatusTaskController,
-  updateStatusTaskSpy: UpdateStatusTaskSpy
+  updateStatusTaskSpy: UpdateStatusTaskSpy,
+  loadTasksSpy: LoadTasksSpy
 }
 
 const makeSut = (): SutTypes => {
   const updateStatusTaskSpy = new UpdateStatusTaskSpy()
-  const sut = new UpdateStatusTaskController(updateStatusTaskSpy)
+  const loadTasksSpy = new LoadTasksSpy()
+  const sut = new UpdateStatusTaskController(updateStatusTaskSpy, loadTasksSpy)
   return {
     sut,
-    updateStatusTaskSpy
+    updateStatusTaskSpy,
+    loadTasksSpy
   }
 }
 
@@ -83,5 +90,12 @@ describe('UpdateStatusTask Controller', () => {
     jest.spyOn(updateStatusTaskSpy, 'update').mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
+  it('should call LoadTasks with correct userId', async () => {
+    const { sut, loadTasksSpy } = makeSut()
+    const request = mockRequest()
+    await sut.handle(request)
+    expect(loadTasksSpy.userId).toBe(request.userId)
   })
 })
