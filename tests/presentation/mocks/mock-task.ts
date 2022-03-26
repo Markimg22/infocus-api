@@ -1,4 +1,4 @@
-import { CreateTask, LoadTasks } from '@/domain/usecases'
+import { CreateTask, LoadTasks, UpdateStatusTask } from '@/domain/usecases'
 
 import faker from '@faker-js/faker'
 
@@ -27,5 +27,13 @@ export class LoadTasksSpy implements LoadTasks {
   async loadByUserId(userId: string): Promise<LoadTasks.Result[]> {
     this.userId = userId
     return this.result
+  }
+}
+
+export class UpdateStatusTaskSpy implements UpdateStatusTask {
+  params = {}
+
+  async update(params: UpdateStatusTask.Params): Promise<UpdateStatusTask.Result> {
+    this.params = params
   }
 }
