@@ -1,31 +1,9 @@
-import { LoadTasks } from '@/domain/usecases'
+import { LoadTasksController } from '@/presentation/controllers'
 import { throwError } from '@/tests/domain/mocks'
 import { LoadTasksSpy } from '@/tests/presentation/mocks'
 import { serverError, ok } from '@/presentation/helpers'
-import { Controller, HttpResponse } from '@/presentation/protocols'
 
 import faker from '@faker-js/faker'
-
-class LoadTasksController implements Controller {
-  constructor(
-    private readonly loadTasks: LoadTasks
-  ) {}
-
-  async handle(request: LoadTasksController.Request): Promise<HttpResponse> {
-    try {
-      const tasks = await this.loadTasks.loadByUserId(request.userId)
-      return ok(tasks)
-    } catch (error) {
-      return serverError(error as Error)
-    }
-  }
-}
-
-namespace LoadTasksController {
-  export type Request = {
-    userId: string
-  }
-}
 
 const mockRequest = (): LoadTasksController.Request => ({
   userId: faker.datatype.uuid()
