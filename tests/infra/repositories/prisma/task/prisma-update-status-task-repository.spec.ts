@@ -1,6 +1,6 @@
 import { UpdateStatusTaskRepository } from '@/data/protocols/repositories'
 import { client } from '@/infra/helpers'
-import { mockCreateTaskParams, mockCreateUserParams } from '@/tests/domain/mocks'
+import { mockCreateTaskParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
 import { PrismaClient, Tasks, Users } from '@prisma/client'
 
@@ -52,5 +52,16 @@ describe('PrismaUpdateStatusTask Repository', () => {
     })
     const newTask = await client.tasks.findFirst({ where: { userId: user.id } })
     expect(newTask?.finished).toBe(true)
+  })
+
+  it('should throws if client database throws', async () => {
+    const sut = makeSut()
+    jest.spyOn(client.tasks, 'updateMany').mockImplementationOnce(throwError)
+    const promise = sut.update({
+      id: task.id,
+      userId: user.id,
+      finished: true
+    })
+    await expect(promise).rejects.toThrow()
   })
 })
