@@ -1,4 +1,5 @@
 import { DeleteTask } from '@/domain/usecases'
+import { throwError } from '@/tests/domain/mocks'
 
 import faker from '@faker-js/faker'
 
@@ -54,5 +55,12 @@ describe('DbDeleteTask UseCase', () => {
     const deleteTaskParams = mockDeleteTaskParams()
     await sut.delete(deleteTaskParams)
     expect(deleteTaskRepositorySpy.data).toEqual(deleteTaskParams)
+  })
+
+  it('should throws if DeleteTaskRepository throws', async () => {
+    const { sut, deleteTaskRepositorySpy } = makeSut()
+    jest.spyOn(deleteTaskRepositorySpy, 'delete').mockImplementationOnce(throwError)
+    const promise = sut.delete(mockDeleteTaskParams())
+    await expect(promise).rejects.toThrow()
   })
 })
