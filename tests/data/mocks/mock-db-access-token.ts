@@ -1,4 +1,8 @@
-import { UpdateAccessTokenRepository, CreateAccessTokenRepository, CheckAccessTokenRepository } from '@/data/protocols/repositories'
+import {
+  UpdateAccessTokenRepository,
+  CreateAccessTokenRepository,
+  CheckAccessTokenRepository
+} from '@/data/protocols/repositories'
 
 export class UpdateAccessTokenRepositorySpy implements UpdateAccessTokenRepository {
   id = ''

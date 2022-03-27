@@ -1,4 +1,9 @@
-import { CreateTaskRespository, LoadTasksRepository, UpdateStatusTaskRepository, DeleteTaskRepository } from '@/data/protocols/repositories'
+import {
+  CreateTaskRespository,
+  LoadTasksRepository,
+  UpdateStatusTaskRepository,
+  DeleteTaskRepository
+} from '@/data/protocols/repositories'
 
 import faker from '@faker-js/faker'
 

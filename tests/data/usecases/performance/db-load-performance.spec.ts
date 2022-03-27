@@ -1,39 +1,8 @@
-import { LoadPerformance } from '@/domain/usecases'
+import { DbLoadPerformance } from '@/data/usecases'
 import { throwError } from '@/tests/domain/mocks'
+import { LoadPerformanceRepositorySpy } from '@/tests/data/mocks'
+
 import faker from '@faker-js/faker'
-
-class DbLoadPerformance implements LoadPerformance {
-  constructor(
-    private readonly loadPerformanceRepository: LoadPerformanceRepository
-  ) {}
-
-  async loadByUserId(userId: string): Promise<LoadPerformance.Result> {
-    const performance = await this.loadPerformanceRepository.load(userId)
-    return performance
-  }
-}
-
-interface LoadPerformanceRepository {
-  load: (userId: string) => Promise<LoadPerformanceRepository.Result>
-}
-
-namespace LoadPerformanceRepository {
-  export type Result = LoadPerformance.Result
-}
-
-class LoadPerformanceRepositorySpy implements LoadPerformanceRepository {
-  userId = ''
-  result = {
-    totalRestTime: faker.datatype.number(),
-    totalTasksFinished: faker.datatype.number(),
-    totalWorkTime: faker.datatype.number()
-  } as LoadPerformanceRepository.Result
-
-  async load(userId: string): Promise<LoadPerformanceRepository.Result> {
-    this.userId = userId
-    return this.result
-  }
-}
 
 type SutTypes = {
   sut: DbLoadPerformance,
