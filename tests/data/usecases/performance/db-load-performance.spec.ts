@@ -1,25 +1,37 @@
+import { LoadPerformance } from '@/domain/usecases'
 import { throwError } from '@/tests/domain/mocks'
 import faker from '@faker-js/faker'
 
-class DbLoadPerformance {
+class DbLoadPerformance implements LoadPerformance {
   constructor(
     private readonly loadPerformanceRepository: LoadPerformanceRepository
   ) {}
 
-  async load(userId: string): Promise<void> {
-    await this.loadPerformanceRepository.load(userId)
+  async loadByUserId(userId: string): Promise<LoadPerformance.Result> {
+    const performance = await this.loadPerformanceRepository.load(userId)
+    return performance
   }
 }
 
 interface LoadPerformanceRepository {
-  load: (userId: string) => Promise<void>
+  load: (userId: string) => Promise<LoadPerformanceRepository.Result>
+}
+
+namespace LoadPerformanceRepository {
+  export type Result = LoadPerformance.Result
 }
 
 class LoadPerformanceRepositorySpy implements LoadPerformanceRepository {
   userId = ''
+  result = {
+    totalRestTime: faker.datatype.number(),
+    totalTasksFinished: faker.datatype.number(),
+    totalWorkTime: faker.datatype.number()
+  } as LoadPerformanceRepository.Result
 
-  async load(userId: string): Promise<void> {
+  async load(userId: string): Promise<LoadPerformanceRepository.Result> {
     this.userId = userId
+    return this.result
   }
 }
 
@@ -41,14 +53,20 @@ describe('DbLoadPerformance UseCase', () => {
   it('should call LoadPerformanceRepository with correct userId', async () => {
     const { sut, loadPerformanceRepositorySpy } = makeSut()
     const userId = faker.datatype.uuid()
-    await sut.load(userId)
+    await sut.loadByUserId(userId)
     expect(loadPerformanceRepositorySpy.userId).toBe(userId)
   })
 
   it('should throw if LoadPerformanceRepository throws', async () => {
     const { sut, loadPerformanceRepositorySpy } = makeSut()
     jest.spyOn(loadPerformanceRepositorySpy, 'load').mockImplementationOnce(throwError)
-    const promise = sut.load('any_id')
+    const promise = sut.loadByUserId('any_id')
     await expect(promise).rejects.toThrow()
+  })
+
+  it('should return user performance on success', async () => {
+    const { sut, loadPerformanceRepositorySpy } = makeSut()
+    const result = await sut.loadByUserId('any_id')
+    expect(result).toEqual(loadPerformanceRepositorySpy.result)
   })
 })
