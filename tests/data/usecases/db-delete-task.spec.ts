@@ -1,39 +1,6 @@
-import { DeleteTask } from '@/domain/usecases'
-import { throwError } from '@/tests/domain/mocks'
-
-import faker from '@faker-js/faker'
-
-class DbDeleteTask implements DeleteTask {
-  constructor(
-    private readonly deleteTaskRepository: DeleteTaskRepository
-  ) {}
-
-  async delete(params: DeleteTask.Params): Promise<DeleteTask.Result> {
-    await this.deleteTaskRepository.delete(params)
-  }
-}
-
-interface DeleteTaskRepository {
-  delete: (data: DeleteTaskRepository.Params) => Promise<DeleteTaskRepository.Result>
-}
-
-namespace DeleteTaskRepository {
-  export type Params = DeleteTask.Params
-  export type Result = DeleteTask.Result
-}
-
-class DeleteTaskRepositorySpy implements DeleteTaskRepository {
-  data = {}
-
-  async delete(data: DeleteTaskRepository.Params): Promise<DeleteTaskRepository.Result> {
-    this.data = data
-  }
-}
-
-const mockDeleteTaskParams = (): DeleteTask.Params => ({
-  id: faker.datatype.uuid(),
-  userId: faker.datatype.uuid()
-})
+import { DbDeleteTask } from '@/data/usecases'
+import { throwError, mockDeleteTaskParams } from '@/tests/domain/mocks'
+import { DeleteTaskRepositorySpy } from '@/tests/data/mocks'
 
 type SutTypes = {
   sut: DbDeleteTask,

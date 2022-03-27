@@ -1,4 +1,4 @@
-import { CreateTask, UpdateStatusTask } from '@/domain/usecases'
+import { CreateTask, UpdateStatusTask, DeleteTask } from '@/domain/usecases'
 
 import faker from '@faker-js/faker'
 
@@ -13,4 +13,9 @@ export const mockUpdateStatusTaskParams = (): UpdateStatusTask.Params => ({
   id: faker.datatype.uuid(),
   userId: faker.datatype.uuid(),
   finished: true
+})
+
+export const mockDeleteTaskParams = (): DeleteTask.Params => ({
+  id: faker.datatype.uuid(),
+  userId: faker.datatype.uuid()
 })
