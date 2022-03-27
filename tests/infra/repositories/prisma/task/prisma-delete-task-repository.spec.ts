@@ -1,21 +1,8 @@
-import { DeleteTaskRepository } from '@/data/protocols/repositories'
+import { PrismaDeleteTaskRepository } from '@/infra/repositories'
 import { client } from '@/infra/helpers'
 import { mockCreateTaskParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
-import { PrismaClient, Tasks, Users } from '@prisma/client'
-
-class PrismaDeleteTaskRepository implements DeleteTaskRepository {
-  constructor(
-    private readonly client: PrismaClient
-  ) {}
-
-  async delete(data: DeleteTaskRepository.Params): Promise<DeleteTaskRepository.Result> {
-    const { id, userId } = data
-    await this.client.tasks.deleteMany({
-      where: { id, userId }
-    })
-  }
-}
+import { Tasks, Users } from '@prisma/client'
 
 const makeSut = (): PrismaDeleteTaskRepository => {
   const sut = new PrismaDeleteTaskRepository(client)
