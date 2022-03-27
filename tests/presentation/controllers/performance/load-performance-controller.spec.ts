@@ -1,3 +1,7 @@
+import { serverError } from '@/presentation/helpers'
+import { HttpResponse } from '@/presentation/protocols'
+import { throwError } from '@/tests/domain/mocks'
+
 import faker from '@faker-js/faker'
 
 class LoadPerformanceController {
@@ -5,8 +9,16 @@ class LoadPerformanceController {
     private readonly loadPerformance: LoadPerformance
   ) {}
 
-  async handle(request: LoadPerformanceController.Request): Promise<void> {
-    await this.loadPerformance.load(request.userId)
+  async handle(request: LoadPerformanceController.Request): Promise<HttpResponse> {
+    try {
+      await this.loadPerformance.load(request.userId)
+      return {
+        statusCode: 200,
+        body: {}
+      }
+    } catch (error) {
+      return serverError(error as Error)
+    }
   }
 }
 
@@ -52,5 +64,12 @@ describe('LoadPerformance Controller', () => {
     const request = mockRequest()
     await sut.handle(request)
     expect(loadPerformanceSpy.userId).toBe(request.userId)
+  })
+
+  it('should return 500 if LoadPerformance throws', async () => {
+    const { sut, loadPerformanceSpy } = makeSut()
+    jest.spyOn(loadPerformanceSpy, 'load').mockImplementationOnce(throwError)
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(serverError(new Error()))
   })
 })
