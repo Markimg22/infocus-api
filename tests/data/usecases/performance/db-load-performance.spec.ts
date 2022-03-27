@@ -1,3 +1,4 @@
+import { throwError } from '@/tests/domain/mocks'
 import faker from '@faker-js/faker'
 
 class DbLoadPerformance {
@@ -42,5 +43,12 @@ describe('DbLoadPerformance UseCase', () => {
     const userId = faker.datatype.uuid()
     await sut.load(userId)
     expect(loadPerformanceRepositorySpy.userId).toBe(userId)
+  })
+
+  it('should throw if LoadPerformanceRepository throws', async () => {
+    const { sut, loadPerformanceRepositorySpy } = makeSut()
+    jest.spyOn(loadPerformanceRepositorySpy, 'load').mockImplementationOnce(throwError)
+    const promise = sut.load('any_id')
+    await expect(promise).rejects.toThrow()
   })
 })
