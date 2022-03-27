@@ -9,6 +9,6 @@ export class PrismaCheckUserByEmailRepository implements CheckUserByEmailReposit
 
   async check(email: string): Promise<boolean> {
     const user = await this.client.users.findFirst({ where: { email } })
-    return !!user
+    return user !== null
   }
 }
