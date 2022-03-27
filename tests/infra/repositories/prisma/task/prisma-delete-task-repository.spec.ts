@@ -1,6 +1,6 @@
 import { DeleteTaskRepository } from '@/data/protocols/repositories'
 import { client } from '@/infra/helpers'
-import { mockCreateTaskParams, mockCreateUserParams } from '@/tests/domain/mocks'
+import { mockCreateTaskParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
 import { PrismaClient, Tasks, Users } from '@prisma/client'
 
@@ -50,5 +50,12 @@ describe('PrismaDeleteTask Repository', () => {
     })
     const tasks = await client.tasks.findFirst({ where: { userId: user.id } })
     expect(tasks).toBeNull()
+  })
+
+  it('should throws if client database throws', async () => {
+    const sut = makeSut()
+    jest.spyOn(client.tasks, 'deleteMany').mockImplementationOnce(throwError)
+    const promise = sut.delete({ id: 'any_id', userId: 'any_id' })
+    await expect(promise).rejects.toThrow()
   })
 })
