@@ -1,5 +1,5 @@
 export interface CreatePerformanceRepository {
-  create: (params: CreatePerformanceRepository.Params) => Promise<CreatePerformanceRepository.Result>
+  create: (data: CreatePerformanceRepository.Params) => Promise<CreatePerformanceRepository.Result>
 }
 
 export namespace CreatePerformanceRepository {

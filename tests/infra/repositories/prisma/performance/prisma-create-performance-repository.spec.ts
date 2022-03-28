@@ -1,20 +1,8 @@
-import { CreatePerformanceRepository } from '@/data/protocols/repositories'
+import { PrismaCreatePerformanceRepository } from '@/infra/repositories'
 import { client } from '@/infra/helpers'
 import { mockCreatePerformanceParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
-import { PrismaClient, Users } from '@prisma/client'
-
-class PrismaCreatePerformanceRepository {
-  constructor(
-    private readonly client: PrismaClient
-  ) {}
-
-  async create(data: CreatePerformanceRepository.Params): Promise<CreatePerformanceRepository.Result> {
-    await this.client.performance.create({
-      data
-    })
-  }
-}
+import { Users } from '@prisma/client'
 
 const makeSut = (): PrismaCreatePerformanceRepository => {
   const sut = new PrismaCreatePerformanceRepository(client)
