@@ -1,6 +1,6 @@
 import { LoadPerformanceRepository } from '@/data/protocols/repositories'
 import { client } from '@/infra/helpers'
-import { mockCreateUserParams } from '@/tests/domain/mocks'
+import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 import faker from '@faker-js/faker'
 
 import { PrismaClient, Users } from '@prisma/client'
@@ -82,5 +82,12 @@ describe('PrismaLoadPerformance Repository', () => {
     const sut = makeSut()
     const performance = await sut.load('any_id')
     expect(performance).toEqual({})
+  })
+
+  it('should throws if client database throws', async () => {
+    const sut = makeSut()
+    jest.spyOn(client.performance, 'findFirst').mockImplementationOnce(throwError)
+    const promise = sut.load('any_id')
+    await expect(promise).rejects.toThrow()
   })
 })
