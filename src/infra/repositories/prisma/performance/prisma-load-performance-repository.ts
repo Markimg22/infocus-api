@@ -2,7 +2,7 @@ import { LoadPerformanceRepository } from '@/data/protocols/repositories'
 
 import { PrismaClient } from '@prisma/client'
 
-export class PrismaLoadPerformanceRepository {
+export class PrismaLoadPerformanceRepository implements LoadPerformanceRepository {
   constructor(
     private readonly client: PrismaClient
   ) {}
