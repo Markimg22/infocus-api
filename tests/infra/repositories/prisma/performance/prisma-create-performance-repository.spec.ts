@@ -1,6 +1,6 @@
 import { CreatePerformanceRepository } from '@/data/protocols/repositories'
 import { client } from '@/infra/helpers'
-import { mockCreatePerformanceParams, mockCreateUserParams } from '@/tests/domain/mocks'
+import { mockCreatePerformanceParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
 import { PrismaClient, Users } from '@prisma/client'
 
@@ -50,5 +50,12 @@ describe('PrismaCreatePerformance Repository', () => {
       totalWorkTime: performance?.totalWorkTime,
       userId: performance?.userId
     })
+  })
+
+  it('should throws if client database throws', async () => {
+    const sut = makeSut()
+    jest.spyOn(client.performance, 'create').mockImplementationOnce(throwError)
+    const promise = sut.create(mockCreatePerformanceParams(user.id))
+    await expect(promise).rejects.toThrow()
   })
 })
