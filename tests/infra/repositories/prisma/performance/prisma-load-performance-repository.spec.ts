@@ -1,49 +1,8 @@
-import { LoadPerformanceRepository } from '@/data/protocols/repositories'
+import { PrismaLoadPerformanceRepository } from '@/infra/repositories'
 import { client } from '@/infra/helpers'
-import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
-import faker from '@faker-js/faker'
+import { mockCreatePerformanceParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
-import { PrismaClient, Users } from '@prisma/client'
-
-const mockCreatePerformanceParams = (userId: string): CreatePerformanceRepository.Params => ({
-  userId,
-  totalTasksFinished: faker.datatype.number(),
-  totalRestTime: faker.datatype.number(),
-  totalWorkTime: faker.datatype.number()
-})
-
-interface CreatePerformanceRepository {
-  create: () => Promise<void>
-}
-
-namespace CreatePerformanceRepository {
-  export type Params = {
-    userId: string,
-    totalTasksFinished: number,
-    totalRestTime: number,
-    totalWorkTime: number
-  }
-}
-
-class PrismaLoadPerformanceRepository {
-  constructor(
-    private readonly client: PrismaClient
-  ) {}
-
-  async load(userId: string): Promise<LoadPerformanceRepository.Result> {
-    const performance = await this.client.performance.findFirst({
-      where: { userId }
-    })
-    if (performance) {
-      return {
-        totalRestTime: performance.totalRestTime,
-        totalTasksFinished: performance.totalTasksFinished,
-        totalWorkTime: performance.totalWorkTime
-      }
-    }
-    return {} as LoadPerformanceRepository.Result
-  }
-}
+import { Users } from '@prisma/client'
 
 const makeSut = (): PrismaLoadPerformanceRepository => {
   const sut = new PrismaLoadPerformanceRepository(client)
