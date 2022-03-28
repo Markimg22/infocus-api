@@ -77,4 +77,10 @@ describe('PrismaLoadPerformance Repository', () => {
     expect(performance.totalTasksFinished).toBe(createPerformanceParams.totalTasksFinished)
     expect(performance.totalWorkTime).toBe(createPerformanceParams.totalWorkTime)
   })
+
+  it('should retuns {} if not user found', async () => {
+    const sut = makeSut()
+    const performance = await sut.load('any_id')
+    expect(performance).toEqual({})
+  })
 })
