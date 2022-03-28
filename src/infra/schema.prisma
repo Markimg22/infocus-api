@@ -14,6 +14,7 @@ model Users {
   password    String
   accessToken AccessToken?
   tasks       Tasks[]
+  performance Performance?
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
 
@@ -42,4 +43,17 @@ model Tasks {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("tasks")
+}
+
+model Performance {
+  id                 String   @id @unique @default(uuid())
+  totalWorkTime      Int      @default(0) @map("total_work_time")
+  totalRestTime      Int      @default(0) @map("total_rest_time")
+  totalTasksFinished Int      @default(0) @map("total_tasks_finished")
+  user               Users    @relation(fields: [userId], references: [id])
+  userId             String   @unique @map("user_id")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@map("performance")
 }
