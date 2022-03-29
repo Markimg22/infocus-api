@@ -22,7 +22,7 @@ export class LoadPerformanceRepositorySpy implements LoadPerformanceRepository {
 export class CreatePerformanceRepositorySpy implements CreatePerformanceRepository {
   userId = ''
 
-  async create(data: CreatePerformanceRepository.Params): Promise<void> {
+  async create(data: CreatePerformanceRepository.Params): Promise<CreatePerformanceRepository.Result> {
     this.userId = data.userId
   }
 }
