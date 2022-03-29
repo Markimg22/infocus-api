@@ -1,6 +1,7 @@
 import {
   LoadPerformanceRepository,
-  CreatePerformanceRepository
+  CreatePerformanceRepository,
+  UpdatePerformanceRepository
 } from '@/data/protocols/repositories'
 
 import faker from '@faker-js/faker'
@@ -24,5 +25,13 @@ export class CreatePerformanceRepositorySpy implements CreatePerformanceReposito
 
   async create(data: CreatePerformanceRepository.Params): Promise<CreatePerformanceRepository.Result> {
     this.userId = data.userId
+  }
+}
+
+export class UpdatePerformanceRepositorySpy implements UpdatePerformanceRepository {
+  data = {}
+
+  async update(data: UpdatePerformanceRepository.Params): Promise<UpdatePerformanceRepository.Result> {
+    this.data = data
   }
 }

@@ -1,40 +1,6 @@
-import { UpdatePerformance } from '@/domain/usecases'
-import { throwError } from '@/tests/domain/mocks'
-
-import faker from '@faker-js/faker'
-
-class DbUpdatePerformance implements UpdatePerformance {
-  constructor(
-    private readonly updatePerformanceRepository: UpdatePerformanceRepository
-  ) {}
-
-  async update(params: UpdatePerformance.Params): Promise<UpdatePerformance.Result> {
-    await this.updatePerformanceRepository.update(params)
-  }
-}
-
-interface UpdatePerformanceRepository {
-  update: (data: UpdatePerformanceRepository.Params) => Promise<UpdatePerformanceRepository.Result>
-}
-
-namespace UpdatePerformanceRepository {
-  export type Params = UpdatePerformance.Params
-  export type Result = UpdatePerformance.Result
-}
-
-class UpdatePerformanceRepositorySpy implements UpdatePerformanceRepository {
-  data = {}
-
-  async update(data: UpdatePerformanceRepository.Params): Promise<UpdatePerformanceRepository.Result> {
-    this.data = data
-  }
-}
-
-const mockUpdatePerformanceParams = (userId: string): UpdatePerformance.Params => ({
-  userId,
-  field: 'totalRestTime',
-  value: faker.datatype.number()
-})
+import { DbUpdatePerformance } from '@/data/usecases'
+import { mockUpdatePerformanceParams, throwError } from '@/tests/domain/mocks'
+import { UpdatePerformanceRepositorySpy } from '@/tests/data/mocks'
 
 type SutTypes = {
   sut: DbUpdatePerformance,
