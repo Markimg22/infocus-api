@@ -3,17 +3,9 @@ import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 import {
   CheckUserByEmailRepositorySpy,
   HasherSpy,
-  CreateUserRepositorySpy
+  CreateUserRepositorySpy,
+  CreatePerformanceRepositorySpy
 } from '@/tests/data/mocks'
-import { CreatePerformanceRepository } from '@/data/protocols/repositories'
-
-class CreatePerformanceRepositorySpy implements CreatePerformanceRepository {
-  userId = ''
-
-  async create(data: CreatePerformanceRepository.Params): Promise<void> {
-    this.userId = data.userId
-  }
-}
 
 type SutTypes = {
   sut: DbCreateUser,
