@@ -1,56 +1,9 @@
-import { LoadPerformance } from '@/domain/usecases'
+import { UpdatePerformanceController } from '@/presentation/controllers'
 import { ok, serverError } from '@/presentation/helpers'
-import { Controller, HttpResponse } from '@/presentation/protocols'
 import { throwError } from '@/tests/domain/mocks'
+import { UpdatePerformanceSpy } from '@/tests/presentation/mocks'
 
 import faker from '@faker-js/faker'
-
-class UpdatePerformanceController implements Controller {
-  constructor(
-    private readonly updatePerformance: UpdatePerformance
-  ) {}
-
-  async handle(request: UpdatePerformanceController.Request): Promise<HttpResponse> {
-    try {
-      const performanceUpdated = await this.updatePerformance.update(request)
-      return ok(performanceUpdated)
-    } catch (error) {
-      return serverError(error as Error)
-    }
-  }
-}
-
-namespace UpdatePerformanceController {
-  export type Request = UpdatePerformance.Params
-}
-
-interface UpdatePerformance {
-  update: (params: UpdatePerformance.Params) => Promise<UpdatePerformance.Result>
-}
-
-namespace UpdatePerformance {
-  export type Params = {
-    userId: string,
-    field: 'totalWorkTime' | 'totalRestTime' | 'totalTasksFinished',
-    value: number
-  }
-
-  export type Result = LoadPerformance.Result
-}
-
-class UpdatePerformanceSpy implements UpdatePerformance {
-  params = {}
-  result = {
-    totalRestTime: faker.datatype.number(),
-    totalWorkTime: faker.datatype.number(),
-    totalTasksFinished: faker.datatype.number()
-  } as UpdatePerformance.Result
-
-  async update(params: UpdatePerformance.Params): Promise<UpdatePerformance.Result> {
-    this.params = params
-    return this.result
-  }
-}
 
 const mockRequest = (): UpdatePerformanceController.Request => ({
   userId: faker.datatype.uuid(),
