@@ -6,5 +6,5 @@ export interface CreateUserRepository {
 
 export namespace CreateUserRepository {
   export type Params = CreateUser.Params
-  export type Result = CreateUser.Result
+  export type Result = string
 }

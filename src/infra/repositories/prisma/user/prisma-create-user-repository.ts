@@ -9,6 +9,6 @@ export class PrismaCreateUserRepository implements CreateUserRepository {
 
   async create(data: CreateUserRepository.Params): Promise<CreateUserRepository.Result> {
     const user = await this.client.users.create({ data })
-    return user !== null
+    return user.id
   }
 }

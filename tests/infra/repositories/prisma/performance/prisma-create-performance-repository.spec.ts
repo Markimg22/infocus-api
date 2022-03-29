@@ -27,17 +27,11 @@ describe('PrismaCreatePerformance Repository', () => {
 
   it('should create user performance on success', async () => {
     const sut = makeSut()
-    const createPerformanceParams = mockCreatePerformanceParams(user.id)
-    await sut.create(createPerformanceParams)
+    await sut.create(mockCreatePerformanceParams(user.id))
     const performance = await client.performance.findFirst({
       where: { userId: user.id }
     })
-    expect(createPerformanceParams).toEqual({
-      totalRestTime: performance?.totalRestTime,
-      totalTasksFinished: performance?.totalTasksFinished,
-      totalWorkTime: performance?.totalWorkTime,
-      userId: performance?.userId
-    })
+    expect(performance).toBeTruthy()
   })
 
   it('should throws if client database throws', async () => {

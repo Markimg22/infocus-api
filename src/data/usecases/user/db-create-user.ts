@@ -1,12 +1,13 @@
 import { CreateUser } from '@/domain/usecases'
-import { CreateUserRepository, CheckUserByEmailRepository } from '@/data/protocols/repositories'
+import { CreateUserRepository, CheckUserByEmailRepository, CreatePerformanceRepository } from '@/data/protocols/repositories'
 import { Hasher } from '@/data/protocols/cryptography'
 
 export class DbCreateUser implements CreateUser {
   constructor (
     private readonly checkUserByEmailRepository: CheckUserByEmailRepository,
     private readonly hasher: Hasher,
-    private readonly createUserRepository: CreateUserRepository
+    private readonly createUserRepository: CreateUserRepository,
+    private readonly createPerformanceRepository: CreatePerformanceRepository
   ) {}
 
   async create(params: CreateUser.Params): Promise<CreateUser.Result> {
@@ -14,11 +15,12 @@ export class DbCreateUser implements CreateUser {
     const userAlreadyExists = await this.checkUserByEmailRepository.check(email)
     if (userAlreadyExists) return false
     const hashedPassword = await this.hasher.hash(password)
-    const userCreated = await this.createUserRepository.create({
+    const userId = await this.createUserRepository.create({
       name,
       email,
       password: hashedPassword
     })
-    return userCreated
+    await this.createPerformanceRepository.create({ userId })
+    return userId !== ''
   }
 }

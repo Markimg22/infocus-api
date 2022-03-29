@@ -18,7 +18,7 @@ export class CheckUserByEmailRepositorySpy implements CheckUserByEmailRepository
 
 export class CreateUserRepositorySpy implements CreateUserRepository {
   params = {}
-  result = true
+  result = faker.datatype.uuid()
 
   async create(data: CreateUserRepository.Params): Promise<CreateUserRepository.Result> {
     this.params = data

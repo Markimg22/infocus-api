@@ -17,10 +17,11 @@ describe('PrismaCreateUser Repository', () => {
     await client.$disconnect()
   })
 
-  it('should return true if user created on success', async () => {
+  it('should return any id if user created on success', async () => {
     const sut = makeSut()
-    const result = await sut.create(mockCreateUserParams())
-    expect(result).toBe(true)
+    const userId = await sut.create(mockCreateUserParams())
+    const user = await client.users.findFirst({ where: { id: userId } })
+    expect(userId).toBe(user?.id)
   })
 
   it('should throws if client database throws', async () => {

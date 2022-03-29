@@ -5,24 +5,36 @@ import {
   HasherSpy,
   CreateUserRepositorySpy
 } from '@/tests/data/mocks'
+import { CreatePerformanceRepository } from '@/data/protocols/repositories'
+
+class CreatePerformanceRepositorySpy implements CreatePerformanceRepository {
+  userId = ''
+
+  async create(data: CreatePerformanceRepository.Params): Promise<void> {
+    this.userId = data.userId
+  }
+}
 
 type SutTypes = {
   sut: DbCreateUser,
   checkUserByEmailRepositorySpy: CheckUserByEmailRepositorySpy,
   hasherSpy: HasherSpy,
-  createUserRepositorySpy: CreateUserRepositorySpy
+  createUserRepositorySpy: CreateUserRepositorySpy,
+  createPerformanceRepositorySpy: CreatePerformanceRepositorySpy
 }
 
 const makeSut = (): SutTypes => {
   const checkUserByEmailRepositorySpy = new CheckUserByEmailRepositorySpy()
   const hasherSpy = new HasherSpy()
   const createUserRepositorySpy = new CreateUserRepositorySpy()
-  const sut = new DbCreateUser(checkUserByEmailRepositorySpy, hasherSpy, createUserRepositorySpy)
+  const createPerformanceRepositorySpy = new CreatePerformanceRepositorySpy()
+  const sut = new DbCreateUser(checkUserByEmailRepositorySpy, hasherSpy, createUserRepositorySpy, createPerformanceRepositorySpy)
   return {
     sut,
     checkUserByEmailRepositorySpy,
     hasherSpy,
-    createUserRepositorySpy
+    createUserRepositorySpy,
+    createPerformanceRepositorySpy
   }
 }
 
@@ -86,9 +98,9 @@ describe('DbCreateUser UseCase', () => {
     await expect(promise).rejects.toThrow()
   })
 
-  it('should return false if CreateUserRepository returns false', async () => {
+  it('should return false if CreateUserRepository returns null', async () => {
     const { sut, createUserRepositorySpy } = makeSut()
-    createUserRepositorySpy.result = false
+    createUserRepositorySpy.result = ''
     const userCreated = await sut.create(mockCreateUserParams())
     expect(userCreated).toBe(false)
   })
@@ -97,5 +109,11 @@ describe('DbCreateUser UseCase', () => {
     const { sut } = makeSut()
     const userCreated = await sut.create(mockCreateUserParams())
     expect(userCreated).toBe(true)
+  })
+
+  it('should call CreatePerformanceRepository with correct userId', async () => {
+    const { sut, createPerformanceRepositorySpy, createUserRepositorySpy } = makeSut()
+    await sut.create(mockCreateUserParams())
+    expect(createPerformanceRepositorySpy.userId).toBe(createUserRepositorySpy.result)
   })
 })
