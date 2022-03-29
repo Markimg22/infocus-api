@@ -1,24 +1,10 @@
+import { PrismaUpdatePerformanceRepository } from '@/infra/repositories'
 import { UpdatePerformanceRepository } from '@/data/protocols/repositories'
 import { client } from '@/infra/helpers'
 import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
 import faker from '@faker-js/faker'
-
-import { PrismaClient, Users } from '@prisma/client'
-
-class PrismaUpdatePerformanceRepository implements UpdatePerformanceRepository {
-  constructor(
-    private readonly client: PrismaClient
-  ) {}
-
-  async update(data: UpdatePerformanceRepository.Params): Promise<UpdatePerformanceRepository.Result> {
-    const { userId, field, value } = data
-    await this.client.performance.update({
-      where: { userId },
-      data: { [field]: value }
-    })
-  }
-}
+import { Users } from '@prisma/client'
 
 const makeSut = (): PrismaUpdatePerformanceRepository => {
   const sut = new PrismaUpdatePerformanceRepository(client)
