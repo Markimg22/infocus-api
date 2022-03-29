@@ -1,5 +1,3 @@
-import { LoadPerformance } from '@/domain/usecases'
-
 export interface UpdatePerformance {
   update: (params: UpdatePerformance.Params) => Promise<UpdatePerformance.Result>
 }
@@ -11,5 +9,5 @@ export namespace UpdatePerformance {
     value: number
   }
 
-  export type Result = LoadPerformance.Result
+  export type Result = void
 }

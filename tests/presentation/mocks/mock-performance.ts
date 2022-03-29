@@ -18,14 +18,8 @@ export class LoadPerformanceSpy implements LoadPerformance {
 
 export class UpdatePerformanceSpy implements UpdatePerformance {
   params = {}
-  result = {
-    totalRestTime: faker.datatype.number(),
-    totalWorkTime: faker.datatype.number(),
-    totalTasksFinished: faker.datatype.number()
-  } as UpdatePerformance.Result
 
   async update(params: UpdatePerformance.Params): Promise<UpdatePerformance.Result> {
     this.params = params
-    return this.result
   }
 }
