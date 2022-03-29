@@ -116,4 +116,11 @@ describe('DbCreateUser UseCase', () => {
     await sut.create(mockCreateUserParams())
     expect(createPerformanceRepositorySpy.userId).toBe(createUserRepositorySpy.result)
   })
+
+  it('should throws if CreatePerformanceRepository throws', async () => {
+    const { sut, createPerformanceRepositorySpy } = makeSut()
+    jest.spyOn(createPerformanceRepositorySpy, 'create').mockImplementationOnce(throwError)
+    const promise = sut.create(mockCreateUserParams())
+    await expect(promise).rejects.toThrow()
+  })
 })
