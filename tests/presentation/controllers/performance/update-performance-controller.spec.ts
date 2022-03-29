@@ -50,6 +50,13 @@ describe('UpdatePerformance Controller', () => {
     expect(loadPerformanceSpy.userId).toBe(request.userId)
   })
 
+  it('should return 500 if LoadPerformance throws', async () => {
+    const { sut, loadPerformanceSpy } = makeSut()
+    jest.spyOn(loadPerformanceSpy, 'loadByUserId').mockImplementationOnce(throwError)
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
   it('should return 200 on success', async () => {
     const { sut, loadPerformanceSpy } = makeSut()
     const httpResponse = await sut.handle(mockRequest())
