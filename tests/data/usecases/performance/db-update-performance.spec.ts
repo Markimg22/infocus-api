@@ -1,4 +1,5 @@
 import { UpdatePerformance } from '@/domain/usecases'
+import { throwError } from '@/tests/domain/mocks'
 
 import faker from '@faker-js/faker'
 
@@ -18,7 +19,7 @@ interface UpdatePerformanceRepository {
 
 namespace UpdatePerformanceRepository {
   export type Params = UpdatePerformance.Params
-  export type Result = void
+  export type Result = UpdatePerformance.Result
 }
 
 class UpdatePerformanceRepositorySpy implements UpdatePerformanceRepository {
@@ -55,5 +56,12 @@ describe('DbUpdatePerformance UseCase', () => {
     const updatePerformanceParams = mockUpdatePerformanceParams('any_id')
     await sut.update(updatePerformanceParams)
     expect(updatePerformanceRepositorySpy.data).toEqual(updatePerformanceParams)
+  })
+
+  it('should throws if UpdatePerformanceRepository throws', async () => {
+    const { sut, updatePerformanceRepositorySpy } = makeSut()
+    jest.spyOn(updatePerformanceRepositorySpy, 'update').mockImplementationOnce(throwError)
+    const promise = sut.update(mockUpdatePerformanceParams('any_id'))
+    await expect(promise).rejects.toThrow()
   })
 })
