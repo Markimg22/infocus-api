@@ -7,8 +7,8 @@ export class PrismaLoadUserByEmailRepository implements LoadUserByEmailRepositor
     private readonly client: PrismaClient
   ) {}
 
-  async loadByEmail(email: string): Promise<LoadUserByEmailRepository.Result | null> {
-    const user = await this.client.users.findFirst({ where: { email } })
+  async load(email: string): Promise<LoadUserByEmailRepository.Result | null> {
+    const user = await this.client.users.findUnique({ where: { email } })
     return user
   }
 }

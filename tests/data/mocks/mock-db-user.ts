@@ -35,7 +35,7 @@ export class LoadUserByEmailRepositorySpy implements LoadUserByEmailRepository {
     password: faker.internet.password()
   } as LoadUserByEmailRepository.Result | null
 
-  async loadByEmail(email: string): Promise<LoadUserByEmailRepository.Result | null> {
+  async load(email: string): Promise<LoadUserByEmailRepository.Result | null> {
     this.email = email
     return this.result
   }

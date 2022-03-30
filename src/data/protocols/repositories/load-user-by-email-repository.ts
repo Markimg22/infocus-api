@@ -1,5 +1,5 @@
 export interface LoadUserByEmailRepository {
-  loadByEmail: (email: string) => Promise<LoadUserByEmailRepository.Result | null>
+  load: (email: string) => Promise<LoadUserByEmailRepository.Result | null>
 }
 
 export namespace LoadUserByEmailRepository {
