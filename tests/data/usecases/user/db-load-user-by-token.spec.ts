@@ -2,7 +2,7 @@ import { LoadUserByToken } from '@/domain/usecases'
 
 import faker from '@faker-js/faker'
 
-class DbLoadUserByToken {
+class DbLoadUserByToken implements LoadUserByToken {
   constructor(
     private readonly decrypter: Decrypter,
     private readonly loadUserByTokenRepository: LoadUserByTokenRepository
@@ -12,7 +12,8 @@ class DbLoadUserByToken {
     const { accessToken, role } = params
     const token = await this.decrypter.decrypt(accessToken)
     if (token) {
-      await this.loadUserByTokenRepository.load({ accessToken, role })
+      const user = await this.loadUserByTokenRepository.load({ accessToken, role })
+      if (user) return user
     }
     return null
   }
@@ -33,18 +34,23 @@ class DecrypterSpy implements Decrypter {
 }
 
 interface LoadUserByTokenRepository {
-  load: (data: LoadUserByTokenRepository.Params) => Promise<void>
+  load: (data: LoadUserByTokenRepository.Params) => Promise<LoadUserByTokenRepository.Result>
 }
 
 namespace LoadUserByTokenRepository {
   export type Params = LoadUserByToken.Params
+  export type Result = LoadUserByToken.Result
 }
 
 class LoadUserByTokenRepositorySpy implements LoadUserByTokenRepository {
   data = {}
+  result = {
+    id: faker.datatype.uuid()
+  } as LoadUserByTokenRepository.Result
 
-  async load(data: LoadUserByTokenRepository.Params): Promise<void> {
+  async load(data: LoadUserByTokenRepository.Params): Promise<LoadUserByTokenRepository.Result> {
     this.data = data
+    return this.result
   }
 }
 
@@ -93,5 +99,11 @@ describe('DbLoadUserByToken UseCase', () => {
     expect(loadUserByTokenRepositorySpy.data).toEqual({
       accessToken: token, role
     })
+  })
+
+  it('should return an user on success', async () => {
+    const { sut, loadUserByTokenRepositorySpy } = makeSut()
+    const user = await sut.load({ accessToken: token, role })
+    expect(user).toEqual(loadUserByTokenRepositorySpy.result)
   })
 })
