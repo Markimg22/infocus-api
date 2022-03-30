@@ -6,6 +6,8 @@ import { mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 import faker from '@faker-js/faker'
 import { Users } from '@prisma/client'
 
+const valueDefault = faker.datatype.number()
+
 const makeSut = (): PrismaUpdatePerformanceRepository => {
   const sut = new PrismaUpdatePerformanceRepository(client)
   return sut
@@ -20,7 +22,12 @@ describe('PrismaUpdatePerformance Repository', () => {
       data: mockCreateUserParams()
     })
     await client.performance.create({
-      data: { userId: user.id }
+      data: {
+        userId: user.id,
+        totalRestTime: valueDefault,
+        totalTasksFinished: valueDefault,
+        totalWorkTime: valueDefault
+      }
     })
   })
 
@@ -32,44 +39,44 @@ describe('PrismaUpdatePerformance Repository', () => {
 
   it('should update totalTasksFinished in performance successfully', async () => {
     const sut = makeSut()
-    const value = faker.datatype.number()
+    const valueIncrement = faker.datatype.number()
     await sut.update({
       userId: user.id,
       field: 'totalTasksFinished',
-      value
+      value: valueIncrement
     })
     const performance = await client.performance.findUnique({
       where: { userId: user.id }
     })
-    expect(performance?.totalTasksFinished).toBe(value)
+    expect(performance?.totalTasksFinished).toBe(valueDefault + valueIncrement)
   })
 
   it('should update totalRestTime in performance successfully', async () => {
     const sut = makeSut()
-    const value = faker.datatype.number()
+    const valueIncrement = faker.datatype.number()
     await sut.update({
       userId: user.id,
       field: 'totalRestTime',
-      value
+      value: valueIncrement
     })
     const performance = await client.performance.findUnique({
       where: { userId: user.id }
     })
-    expect(performance?.totalRestTime).toBe(value)
+    expect(performance?.totalRestTime).toBe(valueDefault + valueIncrement)
   })
 
   it('should update totalWorkTime in performance successfully', async () => {
     const sut = makeSut()
-    const value = faker.datatype.number()
+    const valueIncrement = faker.datatype.number()
     await sut.update({
       userId: user.id,
       field: 'totalWorkTime',
-      value
+      value: valueIncrement
     })
     const performance = await client.performance.findUnique({
       where: { userId: user.id }
     })
-    expect(performance?.totalWorkTime).toBe(value)
+    expect(performance?.totalWorkTime).toBe(valueDefault + valueIncrement)
   })
 
   it('should throws if client database throws', async () => {

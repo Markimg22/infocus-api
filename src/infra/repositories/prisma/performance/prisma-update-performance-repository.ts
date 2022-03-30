@@ -11,7 +11,11 @@ export class PrismaUpdatePerformanceRepository implements UpdatePerformanceRepos
     const { userId, field, value } = data
     await this.client.performance.update({
       where: { userId },
-      data: { [field]: value }
+      data: {
+        [field]: {
+          increment: value
+        }
+      }
     })
   }
 }
