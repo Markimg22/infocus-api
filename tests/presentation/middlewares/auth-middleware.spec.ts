@@ -13,7 +13,7 @@ class AccessDeniedError extends Error {
 
 class AuthMiddleware {
   constructor(
-    private readonly loadAccountByToken: LoadAccountByToken,
+    private readonly loadUserByToken: LoadUserByToken,
     private readonly role?: string
   ) {}
 
@@ -21,7 +21,7 @@ class AuthMiddleware {
     try {
       const { accessToken } = request
       if (accessToken) {
-        const user = await this.loadAccountByToken.load({ accessToken, role: this.role })
+        const user = await this.loadUserByToken.load({ accessToken, role: this.role })
         if (user) return ok({ userId: user.id })
       }
       return forbidden(new AccessDeniedError())
@@ -37,11 +37,11 @@ namespace AuthMiddleware {
   }
 }
 
-interface LoadAccountByToken {
-  load: (params: LoadAccountByToken.Params) => Promise<LoadAccountByToken.Result | null>
+interface LoadUserByToken {
+  load: (params: LoadUserByToken.Params) => Promise<LoadUserByToken.Result | null>
 }
 
-namespace LoadAccountByToken {
+namespace LoadUserByToken {
   export type Params = {
     accessToken: string,
     role?: string
@@ -52,13 +52,13 @@ namespace LoadAccountByToken {
   }
 }
 
-class LoadAccountByTokenSpy implements LoadAccountByToken {
+class LoadUserByTokenSpy implements LoadUserByToken {
   params = {}
   result = {
     id: faker.datatype.uuid()
-  } as LoadAccountByToken.Result | null
+  } as LoadUserByToken.Result | null
 
-  async load(params: LoadAccountByToken.Params): Promise<LoadAccountByToken.Result | null> {
+  async load(params: LoadUserByToken.Params): Promise<LoadUserByToken.Result | null> {
     this.params = params
     return this.result
   }
@@ -70,15 +70,15 @@ const mockRequest = (): AuthMiddleware.Request => ({
 
 type SutTypes = {
   sut: AuthMiddleware,
-  loadAccountByTokenSpy: LoadAccountByTokenSpy
+  loadUserByTokenSpy: LoadUserByTokenSpy
 }
 
 const makeSut = (role?: string): SutTypes => {
-  const loadAccountByTokenSpy = new LoadAccountByTokenSpy()
-  const sut = new AuthMiddleware(loadAccountByTokenSpy, role)
+  const loadUserByTokenSpy = new LoadUserByTokenSpy()
+  const sut = new AuthMiddleware(loadUserByTokenSpy, role)
   return {
     sut,
-    loadAccountByTokenSpy
+    loadUserByTokenSpy
   }
 }
 
@@ -89,35 +89,35 @@ describe('Auth Middleware', () => {
     expect(httpResponse).toEqual(forbidden(new AccessDeniedError()))
   })
 
-  it('should call LoadAccountByToken with correct accessToken', async () => {
+  it('should call LoadUserByToken with correct accessToken', async () => {
     const role = 'any_role'
-    const { sut, loadAccountByTokenSpy } = makeSut(role)
+    const { sut, loadUserByTokenSpy } = makeSut(role)
     const httpRequest = mockRequest()
     await sut.handle(httpRequest)
-    expect(loadAccountByTokenSpy.params).toEqual({
+    expect(loadUserByTokenSpy.params).toEqual({
       accessToken: httpRequest.accessToken,
       role
     })
   })
 
-  it('should return 403 if LoadAccountByToken returns null', async () => {
-    const { sut, loadAccountByTokenSpy } = makeSut()
-    loadAccountByTokenSpy.result = null
+  it('should return 403 if LoadUserByToken returns null', async () => {
+    const { sut, loadUserByTokenSpy } = makeSut()
+    loadUserByTokenSpy.result = null
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(forbidden(new AccessDeniedError()))
   })
 
-  it('should return 200 if LoadAccountByToken returns an user', async () => {
-    const { sut, loadAccountByTokenSpy } = makeSut()
+  it('should return 200 if LoadUserByToken returns an user', async () => {
+    const { sut, loadUserByTokenSpy } = makeSut()
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(ok({
-      userId: loadAccountByTokenSpy.result?.id
+      userId: loadUserByTokenSpy.result?.id
     }))
   })
 
-  it('should return 500 if LoadAccountByToken throws', async () => {
-    const { sut, loadAccountByTokenSpy } = makeSut()
-    jest.spyOn(loadAccountByTokenSpy, 'load').mockImplementationOnce(throwError)
+  it('should return 500 if LoadUserByToken throws', async () => {
+    const { sut, loadUserByTokenSpy } = makeSut()
+    jest.spyOn(loadUserByTokenSpy, 'load').mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
   })
