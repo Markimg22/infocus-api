@@ -1,4 +1,5 @@
 import { LoadUserByToken } from '@/domain/usecases'
+import { throwError } from '@/tests/domain/mocks'
 
 import faker from '@faker-js/faker'
 
@@ -9,13 +10,17 @@ class DbLoadUserByToken implements LoadUserByToken {
   ) {}
 
   async load(params: LoadUserByToken.Params): Promise<LoadUserByToken.Result | null> {
-    const { accessToken, role } = params
-    const token = await this.decrypter.decrypt(accessToken)
-    if (token) {
-      const user = await this.loadUserByTokenRepository.load({ accessToken, role })
-      if (user) return user
+    try {
+      const { accessToken, role } = params
+      const token = await this.decrypter.decrypt(accessToken)
+      if (token) {
+        const user = await this.loadUserByTokenRepository.load({ accessToken, role })
+        if (user) return user
+      }
+      return null
+    } catch (error) {
+      return null
     }
-    return null
   }
 }
 
@@ -105,5 +110,12 @@ describe('DbLoadUserByToken UseCase', () => {
     const { sut, loadUserByTokenRepositorySpy } = makeSut()
     const user = await sut.load({ accessToken: token, role })
     expect(user).toEqual(loadUserByTokenRepositorySpy.result)
+  })
+
+  it('should return null if Decrypter throws', async () => {
+    const { sut, decrypterSpy } = makeSut()
+    jest.spyOn(decrypterSpy, 'decrypt').mockImplementationOnce(throwError)
+    const user = await sut.load({ accessToken: token, role })
+    expect(user).toBeNull()
   })
 })
