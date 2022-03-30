@@ -9,7 +9,7 @@ export class DbLoadUserByToken implements LoadUserByToken {
   ) {}
 
   async load(params: LoadUserByToken.Params): Promise<LoadUserByToken.Result | null> {
-    const { accessToken, role } = params
+    const { accessToken } = params
     let token: string | null
     try {
       token = await this.decrypter.decrypt(accessToken)
@@ -17,7 +17,7 @@ export class DbLoadUserByToken implements LoadUserByToken {
       return null
     }
     if (token) {
-      const user = await this.loadUserByTokenRepository.load({ accessToken, role })
+      const user = await this.loadUserByTokenRepository.load({ accessToken })
       if (user) return user
     }
     return null

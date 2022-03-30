@@ -5,7 +5,6 @@ export interface LoadUserByToken {
 export namespace LoadUserByToken {
   export type Params = {
     accessToken: string,
-    role?: string
   }
 
   export type Result = {

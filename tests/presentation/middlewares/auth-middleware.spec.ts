@@ -13,9 +13,9 @@ type SutTypes = {
   loadUserByTokenSpy: LoadUserByTokenSpy
 }
 
-const makeSut = (role?: string): SutTypes => {
+const makeSut = (): SutTypes => {
   const loadUserByTokenSpy = new LoadUserByTokenSpy()
-  const sut = new AuthMiddleware(loadUserByTokenSpy, role)
+  const sut = new AuthMiddleware(loadUserByTokenSpy)
   return {
     sut,
     loadUserByTokenSpy
@@ -30,13 +30,11 @@ describe('Auth Middleware', () => {
   })
 
   it('should call LoadUserByToken with correct accessToken', async () => {
-    const role = 'any_role'
-    const { sut, loadUserByTokenSpy } = makeSut(role)
+    const { sut, loadUserByTokenSpy } = makeSut()
     const httpRequest = mockRequest()
     await sut.handle(httpRequest)
     expect(loadUserByTokenSpy.params).toEqual({
-      accessToken: httpRequest.accessToken,
-      role
+      accessToken: httpRequest.accessToken
     })
   })
 

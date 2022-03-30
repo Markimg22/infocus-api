@@ -23,51 +23,47 @@ const makeSut = (): SutTypes => {
 
 describe('DbLoadUserByToken UseCase', () => {
   let token: string
-  let role: string
 
   beforeEach(() => {
     token = faker.datatype.uuid()
-    role = faker.random.word()
   })
 
   it('should call Decrypter with correct cipherText', async () => {
     const { sut, decrypterSpy } = makeSut()
-    await sut.load({ accessToken: token, role })
+    await sut.load({ accessToken: token })
     expect(decrypterSpy.cipherText).toBe(token)
   })
 
   it('should return null if Decrypter returns null', async () => {
     const { sut, decrypterSpy } = makeSut()
     decrypterSpy.plainText = null
-    const user = await sut.load({ accessToken: token, role })
+    const user = await sut.load({ accessToken: token })
     expect(user).toBeNull()
   })
 
   it('should call LoadUserByTokenRepository with correct values', async () => {
     const { sut, loadUserByTokenRepositorySpy } = makeSut()
-    await sut.load({ accessToken: token, role })
-    expect(loadUserByTokenRepositorySpy.data).toEqual({
-      accessToken: token, role
-    })
+    await sut.load({ accessToken: token })
+    expect(loadUserByTokenRepositorySpy.data).toEqual({ accessToken: token })
   })
 
   it('should return an user on success', async () => {
     const { sut, loadUserByTokenRepositorySpy } = makeSut()
-    const user = await sut.load({ accessToken: token, role })
+    const user = await sut.load({ accessToken: token })
     expect(user).toEqual(loadUserByTokenRepositorySpy.result)
   })
 
   it('should return null if Decrypter throws', async () => {
     const { sut, decrypterSpy } = makeSut()
     jest.spyOn(decrypterSpy, 'decrypt').mockImplementationOnce(throwError)
-    const user = await sut.load({ accessToken: token, role })
+    const user = await sut.load({ accessToken: token })
     expect(user).toBeNull()
   })
 
   it('should throws if LoadUserByTokenRepository throws', async () => {
     const { sut, loadUserByTokenRepositorySpy } = makeSut()
     jest.spyOn(loadUserByTokenRepositorySpy, 'load').mockImplementationOnce(throwError)
-    const promise = sut.load({ accessToken: token, role })
+    const promise = sut.load({ accessToken: token })
     await expect(promise).rejects.toThrow()
   })
 })
