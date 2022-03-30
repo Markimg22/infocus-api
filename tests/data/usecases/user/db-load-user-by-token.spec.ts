@@ -7,21 +7,24 @@ class DbLoadUserByToken {
     private readonly decrypter: Decrypter
   ) {}
 
-  async load(params: LoadUserByToken.Params): Promise<void> {
+  async load(params: LoadUserByToken.Params): Promise<LoadUserByToken.Result | null> {
     const { accessToken } = params
     await this.decrypter.decrypt(accessToken)
+    return null
   }
 }
 
 interface Decrypter {
-  decrypt: (cipherText: string) => Promise<void>
+  decrypt: (cipherText: string) => Promise<string | null>
 }
 
 class DecrypterSpy implements Decrypter {
   cipherText = ''
+  plainText: string | null = faker.internet.password()
 
-  async decrypt(cipherText: string): Promise<void> {
+  async decrypt(cipherText: string): Promise<string | null> {
     this.cipherText = cipherText
+    return this.plainText
   }
 }
 
@@ -52,5 +55,12 @@ describe('DbLoadUserByToken UseCase', () => {
     const { sut, decrypterSpy } = makeSut()
     await sut.load({ accessToken: token, role })
     expect(decrypterSpy.cipherText).toBe(token)
+  })
+
+  it('should return null if Decrypter returns null', async () => {
+    const { sut, decrypterSpy } = makeSut()
+    decrypterSpy.plainText = null
+    const user = await sut.load({ accessToken: token, role })
+    expect(user).toBeNull()
   })
 })
