@@ -1,64 +1,8 @@
-import { LoadUserByToken } from '@/domain/usecases'
+import { DbLoadUserByToken } from '@/data/usecases'
 import { throwError } from '@/tests/domain/mocks'
+import { DecrypterSpy, LoadUserByTokenRepositorySpy } from '@/tests/data/mocks'
 
 import faker from '@faker-js/faker'
-
-class DbLoadUserByToken implements LoadUserByToken {
-  constructor(
-    private readonly decrypter: Decrypter,
-    private readonly loadUserByTokenRepository: LoadUserByTokenRepository
-  ) {}
-
-  async load(params: LoadUserByToken.Params): Promise<LoadUserByToken.Result | null> {
-    const { accessToken, role } = params
-    let token: string | null
-    try {
-      token = await this.decrypter.decrypt(accessToken)
-    } catch (error) {
-      return null
-    }
-    if (token) {
-      const user = await this.loadUserByTokenRepository.load({ accessToken, role })
-      if (user) return user
-    }
-    return null
-  }
-}
-
-interface Decrypter {
-  decrypt: (cipherText: string) => Promise<string | null>
-}
-
-class DecrypterSpy implements Decrypter {
-  cipherText = ''
-  plainText: string | null = faker.internet.password()
-
-  async decrypt(cipherText: string): Promise<string | null> {
-    this.cipherText = cipherText
-    return this.plainText
-  }
-}
-
-interface LoadUserByTokenRepository {
-  load: (data: LoadUserByTokenRepository.Params) => Promise<LoadUserByTokenRepository.Result>
-}
-
-namespace LoadUserByTokenRepository {
-  export type Params = LoadUserByToken.Params
-  export type Result = LoadUserByToken.Result
-}
-
-class LoadUserByTokenRepositorySpy implements LoadUserByTokenRepository {
-  data = {}
-  result = {
-    id: faker.datatype.uuid()
-  } as LoadUserByTokenRepository.Result
-
-  async load(data: LoadUserByTokenRepository.Params): Promise<LoadUserByTokenRepository.Result> {
-    this.data = data
-    return this.result
-  }
-}
 
 type SutTypes = {
   sut: DbLoadUserByToken,

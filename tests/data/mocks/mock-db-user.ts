@@ -1,7 +1,8 @@
 import {
   CreateUserRepository,
   CheckUserByEmailRepository,
-  LoadUserByEmailRepository
+  LoadUserByEmailRepository,
+  LoadUserByTokenRepository
 } from '@/data/protocols/repositories'
 
 import faker from '@faker-js/faker'
@@ -36,6 +37,18 @@ export class LoadUserByEmailRepositorySpy implements LoadUserByEmailRepository {
 
   async loadByEmail(email: string): Promise<LoadUserByEmailRepository.Result | null> {
     this.email = email
+    return this.result
+  }
+}
+
+export class LoadUserByTokenRepositorySpy implements LoadUserByTokenRepository {
+  data = {}
+  result = {
+    id: faker.datatype.uuid()
+  } as LoadUserByTokenRepository.Result
+
+  async load(data: LoadUserByTokenRepository.Params): Promise<LoadUserByTokenRepository.Result> {
+    this.data = data
     return this.result
   }
 }
