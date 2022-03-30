@@ -1,68 +1,8 @@
+import { AuthMiddleware } from '@/presentation/middlewares'
 import { forbidden, ok, serverError } from '@/presentation/helpers'
-import { HttpResponse } from '@/presentation/protocols'
 import { throwError } from '@/tests/domain/mocks'
-
-import faker from '@faker-js/faker'
-
-class AccessDeniedError extends Error {
-  constructor() {
-    super('Access denied')
-    this.name = 'AccessDeniedError'
-  }
-}
-
-class AuthMiddleware {
-  constructor(
-    private readonly loadUserByToken: LoadUserByToken,
-    private readonly role?: string
-  ) {}
-
-  async handle(request: AuthMiddleware.Request): Promise<HttpResponse> {
-    try {
-      const { accessToken } = request
-      if (accessToken) {
-        const user = await this.loadUserByToken.load({ accessToken, role: this.role })
-        if (user) return ok({ userId: user.id })
-      }
-      return forbidden(new AccessDeniedError())
-    } catch (error) {
-      return serverError(error as Error)
-    }
-  }
-}
-
-namespace AuthMiddleware {
-  export type Request = {
-    accessToken?: string
-  }
-}
-
-interface LoadUserByToken {
-  load: (params: LoadUserByToken.Params) => Promise<LoadUserByToken.Result | null>
-}
-
-namespace LoadUserByToken {
-  export type Params = {
-    accessToken: string,
-    role?: string
-  }
-
-  export type Result = {
-    id: string
-  }
-}
-
-class LoadUserByTokenSpy implements LoadUserByToken {
-  params = {}
-  result = {
-    id: faker.datatype.uuid()
-  } as LoadUserByToken.Result | null
-
-  async load(params: LoadUserByToken.Params): Promise<LoadUserByToken.Result | null> {
-    this.params = params
-    return this.result
-  }
-}
+import { AccessDeniedError } from '@/presentation/errors'
+import { LoadUserByTokenSpy } from '@/tests/presentation/mocks'
 
 const mockRequest = (): AuthMiddleware.Request => ({
   accessToken: 'any_token'
