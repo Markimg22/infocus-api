@@ -1,5 +1,6 @@
 import { forbidden } from '@/presentation/helpers'
 import { HttpResponse } from '@/presentation/protocols'
+import faker from '@faker-js/faker'
 
 class AccessDeniedError extends Error {
   constructor() {
@@ -30,7 +31,7 @@ namespace AuthMiddleware {
 }
 
 interface LoadAccountByToken {
-  load: (params: LoadAccountByToken.Params) => Promise<void>
+  load: (params: LoadAccountByToken.Params) => Promise<LoadAccountByToken.Result | null>
 }
 
 namespace LoadAccountByToken {
@@ -38,13 +39,21 @@ namespace LoadAccountByToken {
     accessToken: string,
     role?: string
   }
+
+  export type Result = {
+    id: string
+  }
 }
 
 class LoadAccountByTokenSpy implements LoadAccountByToken {
   params = {}
+  result = {
+    id: faker.datatype.uuid()
+  } as LoadAccountByToken.Result | null
 
-  async load(params: LoadAccountByToken.Params): Promise<void> {
+  async load(params: LoadAccountByToken.Params): Promise<LoadAccountByToken.Result | null> {
     this.params = params
+    return this.result
   }
 }
 
@@ -82,5 +91,12 @@ describe('Auth Middleware', () => {
       accessToken: httpRequest.accessToken,
       role
     })
+  })
+
+  it('should return 403 if LoadAccountByToken returns null', async () => {
+    const { sut, loadAccountByTokenSpy } = makeSut()
+    loadAccountByTokenSpy.result = null
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(forbidden(new AccessDeniedError()))
   })
 })
