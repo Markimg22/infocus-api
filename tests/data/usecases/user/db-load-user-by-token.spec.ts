@@ -10,17 +10,18 @@ class DbLoadUserByToken implements LoadUserByToken {
   ) {}
 
   async load(params: LoadUserByToken.Params): Promise<LoadUserByToken.Result | null> {
+    const { accessToken, role } = params
+    let token: string | null
     try {
-      const { accessToken, role } = params
-      const token = await this.decrypter.decrypt(accessToken)
-      if (token) {
-        const user = await this.loadUserByTokenRepository.load({ accessToken, role })
-        if (user) return user
-      }
-      return null
+      token = await this.decrypter.decrypt(accessToken)
     } catch (error) {
       return null
     }
+    if (token) {
+      const user = await this.loadUserByTokenRepository.load({ accessToken, role })
+      if (user) return user
+    }
+    return null
   }
 }
 
@@ -117,5 +118,12 @@ describe('DbLoadUserByToken UseCase', () => {
     jest.spyOn(decrypterSpy, 'decrypt').mockImplementationOnce(throwError)
     const user = await sut.load({ accessToken: token, role })
     expect(user).toBeNull()
+  })
+
+  it('should throws if LoadUserByTokenRepository throws', async () => {
+    const { sut, loadUserByTokenRepositorySpy } = makeSut()
+    jest.spyOn(loadUserByTokenRepositorySpy, 'load').mockImplementationOnce(throwError)
+    const promise = sut.load({ accessToken: token, role })
+    await expect(promise).rejects.toThrow()
   })
 })
