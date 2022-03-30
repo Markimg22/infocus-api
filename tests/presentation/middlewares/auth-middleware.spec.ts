@@ -9,7 +9,16 @@ class AccessDeniedError extends Error {
 }
 
 class AuthMiddleware {
+  constructor(
+    private readonly loadAccountByToken: LoadAccountByToken,
+    private readonly role?: string
+  ) {}
+
   async handle(request: AuthMiddleware.Request): Promise<HttpResponse> {
+    const { accessToken } = request
+    if (accessToken) {
+      await this.loadAccountByToken.load({ accessToken, role: this.role })
+    }
     return forbidden(new AccessDeniedError())
   }
 }
@@ -20,14 +29,40 @@ namespace AuthMiddleware {
   }
 }
 
-type SutTypes = {
-  sut: AuthMiddleware
+interface LoadAccountByToken {
+  load: (params: LoadAccountByToken.Params) => Promise<void>
 }
 
-const makeSut = (): SutTypes => {
-  const sut = new AuthMiddleware()
+namespace LoadAccountByToken {
+  export type Params = {
+    accessToken: string,
+    role?: string
+  }
+}
+
+class LoadAccountByTokenSpy implements LoadAccountByToken {
+  params = {}
+
+  async load(params: LoadAccountByToken.Params): Promise<void> {
+    this.params = params
+  }
+}
+
+const mockRequest = (): AuthMiddleware.Request => ({
+  accessToken: 'any_token'
+})
+
+type SutTypes = {
+  sut: AuthMiddleware,
+  loadAccountByTokenSpy: LoadAccountByTokenSpy
+}
+
+const makeSut = (role?: string): SutTypes => {
+  const loadAccountByTokenSpy = new LoadAccountByTokenSpy()
+  const sut = new AuthMiddleware(loadAccountByTokenSpy, role)
   return {
-    sut
+    sut,
+    loadAccountByTokenSpy
   }
 }
 
@@ -36,5 +71,16 @@ describe('Auth Middleware', () => {
     const { sut } = makeSut()
     const httpResponse = await sut.handle({})
     expect(httpResponse).toEqual(forbidden(new AccessDeniedError()))
+  })
+
+  it('should call LoadAccountByToken with correct accessToken', async () => {
+    const role = 'any_role'
+    const { sut, loadAccountByTokenSpy } = makeSut(role)
+    const httpRequest = mockRequest()
+    await sut.handle(httpRequest)
+    expect(loadAccountByTokenSpy.params).toEqual({
+      accessToken: httpRequest.accessToken,
+      role
+    })
   })
 })
