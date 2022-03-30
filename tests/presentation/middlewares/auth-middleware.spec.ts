@@ -1,5 +1,6 @@
-import { forbidden } from '@/presentation/helpers'
+import { forbidden, ok } from '@/presentation/helpers'
 import { HttpResponse } from '@/presentation/protocols'
+
 import faker from '@faker-js/faker'
 
 class AccessDeniedError extends Error {
@@ -18,7 +19,8 @@ class AuthMiddleware {
   async handle(request: AuthMiddleware.Request): Promise<HttpResponse> {
     const { accessToken } = request
     if (accessToken) {
-      await this.loadAccountByToken.load({ accessToken, role: this.role })
+      const user = await this.loadAccountByToken.load({ accessToken, role: this.role })
+      if (user) return ok({ userId: user.id })
     }
     return forbidden(new AccessDeniedError())
   }
@@ -98,5 +100,13 @@ describe('Auth Middleware', () => {
     loadAccountByTokenSpy.result = null
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(forbidden(new AccessDeniedError()))
+  })
+
+  it('should return 200 if LoadAccountByToken returns an user', async () => {
+    const { sut, loadAccountByTokenSpy } = makeSut()
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(ok({
+      userId: loadAccountByTokenSpy.result?.id
+    }))
   })
 })
