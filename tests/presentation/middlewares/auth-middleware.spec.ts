@@ -1,5 +1,6 @@
-import { forbidden, ok } from '@/presentation/helpers'
+import { forbidden, ok, serverError } from '@/presentation/helpers'
 import { HttpResponse } from '@/presentation/protocols'
+import { throwError } from '@/tests/domain/mocks'
 
 import faker from '@faker-js/faker'
 
@@ -17,12 +18,16 @@ class AuthMiddleware {
   ) {}
 
   async handle(request: AuthMiddleware.Request): Promise<HttpResponse> {
-    const { accessToken } = request
-    if (accessToken) {
-      const user = await this.loadAccountByToken.load({ accessToken, role: this.role })
-      if (user) return ok({ userId: user.id })
+    try {
+      const { accessToken } = request
+      if (accessToken) {
+        const user = await this.loadAccountByToken.load({ accessToken, role: this.role })
+        if (user) return ok({ userId: user.id })
+      }
+      return forbidden(new AccessDeniedError())
+    } catch (error) {
+      return serverError(error as Error)
     }
-    return forbidden(new AccessDeniedError())
   }
 }
 
@@ -108,5 +113,12 @@ describe('Auth Middleware', () => {
     expect(httpResponse).toEqual(ok({
       userId: loadAccountByTokenSpy.result?.id
     }))
+  })
+
+  it('should return 500 if LoadAccountByToken throws', async () => {
+    const { sut, loadAccountByTokenSpy } = makeSut()
+    jest.spyOn(loadAccountByTokenSpy, 'load').mockImplementationOnce(throwError)
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(serverError(new Error()))
   })
 })
