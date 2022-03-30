@@ -14,7 +14,7 @@
   "scripts": {
     "prepare": "husky install",
     "prisma:test": "dotenv -e .env.test -- prisma migrate dev",
-    "docker:test:up": "docker-compose -f docker-compose.test.yml up -d && dotenv -e .env.test -- npm run prisma:dev",
+    "docker:test:up": "docker-compose -f docker-compose.test.yml up -d && npm run prisma:test",
     "test": "dotenv -e .env.test -- jest --passWithNoTests --runInBand --no-cache",
     "test:unit": "npm test -- --watch -c jest-unit-config.js",
     "test:staged": "npm test -- --findRelatedTests",

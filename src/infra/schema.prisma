@@ -23,7 +23,7 @@ model Users {
 
 model AccessToken {
   id        String   @id @unique @default(uuid())
-  token     String
+  token     String   @unique
   user      Users    @relation(fields: [userId], references: [id])
   userId    String   @unique @map("user_id")
   createdAt DateTime @default(now()) @map("created_at")
