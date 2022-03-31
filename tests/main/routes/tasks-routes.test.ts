@@ -48,5 +48,15 @@ describe('Tasks Routes', () => {
         })
         .expect(200)
     })
+
+    it('should return 403 on create task without accessToken', async () => {
+      await request(app)
+        .post('/api/create-task')
+        .send({
+          title: 'Title Test',
+          description: 'Description Test'
+        })
+        .expect(403)
+    })
   })
 })
