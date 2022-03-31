@@ -1,8 +1,10 @@
 import { adaptRoute } from '@/main/adapters'
 import { makeSignupController } from '@/main/factories'
 
-import { Router } from 'express'
+import { Router, Express } from 'express'
 
-export const setupRoutes = (router: Router): void => {
+export const setupRoutes = (app: Express): void => {
+  const router = Router()
   router.post('/signup', adaptRoute(makeSignupController()))
+  app.use('/api', router)
 }
