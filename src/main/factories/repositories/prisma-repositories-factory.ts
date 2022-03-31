@@ -12,7 +12,8 @@ import {
   PrismaLoadUserByEmailRepository,
   PrismaUpdateAccessTokenRepository,
   PrismaUpdatePerformanceRepository,
-  PrismaUpdateStatusTaskRepository
+  PrismaUpdateStatusTaskRepository,
+  PrismaLoadUserByTokenRepository
 } from '@/infra/repositories'
 
 type RepositoriesType = {
@@ -28,7 +29,8 @@ type RepositoriesType = {
   createUserRepository: PrismaCreateUserRepository,
   createTaskRespository: PrismaCreateTaskRepository,
   createPerformanceRepository: PrismaCreatePerformanceRepository,
-  createAccessTokenRepository: PrismaCreateAccessTokenRepository
+  createAccessTokenRepository: PrismaCreateAccessTokenRepository,
+  loadUserByTokenRepository: PrismaLoadUserByTokenRepository
 }
 
 export const makeRepositories = (): RepositoriesType => {
@@ -45,6 +47,7 @@ export const makeRepositories = (): RepositoriesType => {
     createUserRepository: new PrismaCreateUserRepository(client),
     createTaskRespository: new PrismaCreateTaskRepository(client),
     createPerformanceRepository: new PrismaCreatePerformanceRepository(client),
-    createAccessTokenRepository: new PrismaCreateAccessTokenRepository(client)
+    createAccessTokenRepository: new PrismaCreateAccessTokenRepository(client),
+    loadUserByTokenRepository: new PrismaLoadUserByTokenRepository(client)
   }
 }
