@@ -1,11 +1,13 @@
-import { adaptRoute } from '@/main/adapters'
-import { makeSignupController, makeLoginController } from '@/main/factories'
-
 import { Router, Express } from 'express'
+import { readdirSync } from 'fs'
+import { join } from 'path'
 
 export const setupRoutes = (app: Express): void => {
   const router = Router()
-  router.post('/signup', adaptRoute(makeSignupController()))
-  router.post('/login', adaptRoute(makeLoginController()))
   app.use('/api', router)
+  readdirSync(join(__dirname, '../routes')).map(async file => {
+    if (!file.endsWith('.map')) {
+      (await import(`../routes/${file}`)).default(router)
+    }
+  })
 }
