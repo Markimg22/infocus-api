@@ -35,7 +35,7 @@ model AccessToken {
 model Tasks {
   id          String   @id @unique @default(uuid())
   title       String
-  description String
+  description String   @default("")
   finished    Boolean  @default(false)
   user        Users    @relation(fields: [userId], references: [id])
   userId      String   @map("user_id")
