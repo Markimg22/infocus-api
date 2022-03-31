@@ -1,6 +1,7 @@
 import { client } from '@/infra/helpers'
 import { setupApp } from '@/main/config/app'
 
+import { hash } from 'bcrypt'
 import { Express } from 'express'
 import request from 'supertest'
 
@@ -12,10 +13,13 @@ describe('Login Routes', () => {
     await client.$connect()
   })
 
-  afterAll(async () => {
+  beforeEach(async () => {
     await client.accessToken.deleteMany()
     await client.performance.deleteMany()
     await client.users.deleteMany()
+  })
+
+  afterAll(async () => {
     await client.$disconnect()
   })
 
@@ -39,6 +43,26 @@ describe('Login Routes', () => {
           passwordConfirmation: '12345'
         })
         .expect(403)
+    })
+  })
+
+  describe('POST /login', () => {
+    it('should return 200 on login', async () => {
+      const password = await hash('123', 12)
+      await client.users.create({
+        data: {
+          name: 'Test',
+          email: 'teste@mail.com',
+          password
+        }
+      })
+      await request(app)
+        .post('/api/login')
+        .send({
+          email: 'teste@mail.com',
+          password: '123'
+        })
+        .expect(200)
     })
   })
 })
