@@ -1,7 +1,7 @@
 import { LoadUserByToken } from '@/domain/usecases'
 
 export interface LoadUserByTokenRepository {
-  load: (data: LoadUserByTokenRepository.Params) => Promise<LoadUserByTokenRepository.Result>
+  load: (data: LoadUserByTokenRepository.Params) => Promise<LoadUserByTokenRepository.Result | null>
 }
 
 export namespace LoadUserByTokenRepository {

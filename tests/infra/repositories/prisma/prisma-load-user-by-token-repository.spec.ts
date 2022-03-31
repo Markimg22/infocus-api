@@ -1,6 +1,6 @@
 import { LoadUserByTokenRepository } from '@/data/protocols/repositories'
 import { client } from '@/infra/helpers'
-import { mockCreateAccessTokenParams, mockCreateUserParams } from '@/tests/domain/mocks'
+import { mockCreateAccessTokenParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
 import { AccessToken, PrismaClient, Users } from '@prisma/client'
 
@@ -62,8 +62,15 @@ describe('PrismaLoadUserByToken Repository', () => {
   it('should return null if user not found', async () => {
     const sut = makeSut()
     const result = await sut.load({
-      accessToken: 'any_accessToken'
+      accessToken: 'any_token'
     })
     expect(result).toBeNull()
+  })
+
+  it('should throws if client database throws', async () => {
+    const sut = makeSut()
+    jest.spyOn(client.accessToken, 'findUnique').mockImplementationOnce(throwError)
+    const promise = sut.load({ accessToken: 'any_token' })
+    await expect(promise).rejects.toThrow()
   })
 })
