@@ -1,5 +1,5 @@
 import {
-  CreateTaskRespository,
+  CreateTaskRepository,
   LoadTasksRepository,
   UpdateStatusTaskRepository,
   DeleteTaskRepository
@@ -7,10 +7,10 @@ import {
 
 import faker from '@faker-js/faker'
 
-export class CreateTaskRespositorySpy implements CreateTaskRespository {
+export class CreateTaskRepositorySpy implements CreateTaskRepository {
   params = {}
 
-  async create(data: CreateTaskRespository.Params): Promise<CreateTaskRespository.Result> {
+  async create(data: CreateTaskRepository.Params): Promise<CreateTaskRepository.Result> {
     this.params = data
   }
 }
