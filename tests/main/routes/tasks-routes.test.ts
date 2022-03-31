@@ -59,4 +59,14 @@ describe('Tasks Routes', () => {
         .expect(403)
     })
   })
+
+  describe('POST /load-tasks', () => {
+    it('should return 200 on load tasks', async () => {
+      const accessToken = await mockAccessToken()
+      await request(app)
+        .post('/api/load-tasks')
+        .set('x-access-token', accessToken)
+        .expect(200)
+    })
+  })
 })
