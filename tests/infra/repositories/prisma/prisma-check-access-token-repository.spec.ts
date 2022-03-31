@@ -45,7 +45,7 @@ describe('PrismaCheckAccessToken Repository', () => {
 
   it('should throws if client database throws', async () => {
     const sut = makeSut()
-    jest.spyOn(client.accessToken, 'findFirst').mockImplementationOnce(throwError)
+    jest.spyOn(client.accessToken, 'findUnique').mockImplementationOnce(throwError)
     const promise = sut.check(user.id)
     await expect(promise).rejects.toThrow()
   })
