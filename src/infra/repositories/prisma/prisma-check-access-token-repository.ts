@@ -8,7 +8,7 @@ export class PrismaCheckAccessTokenRepository implements CheckAccessTokenReposit
   ) {}
 
   async check(userId: string): Promise<boolean> {
-    const accessTokenAlreadyExists = await this.client.accessToken.findFirst({
+    const accessTokenAlreadyExists = await this.client.accessToken.findUnique({
       where: { userId }
     })
     return accessTokenAlreadyExists !== null
