@@ -58,4 +58,12 @@ describe('PrismaLoadUserByToken Repository', () => {
       id: user.id
     })
   })
+
+  it('should return null if user not found', async () => {
+    const sut = makeSut()
+    const result = await sut.load({
+      accessToken: 'any_accessToken'
+    })
+    expect(result).toBeNull()
+  })
 })
