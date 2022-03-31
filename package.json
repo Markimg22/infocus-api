@@ -21,7 +21,7 @@
     "test:staged": "npm test -- --findRelatedTests",
     "test:ci": "npm test -- --coverage",
     "docker:up": "docker-compose -f docker-compose.yml up -d",
-    "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/main/server.ts"
+    "dev": "ts-node-dev --respawn --transpile-only --exit-child -r tsconfig-paths/register src/main/server.ts"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.2.3",
