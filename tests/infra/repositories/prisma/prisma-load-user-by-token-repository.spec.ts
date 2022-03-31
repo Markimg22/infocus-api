@@ -1,28 +1,8 @@
-import { LoadUserByTokenRepository } from '@/data/protocols/repositories'
+import { PrismaLoadUserByTokenRepository } from '@/infra/repositories'
 import { client } from '@/infra/helpers'
 import { mockCreateAccessTokenParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
 
-import { AccessToken, PrismaClient, Users } from '@prisma/client'
-
-class PrismaLoadUserByTokenRepository implements LoadUserByTokenRepository {
-  constructor(
-    private readonly client: PrismaClient
-  ) {}
-
-  async load(data: LoadUserByTokenRepository.Params): Promise<LoadUserByTokenRepository.Result | null> {
-    const accessToken = await this.client.accessToken.findUnique({
-      where: {
-        token: data.accessToken
-      }
-    })
-    if (accessToken) {
-      return {
-        id: accessToken.userId
-      }
-    }
-    return null
-  }
-}
+import { AccessToken, Users } from '@prisma/client'
 
 const makeSut = (): PrismaLoadUserByTokenRepository => {
   const sut = new PrismaLoadUserByTokenRepository(client)
