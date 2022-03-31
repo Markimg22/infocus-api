@@ -10,7 +10,14 @@ export class PrismaLoadTasksRepository implements LoadTasksRepository {
   async load(userId: string): Promise<LoadTasksRepository.Result> {
     const tasks = await this.client.tasks.findMany({
       where: { userId },
-      orderBy: { createdAt: 'asc' }
+      orderBy: { createdAt: 'asc' },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        finished: true,
+        createdAt: true
+      }
     })
     return tasks
   }
