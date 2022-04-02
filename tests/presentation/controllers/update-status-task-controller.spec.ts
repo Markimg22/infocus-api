@@ -1,7 +1,8 @@
 import { UpdateStatusTaskController } from '@/presentation/controllers'
 import { throwError } from '@/tests/domain/mocks'
-import { serverError, ok } from '@/presentation/helpers'
-import { LoadTasksSpy, UpdateStatusTaskSpy } from '@/tests/presentation/mocks'
+import { serverError, ok, badRequest } from '@/presentation/helpers'
+import { LoadTasksSpy, UpdateStatusTaskSpy, ValidationSpy } from '@/tests/presentation/mocks'
+import { MissingParamError } from '@/presentation/errors'
 
 import faker from '@faker-js/faker'
 
@@ -14,17 +15,20 @@ const mockRequest = (): UpdateStatusTaskController.Request => ({
 type SutTypes = {
   sut: UpdateStatusTaskController,
   updateStatusTaskSpy: UpdateStatusTaskSpy,
-  loadTasksSpy: LoadTasksSpy
+  loadTasksSpy: LoadTasksSpy,
+  validationSpy: ValidationSpy
 }
 
 const makeSut = (): SutTypes => {
   const updateStatusTaskSpy = new UpdateStatusTaskSpy()
   const loadTasksSpy = new LoadTasksSpy()
-  const sut = new UpdateStatusTaskController(updateStatusTaskSpy, loadTasksSpy)
+  const validationSpy = new ValidationSpy()
+  const sut = new UpdateStatusTaskController(validationSpy, updateStatusTaskSpy, loadTasksSpy)
   return {
     sut,
     updateStatusTaskSpy,
-    loadTasksSpy
+    loadTasksSpy,
+    validationSpy
   }
 }
 
@@ -61,5 +65,12 @@ describe('UpdateStatusTask Controller', () => {
     const { sut, loadTasksSpy } = makeSut()
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(ok(loadTasksSpy.result))
+  })
+
+  it('should return 400 if Validation returns an error', async () => {
+    const { sut, validationSpy } = makeSut()
+    validationSpy.error = new MissingParamError(faker.random.word())
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(badRequest(validationSpy.error))
   })
 })
