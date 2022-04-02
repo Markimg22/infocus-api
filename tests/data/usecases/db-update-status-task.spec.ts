@@ -36,4 +36,11 @@ describe('DbUpdateStatusTask UseCase', () => {
     const result = await sut.update(mockUpdateStatusTaskParams())
     expect(result).toBe(true)
   })
+
+  it('should return false if UpdateStatusTaskRepository returns false', async () => {
+    const { sut, updateStatusTaskRepositorySpy } = makeSut()
+    updateStatusTaskRepositorySpy.result = false
+    const result = await sut.update(mockUpdateStatusTaskParams())
+    expect(result).toBe(false)
+  })
 })
