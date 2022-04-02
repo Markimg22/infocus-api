@@ -1,8 +1,8 @@
 import { UpdateStatusTaskController } from '@/presentation/controllers'
 import { throwError } from '@/tests/domain/mocks'
-import { serverError, ok, badRequest } from '@/presentation/helpers'
+import { serverError, ok, badRequest, forbidden } from '@/presentation/helpers'
 import { LoadTasksSpy, UpdateStatusTaskSpy, ValidationSpy } from '@/tests/presentation/mocks'
-import { MissingParamError } from '@/presentation/errors'
+import { MissingParamError, InvalidParamError } from '@/presentation/errors'
 
 import faker from '@faker-js/faker'
 
@@ -45,6 +45,13 @@ describe('UpdateStatusTask Controller', () => {
     jest.spyOn(updateStatusTaskSpy, 'update').mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
+  it('should return 403 if UpdateStatusTask return false', async () => {
+    const { sut, updateStatusTaskSpy } = makeSut()
+    updateStatusTaskSpy.result = false
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(forbidden(new InvalidParamError('id')))
   })
 
   it('should call LoadTasks with correct userId', async () => {
