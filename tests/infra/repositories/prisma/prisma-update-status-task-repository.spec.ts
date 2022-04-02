@@ -60,4 +60,14 @@ describe('PrismaUpdateStatusTask Repository', () => {
     })
     expect(updatedTask).toBe(true)
   })
+
+  it('should return false if updated fails', async () => {
+    const sut = makeSut()
+    const updatedTask = await sut.update({
+      id: 'invalid_id',
+      userId: 'invalid_user_id',
+      finished: false
+    })
+    expect(updatedTask).toBe(false)
+  })
 })
