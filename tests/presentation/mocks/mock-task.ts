@@ -32,9 +32,11 @@ export class LoadTasksSpy implements LoadTasks {
 
 export class UpdateStatusTaskSpy implements UpdateStatusTask {
   params = {}
+  result = true
 
   async update(params: UpdateStatusTask.Params): Promise<UpdateStatusTask.Result> {
     this.params = params
+    return this.result
   }
 }
 
