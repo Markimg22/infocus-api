@@ -7,6 +7,7 @@ export class DbUpdateStatusTask implements UpdateStatusTask {
   ) {}
 
   async update(data: UpdateStatusTask.Params): Promise<UpdateStatusTask.Result> {
-    await this.updateStatusTaskRepository.update(data)
+    const taskUpdated = await this.updateStatusTaskRepository.update(data)
+    return taskUpdated
   }
 }

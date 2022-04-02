@@ -1,7 +1,7 @@
 import { UpdateStatusTask } from '@/domain/usecases'
 
 export interface UpdateStatusTaskRepository {
-  update: (data: UpdateStatusTaskRepository.Params) => Promise<void>
+  update: (data: UpdateStatusTaskRepository.Params) => Promise<UpdateStatusTaskRepository.Result>
 }
 
 export namespace UpdateStatusTaskRepository {

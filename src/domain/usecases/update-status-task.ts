@@ -9,5 +9,5 @@ export namespace UpdateStatusTask {
     finished: boolean
   }
 
-  export type Result = void
+  export type Result = boolean
 }

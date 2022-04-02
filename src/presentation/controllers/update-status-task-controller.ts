@@ -1,6 +1,7 @@
 import { HttpResponse, Controller, Validation } from '@/presentation/protocols'
 import { LoadTasks, UpdateStatusTask } from '@/domain/usecases'
-import { serverError, ok, badRequest } from '@/presentation/helpers'
+import { serverError, ok, badRequest, forbidden } from '@/presentation/helpers'
+import { InvalidParamError } from '../errors'
 
 export class UpdateStatusTaskController implements Controller {
   constructor(
@@ -13,7 +14,8 @@ export class UpdateStatusTaskController implements Controller {
     try {
       const error = this.validation.validate(request)
       if (error) return badRequest(error)
-      await this.updateStatusTask.update(request)
+      const taskUpdated = await this.updateStatusTask.update(request)
+      if (!taskUpdated) return forbidden(new InvalidParamError('id'))
       const tasks = await this.loadTasks.loadByUserId(request.userId)
       return ok(tasks)
     } catch (error) {

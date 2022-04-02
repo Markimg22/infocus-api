@@ -9,9 +9,10 @@ export class PrismaUpdateStatusTaskRepository implements UpdateStatusTaskReposit
 
   async update(data: UpdateStatusTaskRepository.Params): Promise<UpdateStatusTaskRepository.Result> {
     const { id, userId, finished } = data
-    await this.client.tasks.updateMany({
+    const result = await this.client.tasks.updateMany({
       where: { id, userId },
       data: { finished }
     })
+    return result.count !== 0
   }
 }
