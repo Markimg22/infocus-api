@@ -35,7 +35,16 @@ describe('PrismaLoadTasks Repository', () => {
 
   it('should returns taks with correct userId', async () => {
     const sut = makeSut()
-    const tasks = await client.tasks.findMany({ where: { userId: user.id } })
+    const tasks = await client.tasks.findMany({
+      where: { userId: user.id },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        finished: true,
+        createdAt: true
+      }
+    })
     const loadTasksResult = await sut.load(user.id)
     expect(loadTasksResult).toEqual(tasks)
   })
