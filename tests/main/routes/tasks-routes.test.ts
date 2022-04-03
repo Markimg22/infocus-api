@@ -123,4 +123,23 @@ describe('Tasks Routes', () => {
         .expect(400)
     })
   })
+
+  describe('DELETE /delete-task', () => {
+    it('should return 200 on delete task succeds', async () => {
+      const accessToken = await mockAccessToken()
+      await client.tasks.create({
+        data: mockCreateTaskParams(user.id)
+      })
+      const tasks = await client.tasks.findMany({
+        where: { userId: user.id }
+      })
+      await request(app)
+        .delete('/api/delete-task')
+        .set('x-access-token', accessToken)
+        .send({
+          id: tasks[0].id
+        })
+      expect(200)
+    })
+  })
 })
