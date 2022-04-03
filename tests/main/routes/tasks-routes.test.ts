@@ -31,9 +31,12 @@ describe('Tasks Routes', () => {
     await client.$connect()
   })
 
+  afterEach(async () => {
+    await client.tasks.deleteMany()
+  })
+
   afterAll(async () => {
     await client.accessToken.deleteMany()
-    await client.tasks.deleteMany()
     await client.users.deleteMany()
     await client.$disconnect()
   })
@@ -139,7 +142,18 @@ describe('Tasks Routes', () => {
         .send({
           id: tasks[0].id
         })
-      expect(200)
+        .expect(200)
+    })
+
+    it('should return 403 if task not found', async () => {
+      const accessToken = await mockAccessToken()
+      await request(app)
+        .delete('/api/delete-task')
+        .set('x-access-token', accessToken)
+        .send({
+          id: 'any_id'
+        })
+        .expect(403)
     })
   })
 })
