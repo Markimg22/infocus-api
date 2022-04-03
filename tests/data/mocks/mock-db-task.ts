@@ -42,8 +42,10 @@ export class UpdateStatusTaskRepositorySpy implements UpdateStatusTaskRepository
 
 export class DeleteTaskRepositorySpy implements DeleteTaskRepository {
   data = {}
+  result = true
 
   async delete(data: DeleteTaskRepository.Params): Promise<DeleteTaskRepository.Result> {
     this.data = data
+    return this.result
   }
 }
