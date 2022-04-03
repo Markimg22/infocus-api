@@ -1,16 +1,18 @@
 import { client } from '@/infra/helpers'
 import { setupApp } from '@/main/config/app'
-import { mockCreateUserParams } from '@/tests/domain/mocks'
+import { mockCreateTaskParams, mockCreateUserParams } from '@/tests/domain/mocks'
 import { env } from '@/main/config/env'
 
 import { Express } from 'express'
 import { sign } from 'jsonwebtoken'
 import request from 'supertest'
+import { Users } from '@prisma/client'
 
 let app: Express
+let user: Users
 
 const mockAccessToken = async (): Promise<string> => {
-  const user = await client.users.create({
+  user = await client.users.create({
     data: mockCreateUserParams()
   })
   const accessToken = sign(user.id, env.jwtSecret)
@@ -73,6 +75,26 @@ describe('Tasks Routes', () => {
       await request(app)
         .post('/api/load-tasks')
         .expect(403)
+    })
+  })
+
+  describe('PUT /update-status-task', () => {
+    it('should return 200 on update status task', async () => {
+      const accessToken = await mockAccessToken()
+      await client.tasks.create({
+        data: mockCreateTaskParams(user.id)
+      })
+      const tasks = await client.tasks.findMany({
+        where: { userId: user.id }
+      })
+      await request(app)
+        .put('/api/update-status-task')
+        .send({
+          id: tasks[0].id,
+          finished: true
+        })
+        .set('x-access-token', accessToken)
+        .expect(200)
     })
   })
 })
