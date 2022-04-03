@@ -96,5 +96,17 @@ describe('Tasks Routes', () => {
         .set('x-access-token', accessToken)
         .expect(200)
     })
+
+    it('should return 403 if task not found', async () => {
+      const accessToken = await mockAccessToken()
+      await request(app)
+        .put('/api/update-status-task')
+        .send({
+          id: 'invalid_task_id',
+          finished: true
+        })
+        .set('x-access-token', accessToken)
+        .expect(403)
+    })
   })
 })
