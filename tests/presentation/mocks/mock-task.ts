@@ -42,8 +42,10 @@ export class UpdateStatusTaskSpy implements UpdateStatusTask {
 
 export class DeleteTaskSpy implements DeleteTask {
   params = {}
+  result = true
 
   async delete(params: DeleteTask.Params): Promise<DeleteTask.Result> {
     this.params = params
+    return this.result
   }
 }
