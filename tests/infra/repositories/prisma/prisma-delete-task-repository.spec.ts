@@ -13,7 +13,7 @@ describe('PrismaDeleteTask Repository', () => {
   let user: Users
   let task: Tasks
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     await client.$connect()
     user = await client.users.create({
       data: mockCreateUserParams()
@@ -36,6 +36,15 @@ describe('PrismaDeleteTask Repository', () => {
       userId: user.id
     })
     expect(result).toBe(true)
+  })
+
+  it('should return false if delete task fails', async () => {
+    const sut = makeSut()
+    const result = await sut.delete({
+      id: 'invalid_id',
+      userId: 'any_user_id'
+    })
+    expect(result).toBe(false)
   })
 
   it('should throws if client database throws', async () => {
