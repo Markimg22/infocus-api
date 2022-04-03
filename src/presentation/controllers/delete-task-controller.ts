@@ -1,6 +1,7 @@
 import { Controller, HttpResponse } from '@/presentation/protocols'
 import { DeleteTask, LoadTasks } from '@/domain/usecases'
-import { serverError, ok } from '@/presentation/helpers'
+import { serverError, ok, forbidden } from '@/presentation/helpers'
+import { InvalidParamError } from '@/presentation/errors'
 
 export class DeleteTaskController implements Controller {
   constructor(
@@ -10,7 +11,8 @@ export class DeleteTaskController implements Controller {
 
   async handle(request: DeleteTaskController.Request): Promise<HttpResponse> {
     try {
-      await this.deleteTask.delete(request)
+      const taskDeleted = await this.deleteTask.delete(request)
+      if (!taskDeleted) return forbidden(new InvalidParamError('id'))
       const tasks = await this.loadTasks.loadByUserId(request.userId)
       return ok(tasks)
     } catch (error) {

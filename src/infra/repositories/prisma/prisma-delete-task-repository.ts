@@ -9,8 +9,10 @@ export class PrismaDeleteTaskRepository implements DeleteTaskRepository {
 
   async delete(data: DeleteTaskRepository.Params): Promise<DeleteTaskRepository.Result> {
     const { id, userId } = data
-    await this.client.tasks.deleteMany({
+    const result = await this.client.tasks.deleteMany({
       where: { id, userId }
     })
+
+    return result.count !== 0
   }
 }

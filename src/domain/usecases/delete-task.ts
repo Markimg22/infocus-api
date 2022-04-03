@@ -8,5 +8,5 @@ export namespace DeleteTask {
     userId: string
   }
 
-  export type Result = void
+  export type Result = boolean
 }

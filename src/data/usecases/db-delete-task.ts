@@ -7,6 +7,7 @@ export class DbDeleteTask implements DeleteTask {
   ) {}
 
   async delete(params: DeleteTask.Params): Promise<DeleteTask.Result> {
-    await this.deleteTaskRepository.delete(params)
+    const taskDeleted = await this.deleteTaskRepository.delete(params)
+    return taskDeleted
   }
 }
