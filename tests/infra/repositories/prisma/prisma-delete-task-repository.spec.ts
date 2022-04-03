@@ -29,14 +29,13 @@ describe('PrismaDeleteTask Repository', () => {
     await client.$disconnect()
   })
 
-  it('should delete task on success', async () => {
+  it('should return true if delete task on success', async () => {
     const sut = makeSut()
-    await sut.delete({
+    const result = await sut.delete({
       id: task.id,
       userId: user.id
     })
-    const tasks = await client.tasks.findFirst({ where: { userId: user.id } })
-    expect(tasks).toBeNull()
+    expect(result).toBe(true)
   })
 
   it('should throws if client database throws', async () => {
