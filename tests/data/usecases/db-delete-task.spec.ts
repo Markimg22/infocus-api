@@ -30,4 +30,10 @@ describe('DbDeleteTask UseCase', () => {
     const promise = sut.delete(mockDeleteTaskParams())
     await expect(promise).rejects.toThrow()
   })
+
+  it('should return true if DeleteTaskRepository return true', async () => {
+    const { sut } = makeSut()
+    const result = await sut.delete(mockDeleteTaskParams())
+    expect(result).toBe(true)
+  })
 })
