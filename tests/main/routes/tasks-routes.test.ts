@@ -155,5 +155,14 @@ describe('Tasks Routes', () => {
         })
         .expect(403)
     })
+
+    it('should return 403 on delete task without accessToken', async () => {
+      await request(app)
+        .delete('/api/delete-task')
+        .send({
+          id: 'any_id'
+        })
+        .expect(403)
+    })
   })
 })
