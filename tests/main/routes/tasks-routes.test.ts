@@ -114,5 +114,13 @@ describe('Tasks Routes', () => {
         .put('/api/update-status-task')
         .expect(403)
     })
+
+    it('should return 400 if update with invalid body', async () => {
+      const accessToken = await mockAccessToken()
+      await request(app)
+        .put('/api/update-status-task')
+        .set('x-access-token', accessToken)
+        .expect(400)
+    })
   })
 })
