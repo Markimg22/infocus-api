@@ -108,5 +108,11 @@ describe('Tasks Routes', () => {
         .set('x-access-token', accessToken)
         .expect(403)
     })
+
+    it('should return 403 on update status task without accessToken', async () => {
+      await request(app)
+        .put('/api/update-status-task')
+        .expect(403)
+    })
   })
 })
