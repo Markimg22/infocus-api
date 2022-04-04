@@ -8,8 +8,6 @@ export class PrismaCreatePerformanceRepository implements CreatePerformanceRepos
   ) {}
 
   async create(data: CreatePerformanceRepository.Params): Promise<CreatePerformanceRepository.Result> {
-    await this.client.performance.create({
-      data
-    })
+    await this.client.performance.create({ data })
   }
 }

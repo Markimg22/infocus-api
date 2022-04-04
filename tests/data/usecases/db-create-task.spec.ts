@@ -1,6 +1,7 @@
 import { DbCreateTask } from '@/data/usecases'
 import { throwError, mockCreateTaskParams } from '@/tests/domain/mocks'
 import { CreateTaskRepositorySpy } from '@/tests/data/mocks'
+
 import faker from '@faker-js/faker'
 
 type SutTypes = {

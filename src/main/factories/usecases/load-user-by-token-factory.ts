@@ -2,7 +2,7 @@ import { DbLoadUserByToken } from '@/data/usecases'
 import { LoadUserByToken } from '@/domain/usecases'
 import { JwtAdapter } from '@/infra/cryptography'
 import { env } from '@/main/config/env'
-import { makeRepositories } from '../repositories'
+import { makeRepositories } from '@/main/factories'
 
 export const makeDbLoadUserByToken = (): LoadUserByToken => {
   const jwtAdapter = new JwtAdapter(env.jwtSecret)

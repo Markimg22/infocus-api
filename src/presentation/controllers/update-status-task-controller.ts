@@ -1,7 +1,7 @@
 import { HttpResponse, Controller, Validation } from '@/presentation/protocols'
 import { LoadTasks, UpdateStatusTask } from '@/domain/usecases'
 import { serverError, ok, badRequest, forbidden } from '@/presentation/helpers'
-import { InvalidParamError } from '../errors'
+import { InvalidParamError } from '@/presentation/errors'
 
 export class UpdateStatusTaskController implements Controller {
   constructor(
