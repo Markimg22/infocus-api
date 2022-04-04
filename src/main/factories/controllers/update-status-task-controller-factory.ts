@@ -3,14 +3,16 @@ import { Controller } from '@/presentation/protocols'
 import {
   makeDbLoadTasks,
   makeDbUpdateStatusTask,
-  makeUpdateStatusTaskValidation
+  makeUpdateStatusTaskValidation,
+  makeDbUpdatePerformance
 } from '@/main/factories'
 
 export const makeUpdateStatusTaskController = (): Controller => {
   const controller = new UpdateStatusTaskController(
     makeUpdateStatusTaskValidation(),
     makeDbUpdateStatusTask(),
-    makeDbLoadTasks()
+    makeDbLoadTasks(),
+    makeDbUpdatePerformance()
   )
   return controller
 }

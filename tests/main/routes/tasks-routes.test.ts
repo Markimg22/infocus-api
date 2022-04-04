@@ -1,6 +1,6 @@
 import { client } from '@/infra/helpers'
 import { setupApp } from '@/main/config/app'
-import { mockCreateTaskParams, mockCreateUserParams } from '@/tests/domain/mocks'
+import { mockCreatePerformanceParams, mockCreateTaskParams, mockCreateUserParams } from '@/tests/domain/mocks'
 import { env } from '@/main/config/env'
 
 import { Express } from 'express'
@@ -37,6 +37,7 @@ describe('Tasks Routes', () => {
 
   afterAll(async () => {
     await client.accessToken.deleteMany()
+    await client.performance.deleteMany()
     await client.users.deleteMany()
     await client.$disconnect()
   })
@@ -89,6 +90,9 @@ describe('Tasks Routes', () => {
       })
       const tasks = await client.tasks.findMany({
         where: { userId: user.id }
+      })
+      await client.performance.create({
+        data: mockCreatePerformanceParams(user.id)
       })
       await request(app)
         .put('/api/update-status-task')

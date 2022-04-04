@@ -39,7 +39,7 @@ CREATE TABLE "performance" (
     "id" TEXT NOT NULL,
     "total_work_time" INTEGER NOT NULL DEFAULT 0,
     "total_rest_time" INTEGER NOT NULL DEFAULT 0,
-    "total_tasks_finished" INTEGER NOT NULL DEFAULT 0,
+    "total_tasks_finished" INTEGER NOT NULL DEFAULT 0 CHECK(total_tasks_finished >= 0),
     "user_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
