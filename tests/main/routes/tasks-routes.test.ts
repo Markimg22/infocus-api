@@ -65,18 +65,18 @@ describe('Tasks Routes', () => {
     })
   })
 
-  describe('POST /load-tasks', () => {
+  describe('GET /load-tasks', () => {
     it('should return 200 on load tasks', async () => {
       const accessToken = await mockAccessToken()
       await request(app)
-        .post('/api/load-tasks')
+        .get('/api/load-tasks')
         .set('x-access-token', accessToken)
         .expect(200)
     })
 
     it('should return 403 on load tasks without accessToken', async () => {
       await request(app)
-        .post('/api/load-tasks')
+        .get('/api/load-tasks')
         .expect(403)
     })
   })

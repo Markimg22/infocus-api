@@ -11,7 +11,7 @@ import { Router } from 'express'
 
 export default (router: Router): void => {
   router.post('/create-task', auth, adaptRoute(makeCreateTaskController()))
-  router.post('/load-tasks', auth, adaptRoute(makeLoadTasksController()))
+  router.get('/load-tasks', auth, adaptRoute(makeLoadTasksController()))
   router.put('/update-status-task', auth, adaptRoute(makeUpdateStatusTaskController()))
   router.delete('/delete-task', auth, adaptRoute(makeDeleteTaskController()))
 }
