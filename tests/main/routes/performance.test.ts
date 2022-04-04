@@ -75,5 +75,13 @@ describe('Performance Routes', () => {
         .put('/api/update-performance')
         .expect(403)
     })
+
+    it('should return 500 on update performance invalid body', async () => {
+      const accessToken = await mockAccessToken()
+      await request(app)
+        .put('/api/update-performance')
+        .set('x-access-token', accessToken)
+        .expect(500)
+    })
   })
 })
