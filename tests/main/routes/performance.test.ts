@@ -1,6 +1,6 @@
 import { setupApp } from '@/main/config/app'
 import { client } from '@/infra/helpers'
-import { mockCreateUserParams } from '@/tests/domain/mocks'
+import { mockCreatePerformanceParams, mockCreateUserParams } from '@/tests/domain/mocks'
 import { env } from '@/main/config/env'
 
 import { Users } from '@prisma/client'
@@ -32,6 +32,7 @@ describe('Performance Routes', () => {
   })
 
   afterAll(async () => {
+    await client.performance.deleteMany()
     await client.accessToken.deleteMany()
     await client.users.deleteMany()
     await client.$disconnect()
@@ -50,6 +51,23 @@ describe('Performance Routes', () => {
       await request(app)
         .get('/api/load-performance')
         .expect(403)
+    })
+  })
+
+  describe('PUT /update-performance', () => {
+    it('should return 200 on update performance', async () => {
+      const accessToken = await mockAccessToken()
+      await client.performance.create({
+        data: mockCreatePerformanceParams(user.id)
+      })
+      await request(app)
+        .put('/api/update-performance')
+        .set('x-access-token', accessToken)
+        .send({
+          field: 'totalWorkTime',
+          value: 12
+        })
+        .expect(200)
     })
   })
 })
