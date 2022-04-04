@@ -45,5 +45,11 @@ describe('Performance Routes', () => {
         .set('x-access-token', accessToken)
         .expect(200)
     })
+
+    it('should return 403 on load performance without accessToken', async () => {
+      await request(app)
+        .get('/api/load-performance')
+        .expect(403)
+    })
   })
 })
