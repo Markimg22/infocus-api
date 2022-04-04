@@ -1,7 +1,7 @@
 import { UpdateStatusTaskController } from '@/presentation/controllers'
 import { throwError } from '@/tests/domain/mocks'
 import { serverError, ok, badRequest, forbidden } from '@/presentation/helpers'
-import { LoadTasksSpy, UpdateStatusTaskSpy, ValidationSpy } from '@/tests/presentation/mocks'
+import { LoadTasksSpy, UpdateStatusTaskSpy, ValidationSpy, UpdatePerformanceSpy } from '@/tests/presentation/mocks'
 import { MissingParamError, InvalidParamError } from '@/presentation/errors'
 
 import faker from '@faker-js/faker'
@@ -16,19 +16,27 @@ type SutTypes = {
   sut: UpdateStatusTaskController,
   updateStatusTaskSpy: UpdateStatusTaskSpy,
   loadTasksSpy: LoadTasksSpy,
-  validationSpy: ValidationSpy
+  validationSpy: ValidationSpy,
+  updatePerformanceSpy: UpdatePerformanceSpy
 }
 
 const makeSut = (): SutTypes => {
   const updateStatusTaskSpy = new UpdateStatusTaskSpy()
   const loadTasksSpy = new LoadTasksSpy()
   const validationSpy = new ValidationSpy()
-  const sut = new UpdateStatusTaskController(validationSpy, updateStatusTaskSpy, loadTasksSpy)
+  const updatePerformanceSpy = new UpdatePerformanceSpy()
+  const sut = new UpdateStatusTaskController(
+    validationSpy,
+    updateStatusTaskSpy,
+    loadTasksSpy,
+    updatePerformanceSpy
+  )
   return {
     sut,
     updateStatusTaskSpy,
     loadTasksSpy,
-    validationSpy
+    validationSpy,
+    updatePerformanceSpy
   }
 }
 
@@ -86,5 +94,16 @@ describe('UpdateStatusTask Controller', () => {
     jest.spyOn(validationSpy, 'validate').mockImplementationOnce(throwError)
     const httpResponse = await sut.handle(mockRequest())
     expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
+  it('should call UpdatePerformance with correct values', async () => {
+    const { sut, updatePerformanceSpy, updateStatusTaskSpy } = makeSut()
+    const request = mockRequest()
+    await sut.handle(request)
+    expect(updatePerformanceSpy.params).toEqual({
+      userId: request.userId,
+      field: 'totalTasksFinished',
+      value: updateStatusTaskSpy.params.finished ? 1 : -1
+    })
   })
 })
