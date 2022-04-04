@@ -106,4 +106,11 @@ describe('UpdateStatusTask Controller', () => {
       value: updateStatusTaskSpy.params.finished ? 1 : -1
     })
   })
+
+  it('should return 500 if UpdatePerformance throws', async () => {
+    const { sut, updatePerformanceSpy } = makeSut()
+    jest.spyOn(updatePerformanceSpy, 'update').mockImplementationOnce(throwError)
+    const httpResponse = await sut.handle(mockRequest())
+    expect(httpResponse).toEqual(serverError(new Error()))
+  })
 })
