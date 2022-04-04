@@ -69,5 +69,11 @@ describe('Performance Routes', () => {
         })
         .expect(200)
     })
+
+    it('should return 403 on update performance without accessToken', async () => {
+      await request(app)
+        .put('/api/update-performance')
+        .expect(403)
+    })
   })
 })
