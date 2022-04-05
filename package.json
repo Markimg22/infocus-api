@@ -57,6 +57,8 @@
     "bcrypt": "^5.0.1",
     "express": "^4.17.3",
     "jsonwebtoken": "^8.5.1",
+    "pino": "^7.9.2",
+    "pino-pretty": "^7.6.0",
     "validator": "^13.7.0"
   }
 }
