@@ -1,11 +1,12 @@
 import { setupApp } from '@/main/config/app'
 import { client } from '@/infra/helpers'
 import { env } from '@/main/config/env'
+import { logger } from '@/utils/log'
 
 client.$connect()
   .then(async () => {
-    console.log('📦 Connected to database.')
+    logger.info('📦 Connected to database.')
     const app = await setupApp()
-    app.listen(env.port, () => console.log(`🔥 Server running in http://localhost:${env.port}`))
+    app.listen(env.port, () => logger.info(`🔥 Server running in PORT ${env.port}`))
   })
-  .catch(console.error)
+  .catch(logger.error)
