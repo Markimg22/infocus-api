@@ -9,11 +9,11 @@
 <p align="center">
   <img alt="GitHub language count" src="https://img.shields.io/github/languages/count/Markimg22/infocus-api?color=%2304D361">
   <img alt="Repository size" src="https://img.shields.io/github/repo-size/Markimg22/infocus-api">
-  <a href="https://github.com/Markimg22/infocus-app/commits/master">
+  <a href="https://github.com/Markimg22/infocus-api/commits/master">
     <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/Markimg22/infocus-api">
   </a>
   <img alt="License" src="https://img.shields.io/badge/license-MIT-brightgreen">
-  <a href="https://github.com/Markimg22/infocus-app/stargazers">
+  <a href="https://github.com/Markimg22/infocus-api/stargazers">
     <img alt="Stargazers" src="https://img.shields.io/github/stars/Markimg22/infocus-api?style=social">
   </a>
 </p>
