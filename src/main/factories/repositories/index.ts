@@ -1,1 +1,1 @@
-export * from './prisma-repositories-factory'
+export * from './prisma-repositories-factory';

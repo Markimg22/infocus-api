@@ -1,6 +1,11 @@
-import { AuthenticationUser } from '@/domain/usecases'
-import { badRequest, unauthorized, ok, serverError } from '@/presentation/helpers'
-import { Controller, HttpResponse, Validation } from '@/presentation/protocols'
+import { AuthenticationUser } from '@/domain/usecases';
+import {
+  badRequest,
+  unauthorized,
+  ok,
+  serverError,
+} from '@/presentation/helpers';
+import { Controller, HttpResponse, Validation } from '@/presentation/protocols';
 
 export class LoginController implements Controller {
   constructor(
@@ -10,20 +15,22 @@ export class LoginController implements Controller {
 
   async handle(request: LoginController.Request): Promise<HttpResponse> {
     try {
-      const error = this.validation.validate(request)
-      if (error) return badRequest(error)
-      const authenticationUserResult = await this.authenticationUser.auth(request)
-      if (!authenticationUserResult) return unauthorized()
-      return ok(authenticationUserResult)
+      const error = this.validation.validate(request);
+      if (error) return badRequest(error);
+      const authenticationUserResult = await this.authenticationUser.auth(
+        request
+      );
+      if (!authenticationUserResult) return unauthorized();
+      return ok(authenticationUserResult);
     } catch (error) {
-      return serverError(error as Error)
+      return serverError(error as Error);
     }
   }
 }
 
 export namespace LoginController {
   export type Request = {
-    email: string,
-    password: string
-  }
+    email: string;
+    password: string;
+  };
 }

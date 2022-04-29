@@ -1,12 +1,12 @@
 export interface DeleteTask {
-  delete: (params: DeleteTask.Params) => Promise<DeleteTask.Result>
+  delete: (params: DeleteTask.Params) => Promise<DeleteTask.Result>;
 }
 
 export namespace DeleteTask {
   export type Params = {
-    id: string,
-    userId: string
-  }
+    id: string;
+    userId: string;
+  };
 
-  export type Result = boolean
+  export type Result = boolean;
 }

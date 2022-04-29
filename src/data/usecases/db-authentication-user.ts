@@ -1,11 +1,11 @@
-import { AuthenticationUser } from '@/domain/usecases'
-import { HashComparer, Encrypter } from '@/data/protocols/cryptography'
+import { AuthenticationUser } from '@/domain/usecases';
+import { HashComparer, Encrypter } from '@/data/protocols/cryptography';
 import {
   LoadUserByEmailRepository,
   UpdateAccessTokenRepository,
   CheckAccessTokenRepository,
-  CreateAccessTokenRepository
-} from '@/data/protocols/repositories'
+  CreateAccessTokenRepository,
+} from '@/data/protocols/repositories';
 
 export class DbAuthenticationUser implements AuthenticationUser {
   constructor(
@@ -17,25 +17,31 @@ export class DbAuthenticationUser implements AuthenticationUser {
     private readonly checkAccessTokenRepository: CheckAccessTokenRepository
   ) {}
 
-  async auth(params: AuthenticationUser.Params): Promise<AuthenticationUser.Result | null> {
-    const { password, email } = params
-    const user = await this.loadUserByEmailRepository.load(email)
+  async auth(
+    params: AuthenticationUser.Params
+  ): Promise<AuthenticationUser.Result | null> {
+    const { password, email } = params;
+    const user = await this.loadUserByEmailRepository.load(email);
     if (user) {
-      const isValid = await this.hashComparer.compare(password, user.password)
+      const isValid = await this.hashComparer.compare(password, user.password);
       if (isValid) {
-        const accessToken = await this.encrypter.encrypt(user.id)
-        const accessTokenAlreadyExists = await this.checkAccessTokenRepository.check(user.id)
+        const accessToken = await this.encrypter.encrypt(user.id);
+        const accessTokenAlreadyExists =
+          await this.checkAccessTokenRepository.check(user.id);
         if (accessTokenAlreadyExists) {
-          await this.updateAccessTokenRepository.update(user.id, accessToken)
+          await this.updateAccessTokenRepository.update(user.id, accessToken);
         } else {
-          await this.createAccessTokenRepository.create({ userId: user.id, token: accessToken })
+          await this.createAccessTokenRepository.create({
+            userId: user.id,
+            token: accessToken,
+          });
         }
         return {
           accessToken,
-          name: user.name
-        }
+          name: user.name,
+        };
       }
     }
-    return null
+    return null;
   }
 }

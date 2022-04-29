@@ -1,6 +1,6 @@
-import { Controller, HttpResponse } from '@/presentation/protocols'
-import { ok, serverError } from '@/presentation/helpers'
-import { LoadPerformance, UpdatePerformance } from '@/domain/usecases'
+import { Controller, HttpResponse } from '@/presentation/protocols';
+import { ok, serverError } from '@/presentation/helpers';
+import { LoadPerformance, UpdatePerformance } from '@/domain/usecases';
 
 export class UpdatePerformanceController implements Controller {
   constructor(
@@ -8,17 +8,21 @@ export class UpdatePerformanceController implements Controller {
     private readonly loadPerformance: LoadPerformance
   ) {}
 
-  async handle(request: UpdatePerformanceController.Request): Promise<HttpResponse> {
+  async handle(
+    request: UpdatePerformanceController.Request
+  ): Promise<HttpResponse> {
     try {
-      await this.updatePerformance.update(request)
-      const performanceUpdated = await this.loadPerformance.loadByUserId(request.userId)
-      return ok(performanceUpdated)
+      await this.updatePerformance.update(request);
+      const performanceUpdated = await this.loadPerformance.loadByUserId(
+        request.userId
+      );
+      return ok(performanceUpdated);
     } catch (error) {
-      return serverError(error as Error)
+      return serverError(error as Error);
     }
   }
 }
 
 export namespace UpdatePerformanceController {
-  export type Request = UpdatePerformance.Params
+  export type Request = UpdatePerformance.Params;
 }

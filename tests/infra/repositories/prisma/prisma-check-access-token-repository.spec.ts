@@ -1,52 +1,58 @@
-import { PrismaCheckAccessTokenRepository } from '@/infra/repositories'
-import { client } from '@/infra/helpers'
-import { mockCreateAccessTokenParams, mockCreateUserParams, throwError } from '@/tests/domain/mocks'
+import { PrismaCheckAccessTokenRepository } from '@/infra/repositories';
+import { client } from '@/infra/helpers';
+import {
+  mockCreateAccessTokenParams,
+  mockCreateUserParams,
+  throwError,
+} from '@/tests/domain/mocks';
 
-import { Users } from '@prisma/client'
+import { Users } from '@prisma/client';
 
 const makeSut = (): PrismaCheckAccessTokenRepository => {
-  const sut = new PrismaCheckAccessTokenRepository(client)
-  return sut
-}
+  const sut = new PrismaCheckAccessTokenRepository(client);
+  return sut;
+};
 
 describe('PrismaCheckAccessToken Repository', () => {
-  let user: Users
+  let user: Users;
 
   beforeAll(async () => {
-    await client.$connect()
+    await client.$connect();
     user = await client.users.create({
-      data: mockCreateUserParams()
-    })
-  })
+      data: mockCreateUserParams(),
+    });
+  });
 
   beforeEach(async () => {
-    await client.accessToken.deleteMany()
-  })
+    await client.accessToken.deleteMany();
+  });
 
   afterAll(async () => {
-    await client.users.deleteMany()
-    await client.$disconnect()
-  })
+    await client.users.deleteMany();
+    await client.$disconnect();
+  });
 
   it('should return true if access token already exists', async () => {
-    const sut = makeSut()
+    const sut = makeSut();
     await client.accessToken.create({
-      data: mockCreateAccessTokenParams(user.id)
-    })
-    const accessTokenAlreadyExists = await sut.check(user.id)
-    expect(accessTokenAlreadyExists).toBe(true)
-  })
+      data: mockCreateAccessTokenParams(user.id),
+    });
+    const accessTokenAlreadyExists = await sut.check(user.id);
+    expect(accessTokenAlreadyExists).toBe(true);
+  });
 
   it('should return false if access token not exists', async () => {
-    const sut = makeSut()
-    const accessTokenAlreadyExists = await sut.check(user.id)
-    expect(accessTokenAlreadyExists).toBe(false)
-  })
+    const sut = makeSut();
+    const accessTokenAlreadyExists = await sut.check(user.id);
+    expect(accessTokenAlreadyExists).toBe(false);
+  });
 
   it('should throws if client database throws', async () => {
-    const sut = makeSut()
-    jest.spyOn(client.accessToken, 'findUnique').mockImplementationOnce(throwError)
-    const promise = sut.check(user.id)
-    await expect(promise).rejects.toThrow()
-  })
-})
+    const sut = makeSut();
+    jest
+      .spyOn(client.accessToken, 'findUnique')
+      .mockImplementationOnce(throwError);
+    const promise = sut.check(user.id);
+    await expect(promise).rejects.toThrow();
+  });
+});

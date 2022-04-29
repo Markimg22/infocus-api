@@ -1,9 +1,13 @@
-import { CreateUser } from '@/domain/usecases'
-import { CreateUserRepository, CheckUserByEmailRepository, CreatePerformanceRepository } from '@/data/protocols/repositories'
-import { Hasher } from '@/data/protocols/cryptography'
+import { CreateUser } from '@/domain/usecases';
+import {
+  CreateUserRepository,
+  CheckUserByEmailRepository,
+  CreatePerformanceRepository,
+} from '@/data/protocols/repositories';
+import { Hasher } from '@/data/protocols/cryptography';
 
 export class DbCreateUser implements CreateUser {
-  constructor (
+  constructor(
     private readonly checkUserByEmailRepository: CheckUserByEmailRepository,
     private readonly hasher: Hasher,
     private readonly createUserRepository: CreateUserRepository,
@@ -11,16 +15,18 @@ export class DbCreateUser implements CreateUser {
   ) {}
 
   async create(params: CreateUser.Params): Promise<CreateUser.Result> {
-    const { name, email, password } = params
-    const userAlreadyExists = await this.checkUserByEmailRepository.check(email)
-    if (userAlreadyExists) return false
-    const hashedPassword = await this.hasher.hash(password)
+    const { name, email, password } = params;
+    const userAlreadyExists = await this.checkUserByEmailRepository.check(
+      email
+    );
+    if (userAlreadyExists) return false;
+    const hashedPassword = await this.hasher.hash(password);
     const userId = await this.createUserRepository.create({
       name,
       email,
-      password: hashedPassword
-    })
-    await this.createPerformanceRepository.create({ userId })
-    return userId !== ''
+      password: hashedPassword,
+    });
+    await this.createPerformanceRepository.create({ userId });
+    return userId !== '';
   }
 }

@@ -1,13 +1,13 @@
 export interface UpdateStatusTask {
-  update: (params: UpdateStatusTask.Params) => Promise<UpdateStatusTask.Result>
+  update: (params: UpdateStatusTask.Params) => Promise<UpdateStatusTask.Result>;
 }
 
 export namespace UpdateStatusTask {
   export type Params = {
-    id: string,
-    userId: string,
-    finished: boolean
-  }
+    id: string;
+    userId: string;
+    finished: boolean;
+  };
 
-  export type Result = boolean
+  export type Result = boolean;
 }

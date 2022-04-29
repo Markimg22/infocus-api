@@ -1,9 +1,9 @@
-import { LoadPerformance } from '@/domain/usecases'
+import { LoadPerformance } from '@/domain/usecases';
 
 export interface LoadPerformanceRepository {
-  load: (userId: string) => Promise<LoadPerformanceRepository.Result>
+  load: (userId: string) => Promise<LoadPerformanceRepository.Result>;
 }
 
 export namespace LoadPerformanceRepository {
-  export type Result = LoadPerformance.Result
+  export type Result = LoadPerformance.Result;
 }
