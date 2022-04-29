@@ -18,7 +18,6 @@
     "test": "dotenv -e .env.test -- jest --passWithNoTests --runInBand --no-cache",
     "test:unit": "npm test -- --watch -c jest-unit-config.js",
     "test:integration": "npm test -- --watch -c jest-integration-config.js",
-    "test:staged": "npm test -- --findRelatedTests",
     "test:ci": "npm test -- --coverage",
     "docker:up": "docker-compose -f docker-compose.yml up -d",
     "dev": "ts-node-dev --respawn --transpile-only --exit-child -r tsconfig-paths/register src/main/server.ts",
