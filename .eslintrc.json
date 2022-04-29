@@ -1,24 +1,36 @@
 {
-	"env": {
-		"es2021": true,
-		"node": true
-	},
-	"extends": [
-		"standard"
-	],
-	"parser": "@typescript-eslint/parser",
-	"parserOptions": {
-		"ecmaVersion": "latest"
-	},
-	"plugins": [
-		"@typescript-eslint"
-	],
-	"rules": {
-    "no-undef": "off",
-    "space-before-function-paren": "off",
-    "no-useless-constructor": "off",
-    "no-use-before-define": "off",
+  "env": {
+    "es2021": true,
+    "node": true
+  },
+  "extends": [
+    "airbnb-base",
+    "plugin:prettier/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 12,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "prettier"
+  ],
+  "rules": {
+    "no-unused-vars": "off",
+    "import/no-unresolved": "off",
+    "import/extensions": "off",
     "no-redeclare": "off",
-    "import/export": "off"
+    "no-useless-constructor": "off",
+    "import/prefer-default-export": "off",
+    "no-empty-function": "off",
+    "import/order": "off",
+    "no-return-await": "off",
+    "class-methods-use-this": "off",
+    "no-restricted-syntax": "off",
+    "max-classes-per-file": "off",
+    "lines-between-class-members": "off",
+    "no-plusplus": "off",
+    "no-undef": "off"
   }
 }
