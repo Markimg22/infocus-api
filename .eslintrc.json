@@ -31,6 +31,7 @@
     "max-classes-per-file": "off",
     "lines-between-class-members": "off",
     "no-plusplus": "off",
-    "no-undef": "off"
+    "no-undef": "off",
+    "no-use-before-define": "off"
   }
 }
