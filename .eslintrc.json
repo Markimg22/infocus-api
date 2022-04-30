@@ -33,6 +33,7 @@
     "no-plusplus": "off",
     "no-undef": "off",
     "no-use-before-define": "off",
-    "no-console": "off"
+    "no-console": "off",
+    "consistent-return": "off"
   }
 }
