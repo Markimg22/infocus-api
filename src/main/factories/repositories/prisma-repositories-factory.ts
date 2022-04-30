@@ -1,4 +1,4 @@
-import { client } from '@/infra/helpers'
+import { client } from '@/infra/helpers';
 import {
   PrismaCheckAccessTokenRepository,
   PrismaCheckUserByEmailRepository,
@@ -13,25 +13,25 @@ import {
   PrismaUpdateAccessTokenRepository,
   PrismaUpdatePerformanceRepository,
   PrismaUpdateStatusTaskRepository,
-  PrismaLoadUserByTokenRepository
-} from '@/infra/repositories'
+  PrismaLoadUserByTokenRepository,
+} from '@/infra/repositories';
 
 type RepositoriesType = {
-  checkAccessTokenRepository: PrismaCheckAccessTokenRepository,
-  checkUserByEmailRepository: PrismaCheckUserByEmailRepository,
-  updateStatusTaskRepository: PrismaUpdateStatusTaskRepository,
-  updatePerformanceRepository: PrismaUpdatePerformanceRepository,
-  updateAccessTokenRepository : PrismaUpdateAccessTokenRepository,
-  loadUserByEmailRepository: PrismaLoadUserByEmailRepository,
-  loadTasksRepository: PrismaLoadTasksRepository,
-  loadPerformanceRepository: PrismaLoadPerformanceRepository,
-  deleteTaskRepository: PrismaDeleteTaskRepository,
-  createUserRepository: PrismaCreateUserRepository,
-  createTaskRespository: PrismaCreateTaskRepository,
-  createPerformanceRepository: PrismaCreatePerformanceRepository,
-  createAccessTokenRepository: PrismaCreateAccessTokenRepository,
-  loadUserByTokenRepository: PrismaLoadUserByTokenRepository
-}
+  checkAccessTokenRepository: PrismaCheckAccessTokenRepository;
+  checkUserByEmailRepository: PrismaCheckUserByEmailRepository;
+  updateStatusTaskRepository: PrismaUpdateStatusTaskRepository;
+  updatePerformanceRepository: PrismaUpdatePerformanceRepository;
+  updateAccessTokenRepository: PrismaUpdateAccessTokenRepository;
+  loadUserByEmailRepository: PrismaLoadUserByEmailRepository;
+  loadTasksRepository: PrismaLoadTasksRepository;
+  loadPerformanceRepository: PrismaLoadPerformanceRepository;
+  deleteTaskRepository: PrismaDeleteTaskRepository;
+  createUserRepository: PrismaCreateUserRepository;
+  createTaskRespository: PrismaCreateTaskRepository;
+  createPerformanceRepository: PrismaCreatePerformanceRepository;
+  createAccessTokenRepository: PrismaCreateAccessTokenRepository;
+  loadUserByTokenRepository: PrismaLoadUserByTokenRepository;
+};
 
 export const makeRepositories = (): RepositoriesType => {
   return {
@@ -48,6 +48,6 @@ export const makeRepositories = (): RepositoriesType => {
     createTaskRespository: new PrismaCreateTaskRepository(client),
     createPerformanceRepository: new PrismaCreatePerformanceRepository(client),
     createAccessTokenRepository: new PrismaCreateAccessTokenRepository(client),
-    loadUserByTokenRepository: new PrismaLoadUserByTokenRepository(client)
-  }
-}
+    loadUserByTokenRepository: new PrismaLoadUserByTokenRepository(client),
+  };
+};

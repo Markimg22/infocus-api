@@ -1,11 +1,11 @@
-import { UpdateStatusTaskController } from '@/presentation/controllers'
-import { Controller } from '@/presentation/protocols'
+import { UpdateStatusTaskController } from '@/presentation/controllers';
+import { Controller } from '@/presentation/protocols';
 import {
   makeDbLoadTasks,
   makeDbUpdateStatusTask,
   makeUpdateStatusTaskValidation,
-  makeDbUpdatePerformance
-} from '@/main/factories'
+  makeDbUpdatePerformance,
+} from '@/main/factories';
 
 export const makeUpdateStatusTaskController = (): Controller => {
   const controller = new UpdateStatusTaskController(
@@ -13,6 +13,6 @@ export const makeUpdateStatusTaskController = (): Controller => {
     makeDbUpdateStatusTask(),
     makeDbLoadTasks(),
     makeDbUpdatePerformance()
-  )
-  return controller
-}
+  );
+  return controller;
+};

@@ -1,13 +1,15 @@
-import { CreatePerformanceRepository } from '@/data/protocols/repositories'
+import { CreatePerformanceRepository } from '@/data/protocols/repositories';
 
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
 
-export class PrismaCreatePerformanceRepository implements CreatePerformanceRepository {
-  constructor(
-    private readonly client: PrismaClient
-  ) {}
+export class PrismaCreatePerformanceRepository
+  implements CreatePerformanceRepository
+{
+  constructor(private readonly client: PrismaClient) {}
 
-  async create(data: CreatePerformanceRepository.Params): Promise<CreatePerformanceRepository.Result> {
-    await this.client.performance.create({ data })
+  async create(
+    data: CreatePerformanceRepository.Params
+  ): Promise<CreatePerformanceRepository.Result> {
+    await this.client.performance.create({ data });
   }
 }

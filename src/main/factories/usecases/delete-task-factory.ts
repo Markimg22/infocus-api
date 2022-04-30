@@ -1,8 +1,8 @@
-import { DbDeleteTask } from '@/data/usecases'
-import { DeleteTask } from '@/domain/usecases'
-import { makeRepositories } from '@/main/factories'
+import { DbDeleteTask } from '@/data/usecases';
+import { DeleteTask } from '@/domain/usecases';
+import { makeRepositories } from '@/main/factories';
 
 export const makeDbDeleteTask = (): DeleteTask => {
-  const { deleteTaskRepository } = makeRepositories()
-  return new DbDeleteTask(deleteTaskRepository)
-}
+  const { deleteTaskRepository } = makeRepositories();
+  return new DbDeleteTask(deleteTaskRepository);
+};

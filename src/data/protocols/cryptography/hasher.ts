@@ -1,3 +1,3 @@
 export interface Hasher {
-  hash: (plainText: string) => Promise<string>
+  hash: (plainText: string) => Promise<string>;
 }

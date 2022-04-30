@@ -1,5 +1,5 @@
-import { LoadPerformanceRepository } from '@/data/protocols/repositories'
-import { LoadPerformance } from '@/domain/usecases'
+import { LoadPerformanceRepository } from '@/data/protocols/repositories';
+import { LoadPerformance } from '@/domain/usecases';
 
 export class DbLoadPerformance implements LoadPerformance {
   constructor(
@@ -7,7 +7,7 @@ export class DbLoadPerformance implements LoadPerformance {
   ) {}
 
   async loadByUserId(userId: string): Promise<LoadPerformance.Result> {
-    const performance = await this.loadPerformanceRepository.load(userId)
-    return performance
+    const performance = await this.loadPerformanceRepository.load(userId);
+    return performance;
   }
 }

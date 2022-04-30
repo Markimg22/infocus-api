@@ -1,11 +1,9 @@
-import { LoadTasksRepository } from '@/data/protocols/repositories'
+import { LoadTasksRepository } from '@/data/protocols/repositories';
 
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
 
 export class PrismaLoadTasksRepository implements LoadTasksRepository {
-  constructor(
-    private readonly client: PrismaClient
-  ) {}
+  constructor(private readonly client: PrismaClient) {}
 
   async load(userId: string): Promise<LoadTasksRepository.Result> {
     const tasks = await this.client.tasks.findMany({
@@ -16,9 +14,9 @@ export class PrismaLoadTasksRepository implements LoadTasksRepository {
         title: true,
         description: true,
         finished: true,
-        createdAt: true
-      }
-    })
-    return tasks
+        createdAt: true,
+      },
+    });
+    return tasks;
   }
 }
