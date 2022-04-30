@@ -32,6 +32,7 @@
     "lines-between-class-members": "off",
     "no-plusplus": "off",
     "no-undef": "off",
-    "no-use-before-define": "off"
+    "no-use-before-define": "off",
+    "no-console": "off"
   }
 }
