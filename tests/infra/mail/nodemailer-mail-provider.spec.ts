@@ -1,70 +1,9 @@
-import faker from '@faker-js/faker';
+import { NodemailerMailProvider } from '@/infra/mail';
+
+import { mockMailOptions } from '@/tests/data/mocks';
+import { mockNodemailer } from '@/tests/infra/mocks';
+
 import nodemailer from 'nodemailer';
-
-class NodemailerMailProvider implements MailProvider {
-  async send(options: MailProvider.Options): Promise<MailProvider.Result> {
-    try {
-      const tranporter = nodemailer.createTransport({
-        host: options.host,
-        port: options.port,
-        auth: {
-          user: options.username,
-          pass: options.password,
-        },
-      });
-      const result = await tranporter.sendMail({
-        from: options.from,
-        to: options.to,
-        subject: options.subject,
-        text: options.text,
-        html: options.html,
-      });
-      return result !== null;
-    } catch (error) {
-      return error as Error;
-    }
-  }
-}
-
-interface MailProvider {
-  send: (options: MailProvider.Options) => Promise<MailProvider.Result>;
-}
-
-namespace MailProvider {
-  export type Options = {
-    host: string;
-    port: number;
-    username: string;
-    password: string;
-    from: string;
-    to: string;
-    subject: string;
-    text: string;
-    html: string;
-  };
-
-  export type Result = boolean | Error;
-}
-
-const mockNodemailer = (): jest.Mocked<typeof nodemailer> => {
-  const mockedNodemailer = nodemailer as jest.Mocked<typeof nodemailer>;
-  const sendMailMock = jest.fn().mockReturnValueOnce({});
-  // @ts-ignore
-  mockedNodemailer.createTransport.mockReturnValue({ sendMail: sendMailMock });
-  return mockedNodemailer;
-};
-
-const mockMailOptions = (): MailProvider.Options => ({
-  host: faker.internet.url(),
-  port: faker.datatype.number(),
-  username: faker.internet.userName(),
-  password: faker.internet.password(),
-  from: faker.internet.email(),
-  to: faker.internet.email(),
-  subject: faker.random.word(),
-  text: faker.random.word(),
-  html: faker.random.word(),
-});
 
 jest.mock('nodemailer');
 
@@ -73,7 +12,7 @@ type SutTypes = {
   mockedNodemailer: jest.Mocked<typeof nodemailer>;
 };
 
-const makeSut = () => {
+const makeSut = (): SutTypes => {
   const sut = new NodemailerMailProvider();
   const mockedNodemailer = mockNodemailer();
   return {
