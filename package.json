@@ -1,6 +1,6 @@
 {
   "name": "infocus-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "📝 Application to help you focus on your daily activities.",
   "main": "index.js",
   "author": "Marcos Campos",
