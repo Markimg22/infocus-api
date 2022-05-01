@@ -99,4 +99,13 @@ describe('ConfirmationEmail Controller', () => {
       request.confirmationCode
     );
   });
+
+  it('should return 500 if ConfirmationEmail throws', async () => {
+    const { sut, confirmationEmailSpy } = makeSut();
+    jest
+      .spyOn(confirmationEmailSpy, 'confirm')
+      .mockImplementationOnce(throwError);
+    const httpResponse = await sut.handle(mockRequest());
+    expect(httpResponse).toEqual(serverError(new Error()));
+  });
 });
