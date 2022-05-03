@@ -1,6 +1,6 @@
 import { Validation, HttpResponse, Controller } from '@/presentation/protocols';
 import { MissingParamError } from '@/presentation/errors';
-import { badRequest, serverError } from '@/presentation/helpers';
+import { badRequest, serverError, ok } from '@/presentation/helpers';
 
 import { ValidationSpy } from '@/tests/presentation/mocks';
 import { throwError } from '@/tests/domain/mocks';
@@ -19,8 +19,10 @@ class ConfirmationEmailController implements Controller {
     try {
       const error = this.validation.validate(request);
       if (error) return badRequest(error);
-      await this.confirmationEmail.confirm(request.confirmationCode);
-      return {} as HttpResponse;
+      const resultConfirmated = await this.confirmationEmail.confirm(
+        request.confirmationCode
+      );
+      return ok(resultConfirmated);
     } catch (error) {
       return serverError(error as Error);
     }
@@ -34,14 +36,24 @@ export namespace ConfirmationEmailController {
 }
 
 export interface ConfirmationEmail {
-  confirm: (code: string) => Promise<void>;
+  confirm: (code: string) => Promise<ConfirmationEmail.Result>;
+}
+
+export namespace ConfirmationEmail {
+  export type Result = {
+    message: string;
+  };
 }
 
 class ConfirmationEmailSpy implements ConfirmationEmail {
   confirmationCode = '';
+  result = {
+    message: 'E-mail successfully confirmed.',
+  };
 
-  async confirm(code: string): Promise<void> {
+  async confirm(code: string): Promise<ConfirmationEmail.Result> {
     this.confirmationCode = code;
+    return this.result;
   }
 }
 
@@ -107,5 +119,11 @@ describe('ConfirmationEmail Controller', () => {
       .mockImplementationOnce(throwError);
     const httpResponse = await sut.handle(mockRequest());
     expect(httpResponse).toEqual(serverError(new Error()));
+  });
+
+  it('should return 200 if email successfully confirmed', async () => {
+    const { sut, confirmationEmailSpy } = makeSut();
+    const httpResponse = await sut.handle(mockRequest());
+    expect(httpResponse).toEqual(ok(confirmationEmailSpy.result));
   });
 });
