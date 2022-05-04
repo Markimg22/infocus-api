@@ -1,5 +1,5 @@
 import {
-  LoadUserByConfirmationCodeRepository,
+  CheckUserByIdRepository,
   UpdateUserEmailConfirmatedRepository,
 } from '@/data/protocols/repositories';
 
@@ -22,17 +22,11 @@ export class UpdateUserEmailConfirmatedRepositorySpy
   }
 }
 
-export class LoadUserByConfirmationCodeRepositorySpy
-  implements LoadUserByConfirmationCodeRepository
-{
+export class CheckUserByIdRepositorySpy implements CheckUserByIdRepository {
   confirmationCode = '';
-  result = {
-    id: faker.datatype.uuid(),
-  };
+  result = true;
 
-  async load(
-    code: string
-  ): Promise<LoadUserByConfirmationCodeRepository.Result> {
+  async load(code: string): Promise<CheckUserByIdRepository.Result> {
     this.confirmationCode = code;
     return this.result;
   }

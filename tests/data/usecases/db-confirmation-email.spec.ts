@@ -2,7 +2,7 @@ import { DbConfirmationEmail } from '@/data/usecases';
 
 import { throwError } from '@/tests/domain/mocks';
 import {
-  LoadUserByConfirmationCodeRepositorySpy,
+  CheckUserByIdRepositorySpy,
   UpdateUserEmailConfirmatedRepositorySpy,
 } from '@/tests/data/mocks';
 
@@ -10,54 +10,50 @@ import faker from '@faker-js/faker';
 
 type SutTypes = {
   sut: DbConfirmationEmail;
-  loadUserByConfirmationCodeRepositorySpy: LoadUserByConfirmationCodeRepositorySpy;
+  checkUserByIdRepositorySpy: CheckUserByIdRepositorySpy;
   updateUserEmailConfirmatedRepositorySpy: UpdateUserEmailConfirmatedRepositorySpy;
 };
 
 const makeSut = (): SutTypes => {
-  const loadUserByConfirmationCodeRepositorySpy =
-    new LoadUserByConfirmationCodeRepositorySpy();
+  const checkUserByIdRepositorySpy = new CheckUserByIdRepositorySpy();
   const updateUserEmailConfirmatedRepositorySpy =
     new UpdateUserEmailConfirmatedRepositorySpy();
   const sut = new DbConfirmationEmail(
-    loadUserByConfirmationCodeRepositorySpy,
+    checkUserByIdRepositorySpy,
     updateUserEmailConfirmatedRepositorySpy
   );
   return {
     sut,
-    loadUserByConfirmationCodeRepositorySpy,
+    checkUserByIdRepositorySpy,
     updateUserEmailConfirmatedRepositorySpy,
   };
 };
 
 describe('DbConfirmationEmail UseCase', () => {
-  it('should call LoadUserByConfirmationCodeRepository with correct code', async () => {
-    const { sut, loadUserByConfirmationCodeRepositorySpy } = makeSut();
+  it('should call LoadUserByIdRepository with correct code', async () => {
+    const { sut, checkUserByIdRepositorySpy } = makeSut();
     const confirmationCode = faker.datatype.uuid();
     await sut.confirm(confirmationCode);
-    expect(loadUserByConfirmationCodeRepositorySpy.confirmationCode).toEqual(
+    expect(checkUserByIdRepositorySpy.confirmationCode).toEqual(
       confirmationCode
     );
   });
 
   it('should throws if LoadUserByConfirmationCodeRepository throws', async () => {
-    const { sut, loadUserByConfirmationCodeRepositorySpy } = makeSut();
+    const { sut, checkUserByIdRepositorySpy } = makeSut();
     jest
-      .spyOn(loadUserByConfirmationCodeRepositorySpy, 'load')
+      .spyOn(checkUserByIdRepositorySpy, 'load')
       .mockImplementationOnce(throwError);
     const promise = sut.confirm(faker.datatype.uuid());
     await expect(promise).rejects.toThrow();
   });
 
   it('should call UpdateUserEmailConfirmatedRepository with correct values', async () => {
-    const {
-      sut,
-      loadUserByConfirmationCodeRepositorySpy,
-      updateUserEmailConfirmatedRepositorySpy,
-    } = makeSut();
-    await sut.confirm(faker.datatype.uuid());
+    const { sut, updateUserEmailConfirmatedRepositorySpy } = makeSut();
+    const fakerUserId = faker.datatype.uuid();
+    await sut.confirm(fakerUserId);
     expect(updateUserEmailConfirmatedRepositorySpy.data).toEqual({
-      id: loadUserByConfirmationCodeRepositorySpy.result.id,
+      id: fakerUserId,
       emailConfirmated: true,
     });
   });
