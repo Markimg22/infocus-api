@@ -4,6 +4,7 @@ CREATE TABLE "users" (
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "email_confirmated" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -25,7 +26,7 @@ CREATE TABLE "access_token" (
 CREATE TABLE "tasks" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
+    "description" TEXT NOT NULL DEFAULT E'',
     "finished" BOOLEAN NOT NULL DEFAULT false,
     "user_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -39,7 +40,7 @@ CREATE TABLE "performance" (
     "id" TEXT NOT NULL,
     "total_work_time" INTEGER NOT NULL DEFAULT 0,
     "total_rest_time" INTEGER NOT NULL DEFAULT 0,
-    "total_tasks_finished" INTEGER NOT NULL DEFAULT 0 CHECK(total_tasks_finished >= 0),
+    "total_tasks_finished" INTEGER NOT NULL DEFAULT 0,
     "user_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,

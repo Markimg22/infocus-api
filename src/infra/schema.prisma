@@ -8,15 +8,16 @@ datasource db {
 }
 
 model Users {
-  id          String       @id @unique @default(uuid())
-  name        String
-  email       String       @unique
-  password    String
-  accessToken AccessToken?
-  tasks       Tasks[]
-  performance Performance?
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
+  id               String       @id @unique @default(uuid())
+  name             String
+  email            String       @unique
+  password         String
+  emailConfirmated Boolean      @default(false) @map("email_confirmated")
+  accessToken      AccessToken?
+  tasks            Tasks[]
+  performance      Performance?
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
 
   @@map("users")
 }
