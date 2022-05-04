@@ -1,61 +1,14 @@
-import { Validation, HttpResponse, Controller } from '@/presentation/protocols';
+import { ConfirmationEmailController } from '@/presentation/controllers';
 import { MissingParamError } from '@/presentation/errors';
 import { badRequest, serverError, ok } from '@/presentation/helpers';
 
-import { ValidationSpy } from '@/tests/presentation/mocks';
+import {
+  ValidationSpy,
+  ConfirmationEmailSpy,
+} from '@/tests/presentation/mocks';
 import { throwError } from '@/tests/domain/mocks';
 
 import faker from '@faker-js/faker';
-
-class ConfirmationEmailController implements Controller {
-  constructor(
-    private readonly validation: Validation,
-    private readonly confirmationEmail: ConfirmationEmail
-  ) {}
-
-  async handle(
-    request: ConfirmationEmailController.Request
-  ): Promise<HttpResponse> {
-    try {
-      const error = this.validation.validate(request);
-      if (error) return badRequest(error);
-      const resultConfirmated = await this.confirmationEmail.confirm(
-        request.confirmationCode
-      );
-      return ok(resultConfirmated);
-    } catch (error) {
-      return serverError(error as Error);
-    }
-  }
-}
-
-export namespace ConfirmationEmailController {
-  export type Request = {
-    confirmationCode: string;
-  };
-}
-
-export interface ConfirmationEmail {
-  confirm: (code: string) => Promise<ConfirmationEmail.Result>;
-}
-
-export namespace ConfirmationEmail {
-  export type Result = {
-    message: string;
-  };
-}
-
-class ConfirmationEmailSpy implements ConfirmationEmail {
-  confirmationCode = '';
-  result = {
-    message: 'E-mail successfully confirmed.',
-  };
-
-  async confirm(code: string): Promise<ConfirmationEmail.Result> {
-    this.confirmationCode = code;
-    return this.result;
-  }
-}
 
 const mockRequest = (): ConfirmationEmailController.Request => ({
   confirmationCode: faker.datatype.uuid(),

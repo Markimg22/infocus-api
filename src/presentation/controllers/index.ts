@@ -6,3 +6,4 @@ export * from './load-tasks-controller';
 export * from './update-status-task-controller';
 export * from './login-controller';
 export * from './signup-controller';
+export * from './confirmation-email-controller';
