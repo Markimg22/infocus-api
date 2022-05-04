@@ -121,4 +121,13 @@ describe('DbConfirmationEmail', () => {
       emailConfirmated: true,
     });
   });
+
+  it('should throws if UpdateUserEmailConfirmatedRepository throws', async () => {
+    const { sut, updateUserEmailConfirmatedRepositorySpy } = makeSut();
+    jest
+      .spyOn(updateUserEmailConfirmatedRepositorySpy, 'update')
+      .mockImplementationOnce(throwError);
+    const promise = sut.confirm(faker.datatype.uuid());
+    await expect(promise).rejects.toThrow();
+  });
 });
