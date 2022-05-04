@@ -30,7 +30,7 @@ const makeSut = (): SutTypes => {
   };
 };
 
-describe('DbConfirmationEmail', () => {
+describe('DbConfirmationEmail UseCase', () => {
   it('should call LoadUserByConfirmationCodeRepository with correct code', async () => {
     const { sut, loadUserByConfirmationCodeRepositorySpy } = makeSut();
     const confirmationCode = faker.datatype.uuid();
