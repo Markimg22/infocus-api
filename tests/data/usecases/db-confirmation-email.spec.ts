@@ -1,3 +1,4 @@
+import { ConfirmationEmail } from '@/domain/usecases';
 import { throwError } from '@/tests/domain/mocks';
 import faker from '@faker-js/faker';
 
@@ -7,12 +8,15 @@ class DbConfirmationEmail {
     private readonly updateUserEmailConfirmatedRepository: UpdateUserEmailConfirmatedRepository
   ) {}
 
-  async confirm(code: string): Promise<void> {
+  async confirm(code: string): Promise<ConfirmationEmail.Result> {
     const user = await this.loadUserByConfirmationCodeRepository.load(code);
     await this.updateUserEmailConfirmatedRepository.update({
       id: user.id,
       emailConfirmated: true,
     });
+    return {
+      message: 'E-mail successfully confirmed.',
+    };
   }
 }
 
@@ -129,5 +133,13 @@ describe('DbConfirmationEmail', () => {
       .mockImplementationOnce(throwError);
     const promise = sut.confirm(faker.datatype.uuid());
     await expect(promise).rejects.toThrow();
+  });
+
+  it('should return message succeds if email confirmated on succeds', async () => {
+    const { sut } = makeSut();
+    const result = await sut.confirm(faker.datatype.uuid());
+    expect(result).toEqual({
+      message: 'E-mail successfully confirmed.',
+    });
   });
 });
