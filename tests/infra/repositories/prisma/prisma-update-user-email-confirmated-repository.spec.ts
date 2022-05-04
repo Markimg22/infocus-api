@@ -27,11 +27,14 @@ describe('PrismaUpdateUserEmailConfirmated Repository', () => {
 
   it('should update user email confirmated with correct values', async () => {
     const sut = makeSut();
-    const updatedEmailConfirmated = await sut.update({
+    await sut.update({
       id: user.id,
       emailConfirmated: true,
     });
-    expect(updatedEmailConfirmated).toBe(true);
+    const userUpdated = await client.users.findUnique({
+      where: { id: user.id },
+    });
+    expect(userUpdated?.emailConfirmated).toBe(true);
   });
 
   it('should throws if client database throws', async () => {
