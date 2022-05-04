@@ -1,7 +1,7 @@
 import { PrismaUpdateUserEmailConfirmatedRepository } from '@/infra/repositories';
 import { client } from '@/infra/helpers';
 
-import { mockCreateUserParams } from '@/tests/domain/mocks';
+import { mockCreateUserParams, throwError } from '@/tests/domain/mocks';
 
 import { Users } from '@prisma/client';
 
@@ -32,5 +32,15 @@ describe('PrismaUpdateUserEmailConfirmated Repository', () => {
       emailConfirmated: true,
     });
     expect(updatedEmailConfirmated).toBe(true);
+  });
+
+  it('should throws if client database throws', async () => {
+    const sut = makeSut();
+    jest.spyOn(client.users, 'updateMany').mockImplementationOnce(throwError);
+    const promise = sut.update({
+      id: user.id,
+      emailConfirmated: true,
+    });
+    await expect(promise).rejects.toThrow();
   });
 });
