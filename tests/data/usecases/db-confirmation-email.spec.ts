@@ -1,88 +1,12 @@
-import { ConfirmationEmail } from '@/domain/usecases';
+import { DbConfirmationEmail } from '@/data/usecases';
+
 import { throwError } from '@/tests/domain/mocks';
+import {
+  LoadUserByConfirmationCodeRepositorySpy,
+  UpdateUserEmailConfirmatedRepositorySpy,
+} from '@/tests/data/mocks';
+
 import faker from '@faker-js/faker';
-
-class DbConfirmationEmail implements ConfirmationEmail {
-  constructor(
-    private readonly loadUserByConfirmationCodeRepository: LoadUserByConfirmationCodeRepository,
-    private readonly updateUserEmailConfirmatedRepository: UpdateUserEmailConfirmatedRepository
-  ) {}
-
-  async confirm(code: string): Promise<ConfirmationEmail.Result> {
-    const user = await this.loadUserByConfirmationCodeRepository.load(code);
-    const emailConfirmatedIsUpdated =
-      await this.updateUserEmailConfirmatedRepository.update({
-        id: user.id,
-        emailConfirmated: true,
-      });
-    if (emailConfirmatedIsUpdated) {
-      return {
-        message: 'E-mail successfully confirmed.',
-      };
-    }
-    return {
-      message: 'The email has not been confirmed.',
-    };
-  }
-}
-
-export interface UpdateUserEmailConfirmatedRepository {
-  update: (
-    data: UpdateUserEmailConfirmatedRepository.Params
-  ) => Promise<UpdateUserEmailConfirmatedRepository.Result>;
-}
-
-export namespace UpdateUserEmailConfirmatedRepository {
-  export type Params = {
-    id: string;
-    emailConfirmated: boolean;
-  };
-
-  export type Result = boolean;
-}
-
-class UpdateUserEmailConfirmatedRepositorySpy
-  implements UpdateUserEmailConfirmatedRepository
-{
-  data: UpdateUserEmailConfirmatedRepository.Params = {
-    id: faker.datatype.uuid(),
-    emailConfirmated: true,
-  };
-  result = true;
-
-  async update(
-    data: UpdateUserEmailConfirmatedRepository.Params
-  ): Promise<UpdateUserEmailConfirmatedRepository.Result> {
-    this.data = data;
-    return this.result;
-  }
-}
-
-export interface LoadUserByConfirmationCodeRepository {
-  load: (code: string) => Promise<LoadUserByConfirmationCodeRepository.Result>;
-}
-
-export namespace LoadUserByConfirmationCodeRepository {
-  export type Result = {
-    id: string;
-  };
-}
-
-class LoadUserByConfirmationCodeRepositorySpy
-  implements LoadUserByConfirmationCodeRepository
-{
-  confirmationCode = '';
-  result = {
-    id: faker.datatype.uuid(),
-  };
-
-  async load(
-    code: string
-  ): Promise<LoadUserByConfirmationCodeRepository.Result> {
-    this.confirmationCode = code;
-    return this.result;
-  }
-}
 
 type SutTypes = {
   sut: DbConfirmationEmail;

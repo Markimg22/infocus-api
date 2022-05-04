@@ -7,3 +7,4 @@ export * from './db-load-tasks';
 export * from './db-load-user-by-token';
 export * from './db-update-performance';
 export * from './db-update-status-task';
+export * from './db-confirmation-email';

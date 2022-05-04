@@ -1,6 +1,6 @@
 import { NodemailerMailProvider } from '@/infra/mail';
 
-import { mockMailOptions } from '@/tests/data/mocks';
+import { mockMailOptions } from '@/tests/domain/mocks';
 import { mockNodemailer } from '@/tests/infra/mocks';
 
 import nodemailer from 'nodemailer';

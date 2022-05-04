@@ -12,3 +12,5 @@ export * from './load-user-by-token-repository';
 export * from './update-access-token-repository';
 export * from './update-performance-repository';
 export * from './update-status-task-repository';
+export * from './load-user-by-confirmation-code-repository';
+export * from './update-user-email-confirmated-repository';
