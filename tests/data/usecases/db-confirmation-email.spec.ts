@@ -2,7 +2,7 @@ import { ConfirmationEmail } from '@/domain/usecases';
 import { throwError } from '@/tests/domain/mocks';
 import faker from '@faker-js/faker';
 
-class DbConfirmationEmail {
+class DbConfirmationEmail implements ConfirmationEmail {
   constructor(
     private readonly loadUserByConfirmationCodeRepository: LoadUserByConfirmationCodeRepository,
     private readonly updateUserEmailConfirmatedRepository: UpdateUserEmailConfirmatedRepository
@@ -10,18 +10,26 @@ class DbConfirmationEmail {
 
   async confirm(code: string): Promise<ConfirmationEmail.Result> {
     const user = await this.loadUserByConfirmationCodeRepository.load(code);
-    await this.updateUserEmailConfirmatedRepository.update({
-      id: user.id,
-      emailConfirmated: true,
-    });
+    const emailConfirmatedIsUpdated =
+      await this.updateUserEmailConfirmatedRepository.update({
+        id: user.id,
+        emailConfirmated: true,
+      });
+    if (emailConfirmatedIsUpdated) {
+      return {
+        message: 'E-mail successfully confirmed.',
+      };
+    }
     return {
-      message: 'E-mail successfully confirmed.',
+      message: 'The email has not been confirmed.',
     };
   }
 }
 
 export interface UpdateUserEmailConfirmatedRepository {
-  update: (data: UpdateUserEmailConfirmatedRepository.Params) => Promise<void>;
+  update: (
+    data: UpdateUserEmailConfirmatedRepository.Params
+  ) => Promise<UpdateUserEmailConfirmatedRepository.Result>;
 }
 
 export namespace UpdateUserEmailConfirmatedRepository {
@@ -29,6 +37,8 @@ export namespace UpdateUserEmailConfirmatedRepository {
     id: string;
     emailConfirmated: boolean;
   };
+
+  export type Result = boolean;
 }
 
 class UpdateUserEmailConfirmatedRepositorySpy
@@ -38,11 +48,13 @@ class UpdateUserEmailConfirmatedRepositorySpy
     id: faker.datatype.uuid(),
     emailConfirmated: true,
   };
+  result = true;
 
   async update(
     data: UpdateUserEmailConfirmatedRepository.Params
-  ): Promise<void> {
+  ): Promise<UpdateUserEmailConfirmatedRepository.Result> {
     this.data = data;
+    return this.result;
   }
 }
 
@@ -140,6 +152,15 @@ describe('DbConfirmationEmail', () => {
     const result = await sut.confirm(faker.datatype.uuid());
     expect(result).toEqual({
       message: 'E-mail successfully confirmed.',
+    });
+  });
+
+  it('should return message fails if email not confirmated', async () => {
+    const { sut, updateUserEmailConfirmatedRepositorySpy } = makeSut();
+    updateUserEmailConfirmatedRepositorySpy.result = false;
+    const result = await sut.confirm(faker.datatype.uuid());
+    expect(result).toEqual({
+      message: 'The email has not been confirmed.',
     });
   });
 });
