@@ -1,9 +1,10 @@
 import { PrismaCheckUserByIdRepository } from '@/infra/repositories';
 import { client } from '@/infra/helpers';
 
-import { mockCreateUserParams } from '@/tests/domain/mocks';
+import { mockCreateUserParams, throwError } from '@/tests/domain/mocks';
 
 import { Users } from '@prisma/client';
+import faker from '@faker-js/faker';
 
 const makeSut = (): PrismaCheckUserByIdRepository => {
   const sut = new PrismaCheckUserByIdRepository(client);
@@ -35,5 +36,12 @@ describe('PrismaCheckUserById Repository', () => {
     const sut = makeSut();
     const userExists = await sut.check('invalid_id');
     expect(userExists).toBe(false);
+  });
+
+  it('should throw if client database throws', async () => {
+    const sut = makeSut();
+    jest.spyOn(client.users, 'findUnique').mockImplementationOnce(throwError);
+    const promise = sut.check(faker.datatype.uuid());
+    await expect(promise).rejects.toThrow();
   });
 });
