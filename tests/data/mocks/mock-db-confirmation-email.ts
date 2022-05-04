@@ -26,7 +26,7 @@ export class CheckUserByIdRepositorySpy implements CheckUserByIdRepository {
   confirmationCode = '';
   result = true;
 
-  async load(code: string): Promise<CheckUserByIdRepository.Result> {
+  async check(code: string): Promise<CheckUserByIdRepository.Result> {
     this.confirmationCode = code;
     return this.result;
   }

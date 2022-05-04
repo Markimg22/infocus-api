@@ -11,7 +11,7 @@ export class DbConfirmationEmail implements ConfirmationEmail {
   ) {}
 
   async confirm(code: string): Promise<ConfirmationEmail.Result> {
-    const userExists = await this.checkUserByIdRepository.load(code);
+    const userExists = await this.checkUserByIdRepository.check(code);
     if (userExists) {
       const emailConfirmatedIsUpdated =
         await this.updateUserEmailConfirmatedRepository.update({

@@ -42,7 +42,7 @@ describe('DbConfirmationEmail UseCase', () => {
   it('should throws if LoadUserByConfirmationCodeRepository throws', async () => {
     const { sut, checkUserByIdRepositorySpy } = makeSut();
     jest
-      .spyOn(checkUserByIdRepositorySpy, 'load')
+      .spyOn(checkUserByIdRepositorySpy, 'check')
       .mockImplementationOnce(throwError);
     const promise = sut.confirm(faker.datatype.uuid());
     await expect(promise).rejects.toThrow();
