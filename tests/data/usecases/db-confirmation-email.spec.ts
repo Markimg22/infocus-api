@@ -1,3 +1,4 @@
+import { throwError } from '@/tests/domain/mocks';
 import faker from '@faker-js/faker';
 
 class DbConfirmationEmail {
@@ -47,5 +48,14 @@ describe('DbConfirmationEmail', () => {
     expect(loadUserByConfirmationCodeRepositorySpy.confirmationCode).toEqual(
       confirmationCode
     );
+  });
+
+  it('should throws if LoadUserByConfirmationCodeRepository throws', async () => {
+    const { sut, loadUserByConfirmationCodeRepositorySpy } = makeSut();
+    jest
+      .spyOn(loadUserByConfirmationCodeRepositorySpy, 'load')
+      .mockImplementationOnce(throwError);
+    const promise = sut.confirm(faker.datatype.uuid());
+    await expect(promise).rejects.toThrow();
   });
 });
