@@ -55,4 +55,13 @@ describe('PrismaUpdateUserEmailConfirmated Repository', () => {
     });
     expect(emailConfirmatedUpdated).toBe(true);
   });
+
+  it('should return false if emailConfirmated not updated', async () => {
+    const sut = makeSut();
+    const emailConfirmatedUpdated = await sut.update({
+      id: 'invalid_id',
+      emailConfirmated: true,
+    });
+    expect(emailConfirmatedUpdated).toBe(false);
+  });
 });
