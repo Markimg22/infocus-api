@@ -30,4 +30,10 @@ describe('PrismaCheckUserById Repository', () => {
     const userExists = await sut.check(user.id);
     expect(userExists).toBe(true);
   });
+
+  it('should return false if not find user', async () => {
+    const sut = makeSut();
+    const userExists = await sut.check('invalid_id');
+    expect(userExists).toBe(false);
+  });
 });
