@@ -1,4 +1,5 @@
 import { MailProvider } from '@/data/protocols/mail';
+import { logger } from '@/utils/log';
 
 import nodemailer from 'nodemailer';
 
@@ -22,7 +23,8 @@ export class NodemailerMailProvider implements MailProvider {
       });
       return result !== null;
     } catch (error) {
-      return error as Error;
+      logger.error(`NodemailerMailProvider: ${error}`);
+      return false;
     }
   }
 }

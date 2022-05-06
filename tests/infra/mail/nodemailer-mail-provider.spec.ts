@@ -1,6 +1,6 @@
 import { NodemailerMailProvider } from '@/infra/mail';
 
-import { mockMailOptions } from '@/tests/domain/mocks';
+import { mockMailOptions, throwError } from '@/tests/domain/mocks';
 import { mockNodemailer } from '@/tests/infra/mocks';
 
 import nodemailer from 'nodemailer';
@@ -43,12 +43,10 @@ describe('NodemailerMailProvider', () => {
     expect(result).toBe(true);
   });
 
-  it('should an error if nodemailer throws', async () => {
+  it('should return false if nodemailer throws', async () => {
     const { sut, mockedNodemailer } = makeSut();
-    mockedNodemailer.createTransport.mockImplementationOnce(() => {
-      throw new Error('Any Error');
-    });
+    mockedNodemailer.createTransport.mockImplementationOnce(throwError);
     const result = await sut.send(mockMailOptions());
-    expect(result).toEqual(new Error('Any Error'));
+    expect(result).toBe(false);
   });
 });

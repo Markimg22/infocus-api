@@ -15,5 +15,5 @@ export namespace MailProvider {
     html: string;
   };
 
-  export type Result = boolean | Error;
+  export type Result = boolean;
 }
