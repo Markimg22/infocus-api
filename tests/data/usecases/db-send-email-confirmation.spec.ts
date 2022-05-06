@@ -1,6 +1,6 @@
 import { MailProvider } from '@/data/protocols/mail';
 
-import { mockMailOptions } from '@/tests/domain/mocks';
+import { mockMailOptions, throwError } from '@/tests/domain/mocks';
 
 class DbSendEmailConfirmation {
   constructor(private readonly mailProvider: MailProvider) {}
@@ -40,5 +40,12 @@ describe('DbSendEmailConfirmation UseCase', () => {
     const mailOptions = mockMailOptions();
     await sut.send(mailOptions);
     expect(mailProviderSpy.options).toEqual(mailOptions);
+  });
+
+  it('should throws if MailProvider throws', async () => {
+    const { sut, mailProviderSpy } = makeSut();
+    jest.spyOn(mailProviderSpy, 'send').mockImplementationOnce(throwError);
+    const promise = sut.send(mockMailOptions());
+    await expect(promise).rejects.toThrow();
   });
 });
