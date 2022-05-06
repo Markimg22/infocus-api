@@ -81,4 +81,13 @@ describe('DbSendEmailConfirmation UseCase', () => {
       message: `A confirmation email has been sent to ${mailOptions.to}`,
     });
   });
+
+  it('should return error message if MailProvider returns false', async () => {
+    const { sut, mailProviderSpy } = makeSut();
+    mailProviderSpy.result = false;
+    const result = await sut.send(mockMailOptions());
+    expect(result).toEqual({
+      message: 'There was an error sending the confirmation email.',
+    });
+  });
 });
