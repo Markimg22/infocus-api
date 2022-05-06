@@ -1,17 +1,27 @@
 import { MailProvider } from '@/data/protocols/mail';
 
 import { mockMailOptions, throwError } from '@/tests/domain/mocks';
+import faker from '@faker-js/faker';
 
-class DbSendEmailConfirmation {
-  constructor(private readonly mailProvider: MailProvider) {}
+class DbSendEmailConfirmation implements SendEmailConfirmation {
+  constructor(
+    private readonly mailProvider: MailProvider,
+    private readonly mailOptions: MailProvider.Options
+  ) {}
 
   async send(
-    params: MailProvider.Options
+    params: SendEmailConfirmation.Params
   ): Promise<SendEmailConfirmation.Result> {
-    const emailSent = await this.mailProvider.send(params);
+    const greetings = `Hello <b>${params.name}</b>!`;
+    const options: MailProvider.Options = {
+      ...this.mailOptions,
+      to: `${params.name} <${params.email}>`,
+      html: `${greetings}<br/><br/>${this.mailOptions.html}`,
+    };
+    const emailSent = await this.mailProvider.send(options);
     if (emailSent) {
       return {
-        message: `A confirmation email has been sent to ${params.to}`,
+        message: `A confirmation email has been sent to ${params.email}`,
       };
     }
     return {
@@ -27,7 +37,10 @@ export interface SendEmailConfirmation {
 }
 
 export namespace SendEmailConfirmation {
-  export type Params = MailProvider.Options;
+  export type Params = {
+    name: string;
+    email: string;
+  };
 
   export type Result = {
     message: string;
@@ -44,48 +57,60 @@ class MailProviderSpy implements MailProvider {
   }
 }
 
+const mockSendEmailConfirmationParams = (): SendEmailConfirmation.Params => ({
+  email: faker.internet.email(),
+  name: faker.name.findName(),
+});
+
 type SutTypes = {
   sut: DbSendEmailConfirmation;
   mailProviderSpy: MailProviderSpy;
+  mailOptions: MailProvider.Options;
 };
 
 const makeSut = (): SutTypes => {
   const mailProviderSpy = new MailProviderSpy();
-  const sut = new DbSendEmailConfirmation(mailProviderSpy);
+  const mailOptions = mockMailOptions();
+  const sut = new DbSendEmailConfirmation(mailProviderSpy, mailOptions);
   return {
     sut,
     mailProviderSpy,
+    mailOptions,
   };
 };
 
 describe('DbSendEmailConfirmation UseCase', () => {
   it('should call MailProvider with correct options', async () => {
-    const { sut, mailProviderSpy } = makeSut();
-    const mailOptions = mockMailOptions();
-    await sut.send(mailOptions);
-    expect(mailProviderSpy.options).toEqual(mailOptions);
+    const { sut, mailProviderSpy, mailOptions } = makeSut();
+    const params = mockSendEmailConfirmationParams();
+    await sut.send(params);
+    expect(mailProviderSpy.options).toEqual({
+      ...mailOptions,
+      to: `${params.name} <${params.email}>`,
+      html: `Hello <b>${params.name}</b>!<br/><br/>${mailOptions.html}`,
+    });
   });
 
   it('should throws if MailProvider throws', async () => {
     const { sut, mailProviderSpy } = makeSut();
     jest.spyOn(mailProviderSpy, 'send').mockImplementationOnce(throwError);
-    const promise = sut.send(mockMailOptions());
+    const promise = sut.send(mockSendEmailConfirmationParams());
     await expect(promise).rejects.toThrow();
   });
 
   it('should return success message if MailProvider returns true', async () => {
     const { sut } = makeSut();
-    const mailOptions = mockMailOptions();
-    const result = await sut.send(mailOptions);
+    const params = mockSendEmailConfirmationParams();
+    const result = await sut.send(params);
     expect(result).toEqual({
-      message: `A confirmation email has been sent to ${mailOptions.to}`,
+      message: `A confirmation email has been sent to ${params.email}`,
     });
   });
 
   it('should return error message if MailProvider returns false', async () => {
     const { sut, mailProviderSpy } = makeSut();
     mailProviderSpy.result = false;
-    const result = await sut.send(mockMailOptions());
+    const result = await sut.send(mockSendEmailConfirmationParams());
     expect(result).toEqual({
       message: 'There was an error sending the confirmation email.',
     });
