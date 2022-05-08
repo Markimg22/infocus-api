@@ -44,21 +44,17 @@ describe('DbSendEmailConfirmation UseCase', () => {
     await expect(promise).rejects.toThrow();
   });
 
-  it('should return success message if MailProvider returns true', async () => {
+  it('should return true if MailProvider returns true', async () => {
     const { sut } = makeSut();
     const params = mockSendEmailConfirmationParams();
     const result = await sut.send(params);
-    expect(result).toEqual({
-      message: `A confirmation email has been sent to ${params.email}`,
-    });
+    expect(result).toBe(true);
   });
 
   it('should return error message if MailProvider returns false', async () => {
     const { sut, mailProviderSpy } = makeSut();
     mailProviderSpy.result = false;
     const result = await sut.send(mockSendEmailConfirmationParams());
-    expect(result).toEqual({
-      message: 'There was an error sending the confirmation email.',
-    });
+    expect(result).toBe(false);
   });
 });

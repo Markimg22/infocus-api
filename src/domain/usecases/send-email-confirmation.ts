@@ -10,7 +10,5 @@ export namespace SendEmailConfirmation {
     email: string;
   };
 
-  export type Result = {
-    message: string;
-  };
+  export type Result = boolean;
 }

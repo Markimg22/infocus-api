@@ -17,13 +17,6 @@ export class DbSendEmailConfirmation implements SendEmailConfirmation {
       html: `${greetings}<br/><br/>${this.mailOptions.html}`,
     };
     const emailSent = await this.mailProvider.send(options);
-    if (emailSent) {
-      return {
-        message: `A confirmation email has been sent to ${params.email}`,
-      };
-    }
-    return {
-      message: 'There was an error sending the confirmation email.',
-    };
+    return emailSent;
   }
 }
