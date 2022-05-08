@@ -143,4 +143,13 @@ describe('SignUp Controller', () => {
     const httpResponse = await sut.handle(mockRequest());
     expect(httpResponse).toEqual(forbidden(new SendEmailError()));
   });
+
+  it('should return 500 if SendEmailConfirmation throws', async () => {
+    const { sut, sendEmailConfirmationSpy } = makeSut();
+    jest
+      .spyOn(sendEmailConfirmationSpy, 'send')
+      .mockImplementationOnce(throwError);
+    const httpResponse = await sut.handle(mockRequest());
+    expect(httpResponse).toEqual(serverError(new Error()));
+  });
 });
