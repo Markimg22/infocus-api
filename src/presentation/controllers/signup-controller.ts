@@ -5,7 +5,7 @@ import {
 } from '@/domain/usecases';
 import { Controller, Validation, HttpResponse } from '@/presentation/protocols';
 import { badRequest, forbidden, ok, serverError } from '@/presentation/helpers';
-import { EmailInUseError } from '@/presentation/errors';
+import { EmailInUseError, SendEmailError } from '@/presentation/errors';
 
 export class SignUpController implements Controller {
   constructor(
@@ -20,7 +20,8 @@ export class SignUpController implements Controller {
       const error = this.validation.validate(request);
       if (error) return badRequest(error);
       const { name, email, password } = request;
-      await this.sendEmailConfirmation.send({ email, name });
+      const emailSent = await this.sendEmailConfirmation.send({ email, name });
+      if (!emailSent) return forbidden(new SendEmailError());
       const isValid = await this.createUser.create({ name, email, password });
       if (!isValid) return forbidden(new EmailInUseError());
       const authenticationResult = await this.authenticationUser.auth({
