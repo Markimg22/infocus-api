@@ -8,3 +8,4 @@ export * from './db-load-user-by-token';
 export * from './db-update-performance';
 export * from './db-update-status-task';
 export * from './db-confirmation-email';
+export * from './db-send-email-confirmation';

@@ -1,66 +1,12 @@
+import { DbSendEmailConfirmation } from '@/data/usecases';
 import { MailProvider } from '@/data/protocols/mail';
 
-import { mockMailOptions, throwError } from '@/tests/domain/mocks';
-import faker from '@faker-js/faker';
-
-class DbSendEmailConfirmation implements SendEmailConfirmation {
-  constructor(
-    private readonly mailProvider: MailProvider,
-    private readonly mailOptions: MailProvider.Options
-  ) {}
-
-  async send(
-    params: SendEmailConfirmation.Params
-  ): Promise<SendEmailConfirmation.Result> {
-    const greetings = `Hello <b>${params.name}</b>!`;
-    const options: MailProvider.Options = {
-      ...this.mailOptions,
-      to: `${params.name} <${params.email}>`,
-      html: `${greetings}<br/><br/>${this.mailOptions.html}`,
-    };
-    const emailSent = await this.mailProvider.send(options);
-    if (emailSent) {
-      return {
-        message: `A confirmation email has been sent to ${params.email}`,
-      };
-    }
-    return {
-      message: 'There was an error sending the confirmation email.',
-    };
-  }
-}
-
-export interface SendEmailConfirmation {
-  send: (
-    params: SendEmailConfirmation.Params
-  ) => Promise<SendEmailConfirmation.Result>;
-}
-
-export namespace SendEmailConfirmation {
-  export type Params = {
-    name: string;
-    email: string;
-  };
-
-  export type Result = {
-    message: string;
-  };
-}
-
-class MailProviderSpy implements MailProvider {
-  options = {} as MailProvider.Options;
-  result = true;
-
-  async send(options: MailProvider.Options): Promise<MailProvider.Result> {
-    this.options = options;
-    return this.result;
-  }
-}
-
-const mockSendEmailConfirmationParams = (): SendEmailConfirmation.Params => ({
-  email: faker.internet.email(),
-  name: faker.name.findName(),
-});
+import {
+  mockMailOptions,
+  mockSendEmailConfirmationParams,
+  throwError,
+} from '@/tests/domain/mocks';
+import { MailProviderSpy } from '@/tests/data/mocks';
 
 type SutTypes = {
   sut: DbSendEmailConfirmation;

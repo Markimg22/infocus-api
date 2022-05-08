@@ -1,3 +1,4 @@
+import { SendEmailConfirmation } from '@/domain/usecases';
 import { MailProvider } from '@/data/protocols/mail';
 
 import faker from '@faker-js/faker';
@@ -13,3 +14,9 @@ export const mockMailOptions = (): MailProvider.Options => ({
   text: faker.random.word(),
   html: faker.random.word(),
 });
+
+export const mockSendEmailConfirmationParams =
+  (): SendEmailConfirmation.Params => ({
+    email: faker.internet.email(),
+    name: faker.name.findName(),
+  });

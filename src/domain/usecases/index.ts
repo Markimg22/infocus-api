@@ -8,3 +8,4 @@ export * from './authentication-user';
 export * from './create-user';
 export * from './load-user-by-token';
 export * from './confirmation-email';
+export * from './send-email-confirmation';
