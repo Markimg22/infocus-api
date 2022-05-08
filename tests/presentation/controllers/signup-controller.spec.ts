@@ -1,14 +1,28 @@
 import { SignUpController } from '@/presentation/controllers';
+import { EmailInUseError } from '@/presentation/errors';
+import { badRequest, forbidden, ok, serverError } from '@/presentation/helpers';
+import { SendEmailConfirmation } from '@/domain/usecases';
+
 import {
   AuthenticationUserSpy,
   CreateUserSpy,
   ValidationSpy,
 } from '@/tests/presentation/mocks';
-import { EmailInUseError } from '@/presentation/errors';
 import { throwError } from '@/tests/domain/mocks';
-import { badRequest, forbidden, ok, serverError } from '@/presentation/helpers';
 
 import faker from '@faker-js/faker';
+
+class SendEmailConfirmationSpy implements SendEmailConfirmation {
+  params = {};
+  result = true;
+
+  async send(
+    params: SendEmailConfirmation.Params
+  ): Promise<SendEmailConfirmation.Result> {
+    this.params = params;
+    return this.result;
+  }
+}
 
 const mockRequest = (): SignUpController.Request => {
   const password = faker.internet.password();
@@ -25,22 +39,26 @@ type SutTypes = {
   validationSpy: ValidationSpy;
   createUserSpy: CreateUserSpy;
   authenticationUserSpy: AuthenticationUserSpy;
+  sendEmailConfirmationSpy: SendEmailConfirmationSpy;
 };
 
 const makeSut = (): SutTypes => {
   const authenticationUserSpy = new AuthenticationUserSpy();
   const createUserSpy = new CreateUserSpy();
   const validationSpy = new ValidationSpy();
+  const sendEmailConfirmationSpy = new SendEmailConfirmationSpy();
   const sut = new SignUpController(
     validationSpy,
     createUserSpy,
-    authenticationUserSpy
+    authenticationUserSpy,
+    sendEmailConfirmationSpy
   );
   return {
     sut,
     validationSpy,
     createUserSpy,
     authenticationUserSpy,
+    sendEmailConfirmationSpy,
   };
 };
 
@@ -107,5 +125,15 @@ describe('SignUp Controller', () => {
       .mockImplementationOnce(throwError);
     const httpResponse = await sut.handle(mockRequest());
     expect(httpResponse).toEqual(serverError(new Error()));
+  });
+
+  it('should call SendEmailConfirmation with correct values', async () => {
+    const { sut, sendEmailConfirmationSpy } = makeSut();
+    const httpRequest = mockRequest();
+    await sut.handle(httpRequest);
+    expect(sendEmailConfirmationSpy.params).toEqual({
+      email: httpRequest.email,
+      name: httpRequest.name,
+    });
   });
 });
