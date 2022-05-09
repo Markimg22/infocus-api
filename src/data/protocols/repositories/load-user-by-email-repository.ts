@@ -7,5 +7,6 @@ export namespace LoadUserByEmailRepository {
     id: string;
     name: string;
     password: string;
+    emailConfirmated: boolean;
   };
 }

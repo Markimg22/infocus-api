@@ -39,6 +39,7 @@ export class DbAuthenticationUser implements AuthenticationUser {
         return {
           accessToken,
           name: user.name,
+          emailConfirmated: user.emailConfirmated,
         };
       }
     }

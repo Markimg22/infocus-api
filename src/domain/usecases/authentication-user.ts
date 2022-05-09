@@ -13,5 +13,6 @@ export namespace AuthenticationUser {
   export type Result = {
     accessToken: string;
     name: string;
+    emailConfirmated: boolean;
   };
 }
