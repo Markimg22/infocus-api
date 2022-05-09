@@ -14,6 +14,8 @@ import {
   PrismaUpdatePerformanceRepository,
   PrismaUpdateStatusTaskRepository,
   PrismaLoadUserByTokenRepository,
+  PrismaCheckUserByIdRepository,
+  PrismaUpdateUserEmailConfirmatedRepository,
 } from '@/infra/repositories';
 
 type RepositoriesType = {
@@ -31,6 +33,8 @@ type RepositoriesType = {
   createPerformanceRepository: PrismaCreatePerformanceRepository;
   createAccessTokenRepository: PrismaCreateAccessTokenRepository;
   loadUserByTokenRepository: PrismaLoadUserByTokenRepository;
+  checkUserByIdRepository: PrismaCheckUserByIdRepository;
+  updateUserEmailConfirmatedRepository: PrismaUpdateUserEmailConfirmatedRepository;
 };
 
 export const makeRepositories = (): RepositoriesType => {
@@ -49,5 +53,8 @@ export const makeRepositories = (): RepositoriesType => {
     createPerformanceRepository: new PrismaCreatePerformanceRepository(client),
     createAccessTokenRepository: new PrismaCreateAccessTokenRepository(client),
     loadUserByTokenRepository: new PrismaLoadUserByTokenRepository(client),
+    checkUserByIdRepository: new PrismaCheckUserByIdRepository(client),
+    updateUserEmailConfirmatedRepository:
+      new PrismaUpdateUserEmailConfirmatedRepository(client),
   };
 };
