@@ -8,3 +8,4 @@ export * from './delete-task-factory';
 export * from './load-performance-factory';
 export * from './update-performance-factory';
 export * from './send-email-confirmation-factory';
+export * from './confirmation-email-factory';

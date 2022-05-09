@@ -6,3 +6,4 @@ export * from './update-status-task-controller-factory';
 export * from './delete-task-controller-factory';
 export * from './load-performance-controller-factory';
 export * from './update-performance-controller-factory';
+export * from './confirmation-email-controller-factory';

@@ -16,8 +16,10 @@ export class DbSendEmailConfirmation implements SendEmailConfirmation {
       ...this.mailOptions,
       to: `${params.name} < ${params.email} >`,
       html: `${greetings}
-      ${this.mailOptions.html}<br/>
-      <button href=${`${env.apiUrl}/confirmation-email/${params.id}`}>Confirm Email!</button>`,
+      ${this.mailOptions.html}<br />
+      <a href="${env.apiUrl}/api/confirmation-email/${params.id}">
+        Confirm Email!
+      </a>`,
     };
     const emailSent = await this.mailProvider.send(options);
     return emailSent;
