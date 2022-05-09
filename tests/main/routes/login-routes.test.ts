@@ -5,6 +5,8 @@ import { hash } from 'bcrypt';
 import { Express } from 'express';
 import request from 'supertest';
 
+jest.setTimeout(30000);
+
 let app: Express;
 
 describe('Login Routes', () => {

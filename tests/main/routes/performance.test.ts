@@ -11,6 +11,8 @@ import { Express } from 'express';
 import request from 'supertest';
 import { sign } from 'jsonwebtoken';
 
+jest.setTimeout(30000);
+
 let app: Express;
 let user: Users;
 

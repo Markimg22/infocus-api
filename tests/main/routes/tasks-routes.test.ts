@@ -12,6 +12,8 @@ import { sign } from 'jsonwebtoken';
 import request from 'supertest';
 import { Users } from '@prisma/client';
 
+jest.setTimeout(30000);
+
 let app: Express;
 let user: Users;
 
