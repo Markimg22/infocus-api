@@ -6,6 +6,7 @@ export interface SendEmailConfirmation {
 
 export namespace SendEmailConfirmation {
   export type Params = {
+    id: string;
     name: string;
     email: string;
   };

@@ -17,6 +17,7 @@ export const mockMailOptions = (): MailProvider.Options => ({
 
 export const mockSendEmailConfirmationParams =
   (): SendEmailConfirmation.Params => ({
+    id: faker.datatype.uuid(),
     email: faker.internet.email(),
     name: faker.name.findName(),
   });
