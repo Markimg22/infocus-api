@@ -36,17 +36,17 @@ const makeSut = (): SutTypes => {
 };
 
 describe('DbCreateUser UseCase', () => {
-  it('should return false if CheckUserByEmailRepository returns true', async () => {
+  it('should return empty string if CheckUserByEmailRepository returns true', async () => {
     const { sut, checkUserByEmailRepositorySpy } = makeSut();
     checkUserByEmailRepositorySpy.exists = true;
     const result = await sut.create(mockCreateUserParams());
-    expect(result).toBe(false);
+    expect(result).toBe('');
   });
 
-  it('should return true if CheckUserByEmailRepository returns false', async () => {
-    const { sut } = makeSut();
+  it('should return user id if CheckUserByEmailRepository returns false', async () => {
+    const { sut, createUserRepositorySpy } = makeSut();
     const result = await sut.create(mockCreateUserParams());
-    expect(result).toBe(true);
+    expect(result).toBe(createUserRepositorySpy.result);
   });
 
   it('should call CheckUserByEmailRepository with correct email', async () => {
@@ -97,19 +97,6 @@ describe('DbCreateUser UseCase', () => {
       .mockImplementationOnce(throwError);
     const promise = sut.create(mockCreateUserParams());
     await expect(promise).rejects.toThrow();
-  });
-
-  it('should return false if CreateUserRepository returns null', async () => {
-    const { sut, createUserRepositorySpy } = makeSut();
-    createUserRepositorySpy.result = '';
-    const userCreated = await sut.create(mockCreateUserParams());
-    expect(userCreated).toBe(false);
-  });
-
-  it('should return true on success', async () => {
-    const { sut } = makeSut();
-    const userCreated = await sut.create(mockCreateUserParams());
-    expect(userCreated).toBe(true);
   });
 
   it('should call CreatePerformanceRepository with correct userId', async () => {

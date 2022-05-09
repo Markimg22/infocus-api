@@ -9,5 +9,5 @@ export namespace CreateUser {
     password: string;
   };
 
-  export type Result = boolean;
+  export type Result = string;
 }

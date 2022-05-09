@@ -19,7 +19,7 @@ export class DbCreateUser implements CreateUser {
     const userAlreadyExists = await this.checkUserByEmailRepository.check(
       email
     );
-    if (userAlreadyExists) return false;
+    if (userAlreadyExists) return '';
     const hashedPassword = await this.hasher.hash(password);
     const userId = await this.createUserRepository.create({
       name,
@@ -27,6 +27,6 @@ export class DbCreateUser implements CreateUser {
       password: hashedPassword,
     });
     await this.createPerformanceRepository.create({ userId });
-    return userId !== '';
+    return userId;
   }
 }
