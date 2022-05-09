@@ -7,7 +7,7 @@ import {
 import faker from '@faker-js/faker';
 
 export class CreateUserSpy implements CreateUser {
-  result = true;
+  result = faker.datatype.uuid();
   params = {} as CreateUser.Params;
 
   async create(params: CreateUser.Params): Promise<CreateUser.Result> {
