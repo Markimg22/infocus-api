@@ -28,12 +28,17 @@ const makeSut = (): SutTypes => {
 describe('DbSendEmailConfirmation UseCase', () => {
   it('should call MailProvider with correct options', async () => {
     const { sut, mailProviderSpy, mailOptions } = makeSut();
-    const params = mockSendEmailConfirmationParams();
-    await sut.send(params);
+    await sut.send(mockSendEmailConfirmationParams());
     expect(mailProviderSpy.options).toEqual({
-      ...mailOptions,
-      to: `${params.name} <${params.email}>`,
-      html: `Hello <b>${params.name}</b>!<br/><br/>${mailOptions.html}`,
+      host: mailOptions.host,
+      port: mailOptions.port,
+      username: mailOptions.username,
+      password: mailOptions.password,
+      from: mailOptions.from,
+      subject: mailOptions.subject,
+      text: mailOptions.text,
+      to: expect.any(String),
+      html: expect.any(String),
     });
   });
 
@@ -46,8 +51,7 @@ describe('DbSendEmailConfirmation UseCase', () => {
 
   it('should return true if MailProvider returns true', async () => {
     const { sut } = makeSut();
-    const params = mockSendEmailConfirmationParams();
-    const result = await sut.send(params);
+    const result = await sut.send(mockSendEmailConfirmationParams());
     expect(result).toBe(true);
   });
 
