@@ -59,6 +59,7 @@
   "dependencies": {
     "@prisma/client": "^3.11.0",
     "bcrypt": "^5.0.1",
+    "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "jsonwebtoken": "^8.5.1",
     "nodemailer": "^6.7.4",
