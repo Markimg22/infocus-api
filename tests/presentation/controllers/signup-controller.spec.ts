@@ -1,7 +1,6 @@
 import { SignUpController } from '@/presentation/controllers';
 import { EmailInUseError, SendEmailError } from '@/presentation/errors';
 import { badRequest, forbidden, ok, serverError } from '@/presentation/helpers';
-import { SendEmailConfirmation } from '@/domain/usecases';
 
 import {
   AuthenticationUserSpy,
@@ -11,18 +10,6 @@ import {
 import { throwError } from '@/tests/domain/mocks';
 
 import faker from '@faker-js/faker';
-
-class SendEmailConfirmationSpy implements SendEmailConfirmation {
-  params = {};
-  result = true;
-
-  async send(
-    params: SendEmailConfirmation.Params
-  ): Promise<SendEmailConfirmation.Result> {
-    this.params = params;
-    return this.result;
-  }
-}
 
 const mockRequest = (): SignUpController.Request => {
   const password = faker.internet.password();
@@ -39,26 +26,22 @@ type SutTypes = {
   validationSpy: ValidationSpy;
   createUserSpy: CreateUserSpy;
   authenticationUserSpy: AuthenticationUserSpy;
-  sendEmailConfirmationSpy: SendEmailConfirmationSpy;
 };
 
 const makeSut = (): SutTypes => {
   const authenticationUserSpy = new AuthenticationUserSpy();
   const createUserSpy = new CreateUserSpy();
   const validationSpy = new ValidationSpy();
-  const sendEmailConfirmationSpy = new SendEmailConfirmationSpy();
   const sut = new SignUpController(
     validationSpy,
     createUserSpy,
-    authenticationUserSpy,
-    sendEmailConfirmationSpy
+    authenticationUserSpy
   );
   return {
     sut,
     validationSpy,
     createUserSpy,
     authenticationUserSpy,
-    sendEmailConfirmationSpy,
   };
 };
 
@@ -122,32 +105,6 @@ describe('SignUp Controller', () => {
     const { sut, authenticationUserSpy } = makeSut();
     jest
       .spyOn(authenticationUserSpy, 'auth')
-      .mockImplementationOnce(throwError);
-    const httpResponse = await sut.handle(mockRequest());
-    expect(httpResponse).toEqual(serverError(new Error()));
-  });
-
-  it('should call SendEmailConfirmation with correct values', async () => {
-    const { sut, sendEmailConfirmationSpy } = makeSut();
-    const httpRequest = mockRequest();
-    await sut.handle(httpRequest);
-    expect(sendEmailConfirmationSpy.params).toEqual({
-      email: httpRequest.email,
-      name: httpRequest.name,
-    });
-  });
-
-  it('should return 403 if SendEmailConfirmation returns false', async () => {
-    const { sut, sendEmailConfirmationSpy } = makeSut();
-    sendEmailConfirmationSpy.result = false;
-    const httpResponse = await sut.handle(mockRequest());
-    expect(httpResponse).toEqual(forbidden(new SendEmailError()));
-  });
-
-  it('should return 500 if SendEmailConfirmation throws', async () => {
-    const { sut, sendEmailConfirmationSpy } = makeSut();
-    jest
-      .spyOn(sendEmailConfirmationSpy, 'send')
       .mockImplementationOnce(throwError);
     const httpResponse = await sut.handle(mockRequest());
     expect(httpResponse).toEqual(serverError(new Error()));

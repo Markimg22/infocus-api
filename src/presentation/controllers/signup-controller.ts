@@ -1,8 +1,4 @@
-import {
-  AuthenticationUser,
-  CreateUser,
-  SendEmailConfirmation,
-} from '@/domain/usecases';
+import { AuthenticationUser, CreateUser } from '@/domain/usecases';
 import { Controller, Validation, HttpResponse } from '@/presentation/protocols';
 import { badRequest, forbidden, ok, serverError } from '@/presentation/helpers';
 import { EmailInUseError, SendEmailError } from '@/presentation/errors';
@@ -11,8 +7,7 @@ export class SignUpController implements Controller {
   constructor(
     private readonly validation: Validation,
     private readonly createUser: CreateUser,
-    private readonly authenticationUser: AuthenticationUser,
-    private readonly sendEmailConfirmation: SendEmailConfirmation
+    private readonly authenticationUser: AuthenticationUser
   ) {}
 
   async handle(request: SignUpController.Request): Promise<HttpResponse> {
@@ -20,8 +15,6 @@ export class SignUpController implements Controller {
       const error = this.validation.validate(request);
       if (error) return badRequest(error);
       const { name, email, password } = request;
-      const emailSent = await this.sendEmailConfirmation.send({ email, name });
-      if (!emailSent) return forbidden(new SendEmailError());
       const isValid = await this.createUser.create({ name, email, password });
       if (!isValid) return forbidden(new EmailInUseError());
       const authenticationResult = await this.authenticationUser.auth({
