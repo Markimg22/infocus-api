@@ -1,5 +1,5 @@
 import { SignUpController } from '@/presentation/controllers';
-import { EmailInUseError } from '@/presentation/errors';
+import { EmailInUseError, SendEmailError } from '@/presentation/errors';
 import { badRequest, forbidden, ok, serverError } from '@/presentation/helpers';
 
 import {
@@ -134,5 +134,12 @@ describe('SignUp Controller', () => {
       email: httpRequest.email,
       id: createUserSpy.result,
     });
+  });
+
+  it('should return 403 if SendEmailConfirmation returns false', async () => {
+    const { sut, sendEmailConfirmationSpy } = makeSut();
+    sendEmailConfirmationSpy.result = false;
+    const httpResponse = await sut.handle(mockRequest());
+    expect(httpResponse).toEqual(forbidden(new SendEmailError()));
   });
 });
