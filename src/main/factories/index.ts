@@ -3,3 +3,4 @@ export * from './usecases';
 export * from './repositories';
 export * from './validations';
 export * from './middlewares';
+export * from './mail';
