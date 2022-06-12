@@ -5,3 +5,4 @@ export * from './missing-param-error';
 export * from './unauthorized-error';
 export * from './access-denied-error';
 export * from './send-email-error';
+export * from './not-found-error';

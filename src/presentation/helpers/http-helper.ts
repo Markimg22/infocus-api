@@ -1,5 +1,9 @@
 import { HttpResponse } from '@/presentation/protocols';
-import { ServerError, UnauthrorizedError } from '@/presentation/errors';
+import {
+  ServerError,
+  UnauthrorizedError,
+  NotFoundError,
+} from '@/presentation/errors';
 import { logger } from '@/utils/log';
 
 export const badRequest = (error: Error): HttpResponse => {
@@ -54,5 +58,16 @@ export const unauthorized = (): HttpResponse => {
   return {
     statusCode: 401,
     body: new UnauthrorizedError(),
+  };
+};
+
+export const notFound = (): HttpResponse => {
+  logger.error(`notFound: {
+    statusCode: 404,
+    body: ${new NotFoundError()}
+  }`);
+  return {
+    statusCode: 404,
+    body: new NotFoundError(),
   };
 };
