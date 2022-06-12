@@ -3,7 +3,5 @@ export interface ConfirmationEmail {
 }
 
 export namespace ConfirmationEmail {
-  export type Result = {
-    message: string;
-  };
+  export type Result = boolean;
 }

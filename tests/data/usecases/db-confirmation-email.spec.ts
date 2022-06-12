@@ -67,20 +67,16 @@ describe('DbConfirmationEmail UseCase', () => {
     await expect(promise).rejects.toThrow();
   });
 
-  it('should return message succeds if email confirmated on succeds', async () => {
+  it('should return true if email confirmated on succeds', async () => {
     const { sut } = makeSut();
     const result = await sut.confirm(faker.datatype.uuid());
-    expect(result).toEqual({
-      message: 'E-mail successfully confirmed.',
-    });
+    expect(result).toBe(true);
   });
 
-  it('should return message fails if email not confirmated', async () => {
+  it('should return false if email not confirmated', async () => {
     const { sut, updateUserEmailConfirmatedRepositorySpy } = makeSut();
     updateUserEmailConfirmatedRepositorySpy.result = false;
     const result = await sut.confirm(faker.datatype.uuid());
-    expect(result).toEqual({
-      message: 'The email has not been confirmed.',
-    });
+    expect(result).toBe(false);
   });
 });
