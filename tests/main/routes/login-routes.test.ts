@@ -1,6 +1,9 @@
 import { client } from '@/infra/helpers';
 import { setupApp } from '@/main/config/app';
 
+import { mockCreateUserParams } from '@/tests/domain/mocks';
+
+import { Users } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { Express } from 'express';
 import request from 'supertest';
@@ -8,11 +11,15 @@ import request from 'supertest';
 jest.setTimeout(30000);
 
 let app: Express;
+let user: Users;
 
 describe('Login Routes', () => {
   beforeAll(async () => {
     app = await setupApp();
     await client.$connect();
+    user = await client.users.create({
+      data: mockCreateUserParams(),
+    });
   });
 
   beforeEach(async () => {
@@ -26,7 +33,7 @@ describe('Login Routes', () => {
   });
 
   describe('POST /signup', () => {
-    it('should return 200 on signup', async () => {
+    it('should return 200 and 403 on signup', async () => {
       await request(app)
         .post('/api/signup')
         .send({
@@ -75,6 +82,16 @@ describe('Login Routes', () => {
           password: '123',
         })
         .expect(401);
+    });
+  });
+
+  describe('GET /confirmation-email', () => {
+    it('should return 200 on confirmation email', async () => {
+      await request(app).get(`/api/confirmation-email/${user.id}`).expect(200);
+    });
+
+    it('should return 404 on confirmation email', async () => {
+      await request(app).get('/api/confirmation-email').expect(404);
     });
   });
 });

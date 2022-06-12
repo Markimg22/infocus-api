@@ -1,5 +1,5 @@
 import { Validation, HttpResponse, Controller } from '@/presentation/protocols';
-import { badRequest, serverError, ok } from '@/presentation/helpers';
+import { badRequest, serverError, ok, notFound } from '@/presentation/helpers';
 import { ConfirmationEmail } from '@/domain/usecases';
 
 export class ConfirmationEmailController implements Controller {
@@ -17,6 +17,7 @@ export class ConfirmationEmailController implements Controller {
       const resultConfirmated = await this.confirmationEmail.confirm(
         request.confirmationCode
       );
+      if (!resultConfirmated) return notFound();
       return ok(resultConfirmated);
     } catch (error) {
       return serverError(error as Error);
