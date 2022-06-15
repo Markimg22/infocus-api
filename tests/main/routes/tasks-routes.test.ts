@@ -11,6 +11,7 @@ import { Express } from 'express';
 import { sign } from 'jsonwebtoken';
 import request from 'supertest';
 import { Users } from '@prisma/client';
+import { HttpStatusCode } from '@/presentation/protocols';
 
 jest.setTimeout(30000);
 
@@ -58,7 +59,7 @@ describe('Tasks Routes', () => {
           title: 'Title Test',
           description: 'Description Test',
         })
-        .expect(200);
+        .expect(HttpStatusCode.OK);
     });
 
     it('should return 403 on create task without accessToken', async () => {
@@ -68,7 +69,7 @@ describe('Tasks Routes', () => {
           title: 'Title Test',
           description: 'Description Test',
         })
-        .expect(403);
+        .expect(HttpStatusCode.FORBIDDEN);
     });
   });
 
@@ -78,11 +79,13 @@ describe('Tasks Routes', () => {
       await request(app)
         .get('/api/load-tasks')
         .set('x-access-token', accessToken)
-        .expect(200);
+        .expect(HttpStatusCode.OK);
     });
 
     it('should return 403 on load tasks without accessToken', async () => {
-      await request(app).get('/api/load-tasks').expect(403);
+      await request(app)
+        .get('/api/load-tasks')
+        .expect(HttpStatusCode.FORBIDDEN);
     });
   });
 
@@ -105,7 +108,7 @@ describe('Tasks Routes', () => {
           finished: true,
         })
         .set('x-access-token', accessToken)
-        .expect(200);
+        .expect(HttpStatusCode.OK);
     });
 
     it('should return 403 if task not found', async () => {
@@ -117,11 +120,13 @@ describe('Tasks Routes', () => {
           finished: true,
         })
         .set('x-access-token', accessToken)
-        .expect(403);
+        .expect(HttpStatusCode.FORBIDDEN);
     });
 
     it('should return 403 on update status task without accessToken', async () => {
-      await request(app).put('/api/update-status-task').expect(403);
+      await request(app)
+        .put('/api/update-status-task')
+        .expect(HttpStatusCode.FORBIDDEN);
     });
 
     it('should return 400 if update with invalid body', async () => {
@@ -129,7 +134,7 @@ describe('Tasks Routes', () => {
       await request(app)
         .put('/api/update-status-task')
         .set('x-access-token', accessToken)
-        .expect(400);
+        .expect(HttpStatusCode.BAD_REQUEST);
     });
   });
 
@@ -148,7 +153,7 @@ describe('Tasks Routes', () => {
         .send({
           id: tasks[0].id,
         })
-        .expect(200);
+        .expect(HttpStatusCode.OK);
     });
 
     it('should return 403 if task not found', async () => {
@@ -159,7 +164,7 @@ describe('Tasks Routes', () => {
         .send({
           id: 'any_id',
         })
-        .expect(403);
+        .expect(HttpStatusCode.FORBIDDEN);
     });
 
     it('should return 403 on delete task without accessToken', async () => {
@@ -168,7 +173,7 @@ describe('Tasks Routes', () => {
         .send({
           id: 'any_id',
         })
-        .expect(403);
+        .expect(HttpStatusCode.FORBIDDEN);
     });
   });
 });

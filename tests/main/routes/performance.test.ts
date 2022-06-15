@@ -10,6 +10,7 @@ import { Users } from '@prisma/client';
 import { Express } from 'express';
 import request from 'supertest';
 import { sign } from 'jsonwebtoken';
+import { HttpStatusCode } from '@/presentation/protocols';
 
 jest.setTimeout(30000);
 
@@ -49,11 +50,13 @@ describe('Performance Routes', () => {
       await request(app)
         .get('/api/load-performance')
         .set('x-access-token', accessToken)
-        .expect(200);
+        .expect(HttpStatusCode.OK);
     });
 
     it('should return 403 on load performance without accessToken', async () => {
-      await request(app).get('/api/load-performance').expect(403);
+      await request(app)
+        .get('/api/load-performance')
+        .expect(HttpStatusCode.FORBIDDEN);
     });
   });
 
@@ -70,11 +73,13 @@ describe('Performance Routes', () => {
           field: 'totalWorkTime',
           value: 12,
         })
-        .expect(200);
+        .expect(HttpStatusCode.OK);
     });
 
     it('should return 403 on update performance without accessToken', async () => {
-      await request(app).put('/api/update-performance').expect(403);
+      await request(app)
+        .put('/api/update-performance')
+        .expect(HttpStatusCode.FORBIDDEN);
     });
 
     it('should return 500 on update performance invalid body', async () => {
@@ -82,7 +87,7 @@ describe('Performance Routes', () => {
       await request(app)
         .put('/api/update-performance')
         .set('x-access-token', accessToken)
-        .expect(500);
+        .expect(HttpStatusCode.SERVER_ERROR);
     });
   });
 });
