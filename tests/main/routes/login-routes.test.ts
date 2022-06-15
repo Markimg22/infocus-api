@@ -1,7 +1,10 @@
+import { CreateUser } from '@/domain/usecases';
 import { client } from '@/infra/helpers';
 import { setupApp } from '@/main/config/app';
+import { HttpStatusCode } from '@/presentation/protocols';
 
 import { mockCreateUserParams } from '@/tests/domain/mocks';
+import faker from '@faker-js/faker';
 
 import { Users } from '@prisma/client';
 import { hash } from 'bcrypt';
@@ -17,81 +20,95 @@ describe('Login Routes', () => {
   beforeAll(async () => {
     app = await setupApp();
     await client.$connect();
-    user = await client.users.create({
-      data: mockCreateUserParams(),
-    });
-  });
-
-  beforeEach(async () => {
-    await client.accessToken.deleteMany();
-    await client.performance.deleteMany();
-    await client.users.deleteMany();
   });
 
   afterAll(async () => {
+    await Promise.all([
+      client.accessToken.deleteMany(),
+      client.performance.deleteMany(),
+    ]);
+    await client.users.deleteMany();
     await client.$disconnect();
   });
 
   describe('POST /signup', () => {
-    it('should return 200 and 403 on signup', async () => {
+    let fakeUser: CreateUser.Params;
+    beforeAll(() => {
+      fakeUser = mockCreateUserParams();
+    });
+
+    it('should return 200 on signup', async () => {
       await request(app)
         .post('/api/signup')
         .send({
-          name: 'Teste',
-          email: 'teste@mail.com',
-          password: '12345',
-          passwordConfirmation: '12345',
+          name: fakeUser.name,
+          email: fakeUser.email,
+          password: fakeUser.password,
+          passwordConfirmation: fakeUser.password,
         })
-        .expect(200);
+        .expect(HttpStatusCode.OK);
+    });
+
+    it('should return 403 on signup', async () => {
       await request(app)
         .post('/api/signup')
         .send({
-          name: 'Teste',
-          email: 'teste@mail.com',
-          password: '12345',
-          passwordConfirmation: '12345',
+          name: fakeUser.name,
+          email: fakeUser.email,
+          password: fakeUser.password,
+          passwordConfirmation: fakeUser.password,
         })
-        .expect(403);
+        .expect(HttpStatusCode.FORBIDDEN);
     });
   });
 
   describe('POST /login', () => {
     it('should return 200 on login', async () => {
-      const password = await hash('123', 12);
-      await client.users.create({
+      const password = faker.internet.password();
+      const passwordHash = await hash(password, 12);
+      const fakeUser = await client.users.create({
         data: {
-          name: 'Test',
-          email: 'teste@mail.com',
-          password,
+          ...mockCreateUserParams(),
+          password: passwordHash,
         },
       });
       await request(app)
         .post('/api/login')
         .send({
-          email: 'teste@mail.com',
-          password: '123',
+          email: fakeUser.email,
+          password,
         })
-        .expect(200);
+        .expect(HttpStatusCode.OK);
     });
 
     it('should return 401 on login', async () => {
       await request(app)
         .post('/api/login')
         .send({
-          email: 'teste@mail.com',
-          password: '123',
+          email: 'invalid_email@mail.com',
+          password: 'invalid_password',
         })
-        .expect(401);
+        .expect(HttpStatusCode.UNAUTHORIZED);
     });
   });
 
   describe('GET /confirmation-email', () => {
+    beforeAll(async () => {
+      user = await client.users.create({
+        data: mockCreateUserParams(),
+      });
+    });
+
     it('should return 200 on confirmation email', async () => {
-      await request(app).get(`/api/confirmation-email/${user.id}`).expect(200);
+      await request(app)
+        .get(`/api/confirmation-email/${user.id}`)
+        .expect(HttpStatusCode.OK);
     });
 
     it('should return 404 on confirmation email', async () => {
-      await request(app).get('/api/confirmation-email').expect(404);
+      await request(app)
+        .get('/api/confirmation-email')
+        .expect(HttpStatusCode.NOT_FOUND);
     });
   });
 });
