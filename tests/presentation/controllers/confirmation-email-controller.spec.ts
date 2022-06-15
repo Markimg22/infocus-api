@@ -1,6 +1,6 @@
 import { ConfirmationEmailController } from '@/presentation/controllers';
 import { MissingParamError } from '@/presentation/errors';
-import { badRequest, serverError, ok } from '@/presentation/helpers';
+import { badRequest, serverError, ok, notFound } from '@/presentation/helpers';
 
 import {
   ValidationSpy,
@@ -78,5 +78,12 @@ describe('ConfirmationEmail Controller', () => {
     const { sut, confirmationEmailSpy } = makeSut();
     const httpResponse = await sut.handle(mockRequest());
     expect(httpResponse).toEqual(ok(confirmationEmailSpy.result));
+  });
+
+  it('should return 404 if ConfirmationEmail returns false', async () => {
+    const { sut, confirmationEmailSpy } = makeSut();
+    confirmationEmailSpy.result = false;
+    const httpResponse = await sut.handle(mockRequest());
+    expect(httpResponse).toEqual(notFound());
   });
 });
