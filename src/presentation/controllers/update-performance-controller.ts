@@ -10,7 +10,7 @@ export class UpdatePerformanceController implements Controller {
 
   async handle(
     request: UpdatePerformanceController.Request
-  ): Promise<HttpResponse> {
+  ): Promise<HttpResponse<LoadPerformance.Result>> {
     try {
       await this.updatePerformance.update(request);
       const performanceUpdated = await this.loadPerformance.loadByUserId(

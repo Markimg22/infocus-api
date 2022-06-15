@@ -17,7 +17,7 @@ export class UpdateStatusTaskController implements Controller {
 
   async handle(
     request: UpdateStatusTaskController.Request
-  ): Promise<HttpResponse> {
+  ): Promise<HttpResponse<LoadTasks.Result[]>> {
     try {
       const error = this.validation.validate(request);
       if (error) return badRequest(error);

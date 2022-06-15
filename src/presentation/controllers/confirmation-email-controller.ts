@@ -10,7 +10,7 @@ export class ConfirmationEmailController implements Controller {
 
   async handle(
     request: ConfirmationEmailController.Request
-  ): Promise<HttpResponse> {
+  ): Promise<HttpResponse<ConfirmationEmail.Result>> {
     try {
       const error = this.validation.validate(request);
       if (error) return badRequest(error);

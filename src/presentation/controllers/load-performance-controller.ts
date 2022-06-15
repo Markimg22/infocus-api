@@ -7,7 +7,7 @@ export class LoadPerformanceController implements Controller {
 
   async handle(
     request: LoadPerformanceController.Request
-  ): Promise<HttpResponse> {
+  ): Promise<HttpResponse<LoadPerformance.Result>> {
     try {
       const performance = await this.loadPerformance.loadByUserId(
         request.userId

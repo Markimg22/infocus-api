@@ -15,7 +15,9 @@ export class SignUpController implements Controller {
     private readonly sendEmailConfirmation: SendEmailConfirmation
   ) {}
 
-  async handle(request: SignUpController.Request): Promise<HttpResponse> {
+  async handle(
+    request: SignUpController.Request
+  ): Promise<HttpResponse<AuthenticationUser.Result | null>> {
     try {
       const error = this.validation.validate(request);
       if (error) return badRequest(error);

@@ -5,7 +5,9 @@ import { LoadTasks } from '@/domain/usecases';
 export class LoadTasksController implements Controller {
   constructor(private readonly loadTasks: LoadTasks) {}
 
-  async handle(request: LoadTasksController.Request): Promise<HttpResponse> {
+  async handle(
+    request: LoadTasksController.Request
+  ): Promise<HttpResponse<LoadTasks.Result[]>> {
     try {
       const tasks = await this.loadTasks.loadByUserId(request.userId);
       return ok(tasks);

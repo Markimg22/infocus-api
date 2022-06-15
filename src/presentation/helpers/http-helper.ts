@@ -1,4 +1,4 @@
-import { HttpResponse } from '@/presentation/protocols';
+import { HttpResponse, HttpStatusCode } from '@/presentation/protocols';
 import {
   ServerError,
   UnauthrorizedError,
@@ -8,66 +8,66 @@ import { logger } from '@/utils/log';
 
 export const badRequest = (error: Error): HttpResponse => {
   logger.error(`badRequest: {
-    statusCode: 400,
+    statusCode: ${HttpStatusCode.BAD_REQUEST},
     body: ${error.stack}
   }`);
   return {
-    statusCode: 400,
+    statusCode: HttpStatusCode.BAD_REQUEST,
     body: error,
   };
 };
 
 export const forbidden = (error: Error): HttpResponse => {
   logger.error(`forbidden: {
-    statusCode: 403,
+    statusCode: ${HttpStatusCode.FORBIDDEN},
     body: ${error.stack}
   }`);
   return {
-    statusCode: 403,
+    statusCode: HttpStatusCode.FORBIDDEN,
     body: error,
   };
 };
 
 export const ok = (data: any): HttpResponse => {
   logger.info(`ok: {
-    statusCode: 200,
+    statusCode: ${HttpStatusCode.OK},
     body: ${JSON.stringify(data)}
   }`);
   return {
-    statusCode: 200,
+    statusCode: HttpStatusCode.OK,
     body: data,
   };
 };
 
 export const serverError = (error: Error): HttpResponse => {
   logger.error(`serverError: {
-    statusCode: 500,
+    statusCode: ${HttpStatusCode.SERVER_ERROR},
     body: ${error.stack}
   }`);
   return {
-    statusCode: 500,
+    statusCode: HttpStatusCode.SERVER_ERROR,
     body: new ServerError(error.stack as string),
   };
 };
 
 export const unauthorized = (): HttpResponse => {
   logger.error(`unauthorized: {
-    statusCode: 401,
+    statusCode: ${HttpStatusCode.UNAUTHORIZED},
     body: ${new UnauthrorizedError()}
   }`);
   return {
-    statusCode: 401,
+    statusCode: HttpStatusCode.UNAUTHORIZED,
     body: new UnauthrorizedError(),
   };
 };
 
 export const notFound = (): HttpResponse => {
   logger.error(`notFound: {
-    statusCode: 404,
+    statusCode: ${HttpStatusCode.NOT_FOUND},
     body: ${new NotFoundError()}
   }`);
   return {
-    statusCode: 404,
+    statusCode: HttpStatusCode.NOT_FOUND,
     body: new NotFoundError(),
   };
 };

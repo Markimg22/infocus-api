@@ -9,7 +9,9 @@ export class CreateTaskController implements Controller {
     private readonly loadTasks: LoadTasks
   ) {}
 
-  async handle(request: CreateTaskController.Request): Promise<HttpResponse> {
+  async handle(
+    request: CreateTaskController.Request
+  ): Promise<HttpResponse<LoadTasks.Result[]>> {
     try {
       const error = this.validation.validate(request);
       if (error) return badRequest(error);

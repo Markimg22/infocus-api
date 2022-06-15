@@ -9,7 +9,9 @@ export class DeleteTaskController implements Controller {
     private readonly loadTasks: LoadTasks
   ) {}
 
-  async handle(request: DeleteTaskController.Request): Promise<HttpResponse> {
+  async handle(
+    request: DeleteTaskController.Request
+  ): Promise<HttpResponse<LoadTasks.Result[]>> {
     try {
       const taskDeleted = await this.deleteTask.delete(request);
       if (!taskDeleted) return forbidden(new InvalidParamError('id'));

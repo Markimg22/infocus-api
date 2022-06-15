@@ -13,7 +13,9 @@ export class LoginController implements Controller {
     private readonly authenticationUser: AuthenticationUser
   ) {}
 
-  async handle(request: LoginController.Request): Promise<HttpResponse> {
+  async handle(
+    request: LoginController.Request
+  ): Promise<HttpResponse<AuthenticationUser.Result>> {
     try {
       const error = this.validation.validate(request);
       if (error) return badRequest(error);
