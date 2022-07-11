@@ -36,6 +36,7 @@
     "no-use-before-define": "off",
     "no-console": "off",
     "consistent-return": "off",
-    "no-shadow": "off"
+    "no-shadow": "off",
+    "import/no-useless-path-segments": "off"
   }
 }
